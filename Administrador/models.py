@@ -5,7 +5,7 @@ class Facultad(models.Model):
     nombre = models.CharField(max_length=100, verbose_name='Nombre de la Facultad', primary_key=True)
     sigla = models.CharField(max_length=20, verbose_name='Nombre corto de la Facultad')
     fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True)
+    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombre)
@@ -14,7 +14,7 @@ class Carrera(models.Model):
     nombre = models.CharField(max_length=100, verbose_name='Nombre de la Carrera', primary_key=True)
     idFacultad = models.ForeignKey(Facultad, verbose_name='Facultad', on_delete=CASCADE)
     fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True)
+    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombre)
@@ -27,7 +27,7 @@ class Estudiante(models.Model):
     celular = models.CharField(max_length=10, verbose_name='Celular')
     foto = models.ImageField(verbose_name='Fotografía', upload_to='estudiantes', null = True, blank = True)
     fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True)
+    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
         txt = '{0} {1}'
         return txt.format(self.nombre, self.apellido)
@@ -42,7 +42,7 @@ class ListaVerificacion(models.Model):
     observacion = models.TextField(max_length=100, verbose_name='Observación', null = True, blank = True)
     cumplimiento = models.BooleanField(default=False, verbose_name='Cumplimiento')
     fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True)
+    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
 class Docente(models.Model):
     nombre = models.CharField(max_length=100, verbose_name='Nombre')
     apellido = models.CharField(max_length=100, verbose_name='Apellido')
@@ -51,7 +51,7 @@ class Docente(models.Model):
     celular = models.CharField(max_length=10, verbose_name='Celular')
     foto = models.ImageField(verbose_name='Fotografía', upload_to='estudiantes', null = True, blank = True)
     fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True)
+    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
         txt = '{0} {1}'
         return txt.format(self.nombre, self.apellido)
@@ -71,7 +71,7 @@ class Proyecto(models.Model):
     idDocente = models.ForeignKey(Docente, verbose_name='Docente', on_delete=CASCADE)
     idEstudiantes = models.ManyToManyField(Estudiante)
     fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True)
+    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombre)
@@ -105,7 +105,7 @@ class Tribunal(models.Model):
     fechaDefensa = models.DateTimeField()
     aula = models.CharField(choices=aulas, verbose_name='Aula de defensa asignada', max_length=2)
     fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True)
+    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
         txt = '{0} - {1}'
         return txt.format(self.aula, self.fechaDefensa)
