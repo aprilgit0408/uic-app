@@ -38,7 +38,7 @@ class ListaVerificacion(models.Model):
         (3,'Cronograma de trabajo.')
     ]
     idEstudiante = models.ForeignKey(Estudiante, verbose_name='Estudiante', on_delete=CASCADE)
-    nombreArchivo = models.TextField(max_length=100, verbose_name='Detalle', choices=detalles)
+    nombreArchivo = models.PositiveIntegerField(max_length=100, verbose_name='Detalle', choices=detalles)
     observacion = models.TextField(max_length=100, verbose_name='Observación', null = True, blank = True)
     cumplimiento = models.BooleanField(default=False, verbose_name='Cumplimiento')
     fechaCreacion = models.DateField(auto_now_add=True)
@@ -57,9 +57,9 @@ class Docente(models.Model):
         return txt.format(self.nombre, self.apellido)
 class Nivel(models.Model):
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Nivel')
-    periodoInicio = models.CharField(max_length=100, verbose_name='Periodo de inicio de Proyecto')
-    periodoFin = models.CharField(max_length=100, verbose_name='Periodo de fin de Proyecto')
-    periodoActual = models.CharField(max_length=100, verbose_name='Periodo Actual')
+    periodoInicio = models.DateField( verbose_name='Periodo de inicio de Proyecto')
+    periodoFin = models.DateField( verbose_name='Periodo de fin de Proyecto', null = True, blank = True)
+    periodoActual = models.DateField( verbose_name='Periodo Actual')
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombre)
@@ -69,7 +69,7 @@ class Proyecto(models.Model):
     idNivel = models.ForeignKey(Nivel, verbose_name='Nivel', on_delete=CASCADE)
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Proyecto')
     idDocente = models.ForeignKey(Docente, verbose_name='Docente', on_delete=CASCADE)
-    idEstudiantes = models.ManyToManyField(Estudiante)
+    idEstudiantes = models.ManyToManyField(Estudiante, verbose_name='Listado de Estudiantes')
     fechaCreacion = models.DateField(auto_now_add=True)
     fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
@@ -103,7 +103,7 @@ class Tribunal(models.Model):
     # segundoDocenteSuplente = models.ForeignKey(Docente, on_delete=CASCADE, verbose_name='Segundo Docente Suplente')
     # terceroDocenteSuplente = models.ForeignKey(Docente, on_delete=CASCADE, verbose_name='Tercer Docente Suplente')
     fechaDefensa = models.DateTimeField()
-    aula = models.CharField(choices=aulas, verbose_name='Aula de defensa asignada', max_length=2)
+    aula = models.PositiveIntegerField(choices=aulas, verbose_name='Aula de defensa asignada', max_length=2)
     fechaCreacion = models.DateField(auto_now_add=True)
     fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
