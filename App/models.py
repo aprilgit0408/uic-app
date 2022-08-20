@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.deletion import CASCADE
+from uicApp.settings import *
 # Registro de los modelos de la base de datos
 class Facultad(models.Model):
     nombre = models.CharField(max_length=100, verbose_name='Nombre de la Facultad', primary_key=True)
@@ -31,6 +32,10 @@ class Estudiante(models.Model):
     def __str__(self) -> str:
         txt = '{0} {1}'
         return txt.format(self.nombre, self.apellido)
+    def getFoto(self):
+        if self.foto:
+            return '{}{}'.format(MEDIA_URL, self.foto)
+        return '{}{}'.format(STATIC_URL, 'images/default.jpg')
 class ListaVerificacion(models.Model):
     detalles = [
         (1,'Solicitud de opción de titulación/Certificado de idoneidad.'),
@@ -39,19 +44,25 @@ class ListaVerificacion(models.Model):
     ]
     idEstudiante = models.ForeignKey(Estudiante, verbose_name='Estudiante', on_delete=CASCADE)
     nombreArchivo = models.PositiveIntegerField(verbose_name='Detalle', choices=detalles)
-    observacion = models.TextField(max_length=100, verbose_name='Observación', null = True, blank = True)
     cumplimiento = models.BooleanField(default=False, verbose_name='Cumplimiento')
+    observacion = models.TextField(max_length=100, verbose_name='Observación', null = True, blank = True)
     fechaCreacion = models.DateField(auto_now_add=True)
     fechaModificacion= models.DateField(null = True, blank = True, editable=False)
+    def getNombreArchivo(self):
+        return f'{self.detalles[self.nombreArchivo][1]}'
 class Docente(models.Model):
     nombre = models.CharField(max_length=100, verbose_name='Nombre')
     apellido = models.CharField(max_length=100, verbose_name='Apellido')
     email = models.CharField(max_length=100, verbose_name='E-mail')
     direccion = models.CharField(max_length=100, verbose_name='Dirección')
     celular = models.CharField(max_length=10, verbose_name='Celular')
-    foto = models.ImageField(verbose_name='Fotografía', upload_to='estudiantes', null = True, blank = True)
+    foto = models.ImageField(verbose_name='Fotografía', upload_to='docentes', null = True, blank = True)
     fechaCreacion = models.DateField(auto_now_add=True)
     fechaModificacion= models.DateField(null = True, blank = True, editable=False)
+    def getFoto(self):
+        if self.foto:
+            return '{}{}'.format(MEDIA_URL, self.foto)
+        return '{}{}'.format(STATIC_URL, 'images/default.jpg')
     def __str__(self) -> str:
         txt = '{0} {1}'
         return txt.format(self.nombre, self.apellido)

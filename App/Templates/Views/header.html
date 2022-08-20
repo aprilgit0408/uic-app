@@ -64,16 +64,15 @@
                         {% block nav %}
                         <li><a class="nav-link active" href="{% url 'app:index' %}">Inicio</a></li>
                         <!-- <li><a class="nav-link" href="courses.html">Documentos</a></li> -->
+						<li><a class="nav-link" href="{% url 'app:facultades' %}">Facultades</a></li>
+						<li><a class="nav-link" href="{% url 'app:carreras' %}">Carreras</a></li>
 						<li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
+						<li><a class="nav-link" href="{% url 'app:docentes' %}">Docentes</a></li>
+						<li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Lista de Verificación</a></li>
+						<li><a class="nav-link" href="{% url 'app:estudiantes' %}">Estudiantes</a></li>
 						<li><a class="nav-link" href="">Inicia Sesión</a></li>
                         {% endblock nav %}
                     </ul>
-                </div>
-                <div class="search-box">
-                    <input type="text" class="search-txt" placeholder="Search">
-                    <a class="search-btn">
-                        <img src="{% static 'images/search_icon.png' %}" alt="#" />
-                    </a>
                 </div>
             </div>
         </nav>

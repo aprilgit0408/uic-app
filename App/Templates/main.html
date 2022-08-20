@@ -17,6 +17,11 @@
                         {% else %}
                             {{form}}
                         {% endif %}
+                        
+                        {% if editarValor %}
+                        <input type="hidden" name="fechaModificacion" value="{{editarValor}}" >
+                        {% endif %}
+                            
                 </div>
                 <div class="card-footer">
                     <td class="header" scope="col">
