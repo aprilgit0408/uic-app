@@ -1,6 +1,10 @@
 from django.db import models
 from django.db.models.deletion import CASCADE
 from uicApp.settings import *
+from django.contrib.auth.models import AbstractUser
+from django.forms import model_to_dict
+from django.core import validators
+from django.utils.deconstruct import deconstructible
 # Registro de los modelos de la base de datos
 class Facultad(models.Model):
     nombre = models.CharField(max_length=100, verbose_name='Nombre de la Facultad', primary_key=True)
@@ -21,6 +25,7 @@ class Carrera(models.Model):
         return txt.format(self.nombre)
 class Estudiante(models.Model):
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE)
+    cedula = models.CharField(max_length=100, verbose_name='Cédula', primary_key=True)
     nombre = models.CharField(max_length=100, verbose_name='Nombre')
     apellido = models.CharField(max_length=100, verbose_name='Apellido')
     email = models.CharField(max_length=100, verbose_name='E-mail')
@@ -51,6 +56,7 @@ class ListaVerificacion(models.Model):
     def getNombreArchivo(self):
         return f'{self.detalles[self.nombreArchivo][1]}'
 class Docente(models.Model):
+    cedula = models.CharField(max_length=100, verbose_name='Cédula', primary_key=True)
     nombre = models.CharField(max_length=100, verbose_name='Nombre')
     apellido = models.CharField(max_length=100, verbose_name='Apellido')
     email = models.CharField(max_length=100, verbose_name='E-mail')
@@ -127,3 +133,56 @@ class Tribunal(models.Model):
     def __str__(self) -> str:
         txt = '{0} - {1}'
         return txt.format(self.aula, self.fechaDefensa)
+    
+    
+    
+    
+#Creación de usuarios para la administración del sitio Web
+class Usuarios(AbstractUser):
+    perfiles = [
+        (1, 'Estudiante'),
+        (2, 'Docente'),
+        (2, 'Decano'),
+        ]
+    @deconstructible
+    class UnicodeUsernameValidator(validators.RegexValidator):
+        regex = r'^[\w.@+-]+\Z'
+        message = (
+            'Enter a valid username. This value may contain only letters, '
+            'numbers, and @/./+/-/_ characters.'
+        )
+        flags = 0
+    imagen = models.ImageField(verbose_name='Imagen', upload_to='users', null = True, blank = True)
+    perfile = models.PositiveIntegerField(choices=perfiles, verbose_name='Perfil', default=1)
+    celular = models.CharField(max_length=10, verbose_name='Celular')
+    username_validator = UnicodeUsernameValidator
+    idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE, null=True, blank=True)
+    username = models.CharField(
+        ('Usuario'),
+        max_length=13,
+        unique=True,
+        help_text=('Se requiere al menos 10 catacteres'),
+        validators=[username_validator],
+        error_messages={
+            'unique': ("Un usuario con esta cédula ya se encuentra registrado"),
+        },
+    )   
+    def get_image(self):
+        if self.imagen:
+            return '{}{}'.format(MEDIA_URL, self.imagen)
+        return '{}{}'.format(STATIC_URL, 'app/img/default.png')
+    def toJSON(self):
+        txt = model_to_dict(self)
+        if self.last_login:
+            txt['last_login'] = self.last_login.strftime('%Y-%m-%d %H:%M:%S')
+        txt['date_joined'] = self.date_joined.strftime('%Y-%m-%d %H:%M:%S')
+        txt['imagen'] = self.get_image()
+        return txt
+    def clean(self):
+        super().clean()
+    # def save(self, *args, **kwargs):
+    #     if self.pk and len(self.password)!= 88:
+    #         self.set_password(self.password)
+    #     if self.pk is None:
+    #         self.set_password(self.password)
+    

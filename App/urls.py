@@ -2,6 +2,7 @@ from django.urls import path
 
 from App.Modules.Facultades.view import listarFacultades, addFacultades, editFacultades, deleteFacultades
 from App.Modules.Carreras.view import listarCarreras, addCarreras, editCarreras, deleteCarreras
+from App.Modules.Login.views import Login,LogoutView
 from App.Modules.Verificacion.view import listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
 from App.Modules.Proyectos.view import listarProyectos, addProyectos, editProyectos, deleteProyectos
 from App.Modules.Docentes.view import listarDocentes, addDocentes, editDocentes, deleteDocentes
@@ -49,5 +50,7 @@ urlpatterns = [
     
     
     path('',  Index.as_view(), name='index'),
+    path('login/',  Login.as_view(), name='login'),
+    path('logout/',LogoutView.as_view(), name='logout'),
     path('index',  Index.as_view(), name='index')
 ]
