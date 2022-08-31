@@ -23,31 +23,52 @@ class Carrera(models.Model):
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombre)
-class Estudiante(models.Model):
-    idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE)
-    cedula = models.CharField(max_length=100, verbose_name='Cédula', primary_key=True)
-    nombre = models.CharField(max_length=100, verbose_name='Nombre')
-    apellido = models.CharField(max_length=100, verbose_name='Apellido')
-    email = models.CharField(max_length=100, verbose_name='E-mail')
-    direccion = models.CharField(max_length=100, verbose_name='Dirección')
-    celular = models.CharField(max_length=10, verbose_name='Celular')
-    foto = models.ImageField(verbose_name='Fotografía', upload_to='estudiantes', null = True, blank = True)
-    fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
+#Creación de usuarios para la administración del sitio Web
+class Perfiles(models.Model):
+    nombre = models.CharField(max_length=20, verbose_name='Perfiles', primary_key=True)
     def __str__(self) -> str:
-        txt = '{0} {1}'
-        return txt.format(self.nombre, self.apellido)
-    def getFoto(self):
-        if self.foto:
-            return '{}{}'.format(MEDIA_URL, self.foto)
-        return '{}{}'.format(STATIC_URL, 'images/default.jpg')
+        return '{}'.format(self.nombre)
+class Usuarios(AbstractUser):
+    @deconstructible
+    class UnicodeUsernameValidator(validators.RegexValidator):
+        regex = r'^[\w.@+-]+\Z'
+        message = (
+            'Enter a valid username. This value may contain only letters, '
+            'numbers, and @/./+/-/_ characters.'
+        )
+        flags = 0
+    imagen = models.ImageField(verbose_name='Imagen', upload_to='users', null = True, blank = True)
+    perfil = models.ForeignKey(Perfiles, verbose_name='Perfil', default='Estudiante', on_delete=CASCADE, null=True, blank=True)
+    celular = models.CharField(max_length=10, verbose_name='Celular')
+    username_validator = UnicodeUsernameValidator
+    idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE, null=True, blank=True)
+    username = models.CharField(
+        ('Usuario'),
+        max_length=13,
+        unique=True,
+        help_text=('Se requiere al menos 10 catacteres'),
+        validators=[username_validator],
+        error_messages={
+            'unique': ("Un usuario con esta cédula ya se encuentra registrado"),
+        },
+    )   
+    def get_image(self):
+        if self.imagen:
+            return '{}{}'.format(MEDIA_URL, self.imagen)
+        return '{}{}'.format(STATIC_URL, 'app/img/default.png')
+    def getInformacion(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+    def clean(self):
+        super().clean()
+    
+
 class ListaVerificacion(models.Model):
     detalles = [
         (1,'Solicitud de opción de titulación/Certificado de idoneidad.'),
         (2,'Oficio o correo electrónico de llamado para elaborar el cronograma.'),
         (3,'Cronograma de trabajo.')
     ]
-    idEstudiante = models.ForeignKey(Estudiante, verbose_name='Estudiante', on_delete=CASCADE)
+    idEstudiante = models.ForeignKey(Usuarios, verbose_name='Estudiante', on_delete=CASCADE)
     nombreArchivo = models.PositiveIntegerField(verbose_name='Detalle', choices=detalles)
     cumplimiento = models.BooleanField(default=False, verbose_name='Cumplimiento')
     observacion = models.TextField(max_length=100, verbose_name='Observación', null = True, blank = True)
@@ -55,23 +76,6 @@ class ListaVerificacion(models.Model):
     fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def getNombreArchivo(self):
         return f'{self.detalles[self.nombreArchivo][1]}'
-class Docente(models.Model):
-    cedula = models.CharField(max_length=100, verbose_name='Cédula', primary_key=True)
-    nombre = models.CharField(max_length=100, verbose_name='Nombre')
-    apellido = models.CharField(max_length=100, verbose_name='Apellido')
-    email = models.CharField(max_length=100, verbose_name='E-mail')
-    direccion = models.CharField(max_length=100, verbose_name='Dirección')
-    celular = models.CharField(max_length=10, verbose_name='Celular')
-    foto = models.ImageField(verbose_name='Fotografía', upload_to='docentes', null = True, blank = True)
-    fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
-    def getFoto(self):
-        if self.foto:
-            return '{}{}'.format(MEDIA_URL, self.foto)
-        return '{}{}'.format(STATIC_URL, 'images/default.jpg')
-    def __str__(self) -> str:
-        txt = '{0} {1}'
-        return txt.format(self.nombre, self.apellido)
 class Nivel(models.Model):
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Nivel')
     periodoInicio = models.DateField( verbose_name='Periodo de inicio de Proyecto')
@@ -82,11 +86,15 @@ class Nivel(models.Model):
         return txt.format(self.nombre)
 
 class Proyecto(models.Model):
+    usuarios = []
+    for user in Usuarios.objects.all():
+        nombre = user.getInformacion()
+        usuarios.append((user.pk, nombre))
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE)
     idNivel = models.ForeignKey(Nivel, verbose_name='Nivel', on_delete=CASCADE)
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Proyecto')
-    idDocente = models.ForeignKey(Docente, verbose_name='Docente', on_delete=CASCADE)
-    idEstudiantes = models.ManyToManyField(Estudiante, verbose_name='Listado de Estudiantes')
+    idDocente = models.CharField(choices=usuarios, verbose_name='Docente', max_length=13)
+    idEstudiantes = models.ManyToManyField(Usuarios, verbose_name='Listado de Estudiantes')
     fechaCreacion = models.DateField(auto_now_add=True)
     fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
@@ -108,6 +116,10 @@ class Avance(models.Model):
         txt = '{0}'
         return txt.format(self.nombreAvance)
 class Tribunal(models.Model):
+    usuarios = []
+    for user in Usuarios.objects.all():
+        nombre = user.getInformacion()
+        usuarios.append((user.pk, nombre))
     aulas = [
         (1, 'Aula 1'),
         (2, 'Aula 2'),
@@ -120,12 +132,12 @@ class Tribunal(models.Model):
         (9, 'Aula 9')
         ]
     idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
-    # primerDocente = models.ForeignKey(Docente, on_delete=CASCADE,to_field='primerDocente', verbose_name='Primer Docente')
-    # segundoDocente = models.ForeignKey(Docente, on_delete=CASCADE, to_field='segundoDocente', verbose_name='Segundo Docente')
-    # terceroDocente = models.ForeignKey(Docente, on_delete=CASCADE, verbose_name='Tercer Docente')
-    # primerDocenteSuplente = models.ForeignKey(Docente, on_delete=CASCADE, verbose_name='Primer Docente Suplente')
-    # segundoDocenteSuplente = models.ForeignKey(Docente, on_delete=CASCADE, verbose_name='Segundo Docente Suplente')
-    # terceroDocenteSuplente = models.ForeignKey(Docente, on_delete=CASCADE, verbose_name='Tercer Docente Suplente')
+    primerDocente = models.CharField(choices=usuarios, max_length=15, verbose_name='Primer Docente')
+    segundoDocente = models.CharField(choices=usuarios, max_length=15, verbose_name='Segundo Docente')
+    terceroDocente = models.CharField(choices=usuarios, max_length=15, verbose_name='Tercer Docente')
+    primerDocenteSuplente = models.CharField(choices=usuarios, max_length=15, verbose_name='Primer Docente Suplente')
+    segundoDocenteSuplente = models.CharField(choices=usuarios, max_length=15, verbose_name='Segundo Docente Suplente')
+    terceroDocenteSuplente = models.CharField(choices=usuarios, max_length=15, verbose_name='Tercer Docente Suplente')
     fechaDefensa = models.DateTimeField()
     aula = models.PositiveIntegerField(choices=aulas, verbose_name='Aula de defensa asignada')
     fechaCreacion = models.DateField(auto_now_add=True)
@@ -133,56 +145,18 @@ class Tribunal(models.Model):
     def __str__(self) -> str:
         txt = '{0} - {1}'
         return txt.format(self.aula, self.fechaDefensa)
+class Imagenes(models.Model):
+    nombre = models.CharField(max_length=10, verbose_name='Nombre')
+    imagen = models.ImageField(verbose_name='Imagen', upload_to='informacion', null = True, blank = True)
+    def __str__(self) -> str:
+        return '{}'.format(self.nombre)
+
+class Informacion(models.Model):
+    nombre = models.CharField(max_length=10, verbose_name='Nombre')
+    detalle = models.TextField(max_length=100, verbose_name='Detalles', null = True, blank = True)
+    imagen = models.ManyToManyField(Imagenes,verbose_name='Imagen', blank = True)
+    def __str__(self) -> str:
+        return '{} {}'.format(self.nombre, self.detalle)
     
     
-    
-    
-#Creación de usuarios para la administración del sitio Web
-class Usuarios(AbstractUser):
-    perfiles = [
-        (1, 'Estudiante'),
-        (2, 'Docente'),
-        (2, 'Decano'),
-        ]
-    @deconstructible
-    class UnicodeUsernameValidator(validators.RegexValidator):
-        regex = r'^[\w.@+-]+\Z'
-        message = (
-            'Enter a valid username. This value may contain only letters, '
-            'numbers, and @/./+/-/_ characters.'
-        )
-        flags = 0
-    imagen = models.ImageField(verbose_name='Imagen', upload_to='users', null = True, blank = True)
-    perfile = models.PositiveIntegerField(choices=perfiles, verbose_name='Perfil', default=1)
-    celular = models.CharField(max_length=10, verbose_name='Celular')
-    username_validator = UnicodeUsernameValidator
-    idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE, null=True, blank=True)
-    username = models.CharField(
-        ('Usuario'),
-        max_length=13,
-        unique=True,
-        help_text=('Se requiere al menos 10 catacteres'),
-        validators=[username_validator],
-        error_messages={
-            'unique': ("Un usuario con esta cédula ya se encuentra registrado"),
-        },
-    )   
-    def get_image(self):
-        if self.imagen:
-            return '{}{}'.format(MEDIA_URL, self.imagen)
-        return '{}{}'.format(STATIC_URL, 'app/img/default.png')
-    def toJSON(self):
-        txt = model_to_dict(self)
-        if self.last_login:
-            txt['last_login'] = self.last_login.strftime('%Y-%m-%d %H:%M:%S')
-        txt['date_joined'] = self.date_joined.strftime('%Y-%m-%d %H:%M:%S')
-        txt['imagen'] = self.get_image()
-        return txt
-    def clean(self):
-        super().clean()
-    # def save(self, *args, **kwargs):
-    #     if self.pk and len(self.password)!= 88:
-    #         self.set_password(self.password)
-    #     if self.pk is None:
-    #         self.set_password(self.password)
     

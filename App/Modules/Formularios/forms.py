@@ -48,26 +48,3 @@ class formularioProyectos(ModelForm):
     class Meta:
         model = Proyecto
         fields = '__all__'
-class formularioDocentes(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
-        self.fields['nombre'].widget.attrs['autofocus'] = True
-
-    class Meta:
-        model = Docente
-        fields = '__all__'
-
-class formularioEstudiantes(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
-        self.fields['nombre'].widget.attrs['autofocus'] = True
-
-    class Meta:
-        model = Estudiante
-        fields = '__all__'

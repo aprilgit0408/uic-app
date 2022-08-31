@@ -5,8 +5,6 @@ from App.Modules.Carreras.view import listarCarreras, addCarreras, editCarreras,
 from App.Modules.Login.views import Login,LogoutView
 from App.Modules.Verificacion.view import listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
 from App.Modules.Proyectos.view import listarProyectos, addProyectos, editProyectos, deleteProyectos
-from App.Modules.Docentes.view import listarDocentes, addDocentes, editDocentes, deleteDocentes
-from App.Modules.Estudiantes.view import listarEstudiantes, addEstudiantes, editEstudiantes, deleteEstudiantes
 
 from App.views import Index
 app_name = 'app'
@@ -34,19 +32,6 @@ urlpatterns = [
     path('app/proyectos/add',  addProyectos.as_view(), name='addProyectos'),
     path('app/proyectos/edit/<int:pk>',  editProyectos.as_view(), name='editProyectos'),
     path('app/proyectos/delete/<int:pk>',  deleteProyectos.as_view(), name='deleteProyectos'),
-    
-    # Serivicio Para los Docentes
-    path('app/docentes/',  listarDocentes.as_view(), name='docentes'),
-    path('app/docentes/add',  addDocentes.as_view(), name='addDocentes'),
-    path('app/docentes/edit/<int:pk>',  editDocentes.as_view(), name='editDocentes'),
-    path('app/docentes/delete/<int:pk>',  deleteDocentes.as_view(), name='deleteDocentes'),
-    
-    # Serivicio Para los Estudiantes
-    path('app/estudiantes/',  listarEstudiantes.as_view(), name='estudiantes'),
-    path('app/estudiantes/add',  addEstudiantes.as_view(), name='addEstudiantes'),
-    path('app/estudiantes/edit/<int:pk>',  editEstudiantes.as_view(), name='editEstudiantes'),
-    path('app/estudiantes/delete/<int:pk>',  deleteEstudiantes.as_view(), name='deleteEstudiantes'),
-    
     
     
     path('',  Index.as_view(), name='index'),
