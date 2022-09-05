@@ -1,3 +1,4 @@
+from urllib import request
 from django.db import models
 from django.db.models.deletion import CASCADE
 from uicApp.settings import *
@@ -56,6 +57,8 @@ class Usuarios(AbstractUser):
         if self.imagen:
             return '{}{}'.format(MEDIA_URL, self.imagen)
         return '{}{}'.format(STATIC_URL, 'app/img/default.png')
+    def __str__(self):
+        return '{} {}'.format(self.first_name, self.last_name)
     def getInformacion(self):
         return '{} {}'.format(self.first_name, self.last_name)
     def clean(self):
@@ -89,7 +92,8 @@ class Proyecto(models.Model):
     usuarios = []
     for user in Usuarios.objects.all():
         nombre = user.getInformacion()
-        usuarios.append((user.pk, nombre))
+        if user.perfil.nombre == 'Docente':
+            usuarios.append((str(user.pk), nombre))
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE)
     idNivel = models.ForeignKey(Nivel, verbose_name='Nivel', on_delete=CASCADE)
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Proyecto')
@@ -106,6 +110,8 @@ class Proyecto(models.Model):
             ul += f'<ul> {estudiante} </ul>'
         ul += '</ul>'
         return ul
+    def getDocente(self):
+        return Usuarios.objects.get(pk = self.idDocente)
         
 class Avance(models.Model):
     idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)

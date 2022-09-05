@@ -30,7 +30,8 @@
     <link rel="stylesheet" href="{% static 'css/responsive.css' %}" />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
-
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" />
+    <script src="{% static 'js/jquery.min.js' %}"></script>
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
       <script src="https://oss.maxcdn.com/libs/respond.{% static 'js/1.4.2/respond.min.js' %}"></script>
@@ -53,7 +54,8 @@
     <header class="top-header">
         <nav class="navbar header-nav navbar-expand-lg">
             <div class="container-fluid">
-                <a class="navbar-brand" href="{% url 'app:index' %}"><img src="{% static 'images/logo.png' %}" alt="image"></a>
+                <!-- <a class="navbar-brand" href="{% url 'app:index' %}"><img src="{% static 'images/logo.png' %}" alt="image"></a> -->
+                <a class="navbar-brand" href="/admin"><img src="{% static 'images/logo.png' %}" alt="image"></a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-wd" aria-controls="navbar-wd" aria-expanded="false" aria-label="Toggle navigation">
                     <span></span>
                     <span></span>
@@ -62,17 +64,57 @@
                 <div class="collapse navbar-collapse justify-content-end" id="navbar-wd">
                     <ul class="navbar-nav">
                         {% block nav %}
-                        <li><a class="nav-link active" href="{% url 'app:index' %}">Inicio</a></li>
                         <!-- <li><a class="nav-link" href="courses.html">Documentos</a></li> -->
-						<li><a class="nav-link" href="{% url 'app:facultades' %}">Facultades</a></li>
-						<li><a class="nav-link" href="{% url 'app:carreras' %}">Carreras</a></li>
-						<li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
-						<li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Lista de Verificación</a></li>
-                        {% if request.user.pk %}
-                            <li><a class="nav-link" href="{% url 'app:logout' %}">Cerrar Sesión</a></li>
+                        {% if request.user.pk and request.user.groups.all %}
+                            {% for grupo in request.user.groups.all %}
+                                {% if grupo.name == 'Admin' %}
+                                    <li><a class="nav-link" href="{% url 'app:facultades' %}">Facultades</a></li>
+                                    <li><a class="nav-link" href="{% url 'app:carreras' %}">Carreras</a></li>
+                                    <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
+                                    <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">CheckList</a></li>
+                                    <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Tribunal</a></li>
+                                    <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Documentación</a></li>
+                                {% elif grupo.name == 'Docente' %}
+                                    <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
+                                    <li><a class="nav-link" href="{% url 'app:proyectos' %}">Estudiantes</a></li>
+                                    <li><a class="nav-link" href="{% url 'app:proyectos' %}">Tribunal</a></li>
+                                    <li><a class="nav-link" href="{% url 'app:proyectos' %}">Tutorías</a></li>
+                                    <li><a class="nav-link" href="{% url 'app:proyectos' %}">Documentación</a></li>
+                                {% elif grupo.name == 'Estudiante' %}
+                                    <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
+                                    <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">CheckList</a></li>
+
+                                {% endif %}
+                            {% endfor %}
                         {% else %}
-                            <li><a class="nav-link" href="{% url 'app:login' %}">Inicia Sesión</a></li>
+                            <li><a class="nav-link active" href="{% url 'app:index' %}">Inicio</a></li>
+                            <li><a class="nav-link" href="">Documentación General</a></li>
+                            <li><a class="nav-link" href="">Misión</a></li>
+                            <li><a class="nav-link" href="">Visión</a></li>
+                            <li><a class="nav-link" href="">UPEC</a></li>
                         {% endif %}
+                            
+                        
+                        <!-- sesión de usuarios  -->
+                        <div class="btn-group">
+                            {% if request.user.pk %}
+                            <button type="button" class="btn btn-outline-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              {{request.user.getInformacion}}
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="" ><b>{{request.user.perfil}}</b></a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="">Editar Perfil</a>
+                                <a class="dropdown-item" href="#">Configuración</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'app:logout' %}">Cerrar Sesión</a>
+                              </div>
+                            {% else %}
+                            <a type="button" href="{% url 'app:login' %}" class="btn btn-outline-secondary" aria-haspopup="true" aria-expanded="true">
+                              Iniciar Sesión
+                            </a>
+                            {% endif %}
+                        </div>
                         {% endblock nav %}
                     </ul>
                 </div>
@@ -466,9 +508,12 @@
 
 
     <a href="#" id="scroll-to-top" class="hvr-radial-out"><i class="fa fa-angle-up"></i></a>
-
+    
     <!-- ALL JS FILES -->
-    <script src="{% static 'js/jquery.min.js' %}"></script>
+    
+    <!-- <script src="{% static 'js/jquery.min.js' %}"></script> -->
+    <script src="{% static 'js/dataTables.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
 	<script src="{% static 'js/popper.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <!-- ALL PLUGINS -->
@@ -481,7 +526,6 @@
     <script src="{% static 'js/isotope.min.js' %}"></script>
     <script src="{% static 'js/images-loded.min.js' %}"></script>
     <script src="{% static 'js/custom.js' %}"></script>
-    <script src="{% static 'js/main.js' %}"></script>
 	<script>
 	/* counter js */
 

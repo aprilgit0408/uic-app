@@ -2,9 +2,10 @@ from django.db import models
 from django.views.generic import CreateView, ListView
 from django.views.generic.edit import DeleteView, UpdateView
 from django.shortcuts import redirect
-from django import forms
+from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioCarreras
 from App.models import Carrera
+from django.http.response import JsonResponse
 from django.urls import reverse_lazy
 modelo = Carrera
 formulario = formularioCarreras
@@ -13,7 +14,7 @@ main = 'main.html'
 url = reverse_lazy(f'app:{entidad.lower()}')
 
 
-class listarCarreras(ListView):
+class listarCarreras(LoginRequiredMixin, ListView):
     model = modelo
     template_name = f'{entidad}/listado.html'
 
@@ -27,9 +28,29 @@ class listarCarreras(ListView):
         context['title'] = f'{entidad}'
         context['listado'] = f'Listado de {entidad}'
         return context
+    def post(self, request, *args, **kwargs):
+        data = []
+        try:
+            btn = ''
+            for i in modelo.objects.all():
+                data.append([
+                    cont,
+                    i.carrera,
+                    i.nivel,
+                    i.nombreCompleto(),
+                    i.celular,
+                    i.direccion, 
+                    i.email,
+                    btn
+                ])
+                cont +=1
+        except Exception as e:
+            print('Error Empleados l-54 ',e)
+            data = {}
+        return JsonResponse(data, safe=False)
 
 
-class addCarreras(CreateView):
+class addCarreras(LoginRequiredMixin, CreateView):
     model = modelo
     form_class = formulario
     template_name = main
@@ -46,7 +67,7 @@ class addCarreras(CreateView):
         return context
 
 
-class editCarreras(UpdateView):
+class editCarreras(LoginRequiredMixin, UpdateView):
     model = modelo
     form_class = formulario
     template_name = main
@@ -65,7 +86,7 @@ class editCarreras(UpdateView):
         return context
 
 
-class deleteCarreras(DeleteView):
+class deleteCarreras(LoginRequiredMixin, DeleteView):
     model = modelo
     form_class = formulario
     template_name = main

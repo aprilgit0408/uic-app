@@ -2,7 +2,7 @@ from django.db import models
 from django.views.generic import CreateView, ListView
 from django.views.generic.edit import DeleteView, UpdateView
 from django.shortcuts import redirect
-from django import forms
+from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioListaVerificaciones
 from App.models import ListaVerificacion
 from django.urls import reverse_lazy
@@ -14,7 +14,7 @@ main = 'main.html'
 url = reverse_lazy('app:listaVerificaciones')
 
 
-class listarListaVerificaciones(ListView):
+class listarListaVerificaciones(LoginRequiredMixin, ListView):
     model = modelo
     template_name = 'Verificacion/listado.html'
 
@@ -30,7 +30,7 @@ class listarListaVerificaciones(ListView):
         return context
 
 
-class addListaVerificaciones(CreateView):
+class addListaVerificaciones(LoginRequiredMixin, CreateView):
     model = modelo
     form_class = formulario
     template_name = main
@@ -49,7 +49,7 @@ class addListaVerificaciones(CreateView):
         return context
 
 
-class editListaVerificaciones(UpdateView):
+class editListaVerificaciones(LoginRequiredMixin, UpdateView):
     model = modelo
     form_class = formulario
     template_name = main
@@ -71,7 +71,7 @@ class editListaVerificaciones(UpdateView):
         return context
 
 
-class deleteListaVerificaciones(DeleteView):
+class deleteListaVerificaciones(LoginRequiredMixin, DeleteView):
     model = modelo
     form_class = formulario
     template_name = main
