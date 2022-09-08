@@ -28,9 +28,13 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer">
-            <a href="add" class="btn btn-outline-success">Agregar {{title}} </a>
-        </div>
+        
+        {% if title != 'Estudiantes' %}
+            <div class="card-footer">
+                <a href="add" class="btn btn-outline-success">Agregar {{title}} </a>
+            </div>
+        {% endif %}
+            
     </div>
 </div>
 <script>
