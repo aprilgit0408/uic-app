@@ -53,10 +53,10 @@ class Usuarios(AbstractUser):
             'unique': ("Un usuario con esta cédula ya se encuentra registrado"),
         },
     )   
-    def get_image(self):
+    def getImagen(self):
         if self.imagen:
             return '{}{}'.format(MEDIA_URL, self.imagen)
-        return '{}{}'.format(STATIC_URL, 'app/img/default.png')
+        return '{}{}'.format(STATIC_URL, 'images/default.jpg')
     def __str__(self):
         return '{} {}'.format(self.first_name, self.last_name)
     def getInformacion(self):
@@ -163,6 +163,15 @@ class Informacion(models.Model):
     imagen = models.ManyToManyField(Imagenes,verbose_name='Imagen', blank = True)
     def __str__(self) -> str:
         return '{} {}'.format(self.nombre, self.detalle)
+class Tutoria(models.Model):
+    idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
+    descripcion = models.TextField(verbose_name='Temas a tratarse')
+    fecha = models.DateTimeField(verbose_name='Fecha y hora de tutoría')
+    archivo = models.FileField(upload_to='tutorias', null = True, blank = True, verbose_name='Archivo de Tutoría')
+    def __str__(self):
+        return self.descripcion
+
+
     
     
     

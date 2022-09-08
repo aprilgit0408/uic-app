@@ -1,10 +1,10 @@
 from django.urls import path
-
 from App.Modules.Facultades.view import listarFacultades, addFacultades, editFacultades, deleteFacultades
 from App.Modules.Carreras.view import listarCarreras, addCarreras, editCarreras, deleteCarreras
 from App.Modules.Login.views import Login,LogoutView
+from App.Modules.Tutorias.view import addTutorias, deleteTutorias, editTutorias, listarTutorias
 from App.Modules.Verificacion.view import listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
-from App.Modules.Proyectos.view import listarProyectos, addProyectos, editProyectos, deleteProyectos
+from App.Modules.Proyectos.view import listarEstudiantes, listarProyectos, addProyectos, editProyectos, deleteProyectos
 
 from App.views import Index
 app_name = 'app'
@@ -32,6 +32,13 @@ urlpatterns = [
     path('app/proyectos/add',  addProyectos.as_view(), name='addProyectos'),
     path('app/proyectos/edit/<int:pk>',  editProyectos.as_view(), name='editProyectos'),
     path('app/proyectos/delete/<int:pk>',  deleteProyectos.as_view(), name='deleteProyectos'),
+    
+    path('app/estudiantes/',  listarEstudiantes.as_view(), name='estudiantes'),
+    
+    path('app/tutorias/',  listarTutorias.as_view(), name='tutorias'),
+    path('app/tutorias/add',  addTutorias.as_view(), name='addTutorias'),
+    path('app/tutorias/edit/<int:pk>',  editTutorias.as_view(), name='editTutorias'),
+    path('app/tutorias/delete/<int:pk>',  deleteTutorias.as_view(), name='deleteTutorias'),
     
     
     path('',  Index.as_view(), name='index'),

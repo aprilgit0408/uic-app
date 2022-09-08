@@ -15,11 +15,9 @@
                             <th class="header" scope="col">{{ titulo | upper }}</th>
                         {% endfor %}
                         
-                        {% if request.user.perfil.nombre == 'Admin' and title == 'Proyectos' %}
-                            <th class="header" scope="col" >Docente</th>
-                        {% endif %}
-                        
-                        {% if title == 'Proyectos' %}
+                        {% if request.user.perfil.nombre == 'Admin' %}
+                            <th class="header" scope="col" >DOCENTE A CARGO</th>
+                        {% else %}
                             <th class="header" scope="col">OPCIONES</th>
                         {% endif %}
                     </tr>
@@ -28,9 +26,11 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer">
-            <a href="add" class="btn btn-outline-success">Agregar {{title}} </a>
-        </div>
+        {% if request.user.perfil.nombre == 'Docente' %}
+            <div class="card-footer">
+                <a href="add" class="btn btn-outline-success">Agregar {{title}} </a>
+            </div>           
+        {% endif %}
     </div>
 </div>
 <script>

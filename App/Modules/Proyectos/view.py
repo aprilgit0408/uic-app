@@ -22,8 +22,7 @@ class listarProyectos(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['encabezado'] = ['#', 'carrera','nivel','proyecto','estudiantes', 'registro']
-        context['items'] = Proyecto.objects.all()
+        context['encabezado'] = ['#', 'carrera','tema de investigación','estudiantes asignados', 'avances']
         context['title'] = f'{entidad}' 
         context['listado'] = f'Listado de {entidad}' 
         return context
@@ -38,10 +37,9 @@ class listarProyectos(LoginRequiredMixin, ListView):
                     data.append([
                         cont,
                         i.idCarrera.nombre,
-                        i.idNivel.nombre,
                         i.nombre,
                         i.getEstudiantes(),
-                        i.fechaCreacion,
+                        'Ver',
                         i.getDocente().getInformacion(),
                         i.id
                     ])
@@ -49,10 +47,9 @@ class listarProyectos(LoginRequiredMixin, ListView):
                     data.append([
                         cont,
                         i.idCarrera.nombre,
-                        i.idNivel.nombre,
                         i.nombre,
                         i.getEstudiantes(),
-                        i.fechaCreacion,
+                        'Ver',
                         i.id
                     ])
                 cont +=1
@@ -115,3 +112,61 @@ class deleteProyectos(LoginRequiredMixin, DeleteView):
         context['accion'] = f'Eliminar {entidad}'
         context['eliminar'] = kwargs
         return context
+class listarEstudiantes(LoginRequiredMixin, ListView):
+    model = modelo
+    template_name = f'{entidad}/listado.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['encabezado'] = ['#', 'cédula', 'Nombre y Apellido', 'correo electrónico', 'teléfono', 'carrera', 'fotografía']
+        context['title'] = 'Estudiantes'
+        context['listado'] = f'Listado de Estudiantes'
+        return context
+    def post(self, request, *args, **kwargs):
+        data = []
+        try:
+            cont = 1
+            listadoEstudiantes = []
+            admin = True if request.user.perfil.nombre == 'Admin' else False
+            query = Usuarios.objects.filter(perfil = 'Estudiante') if admin else modelo.objects.filter(idDocente = request.user.pk)
+            for item in query:
+                if not admin:
+                    for est in item.idEstudiantes.all():
+                        if est not in listadoEstudiantes:
+                            listadoEstudiantes.append(est)
+                else:
+                    listadoEstudiantes.append(item)
+
+            for i in listadoEstudiantes:
+                if admin:
+                    data.append([
+                        cont,
+                        i.username,
+                        i.getInformacion(),
+                        i.email,
+                        i.celular,
+                        i.idCarrera.nombre,
+                        request.user.getInformacion(),
+                        i.getImagen(),
+                        False
+                    ])
+                else:
+                    data.append([
+                        cont,
+                        i.username,
+                        i.getInformacion(),
+                        i.email,
+                        i.celular,
+                        i.idCarrera.nombre,
+                        False,
+                        i.getImagen(),
+                        False
+                    ])
+                cont +=1
+        except Exception as e:
+            print(f'Error al cargar los datos l-165 de {entidad}: ',e)
+            data = {}
+        return JsonResponse(data, safe=False)

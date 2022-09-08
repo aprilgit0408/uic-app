@@ -18,7 +18,7 @@ function getItems(id, url) {
         'action': 'searchdata'
     }
     console.log('valor de id: ', id);
-    $(id).DataTable({
+    let table = $(id).DataTable({
         responsive: true,
         language: {
             "lengthMenu": "Elementos _MENU_ por página",
@@ -31,8 +31,8 @@ function getItems(id, url) {
                 "next": "Siguiente",
                 "previous": "Anterior"
             },
-            "infoEmpty": "Sin Elementos",
-            "infoFiltered": "(filtered from _MAX_ total records)"
+            "infoEmpty": "Ninguna coincidencia encontrada ",
+            "infoFiltered": "en los _MAX_ registro actuales"
         },
         autoWidth: false, // respetar anchos de columna
         destroy: true, // reiniciar con otro proceso
@@ -52,19 +52,30 @@ function getItems(id, url) {
                 class: 'text-center',
                 orderable: false,
                 render: function (data, type, row) {
-                    let btn =  `
-                    <div class="row" >
-                        <div class="col-sm-6" style=" margin-right: -12px; ">
-                            <a type="submit" href="edit/${row[row.length - 1]}" class="btn btn-outline-warning">Editar</a> 
-                        </div>
-                        <div class="col-sm-6" >
-                            <a type="submit" href="delete/${row[row.length - 1]}" class="btn btn-outline-danger">Eliminar</a>
-                        </div>
-                    </div>
-                    `;
+                    console.log('row: ', row);
+                    console.log('row length : ', row.length);
+                    let btn = data;
+                    if(!!row[row.length - 1]){
+                        btn = `
+                            <div class="row" >
+                                <div class="col-sm-6" style=" margin-right: -12px; ">
+                                    <a type="submit" href="edit/${row[row.length - 1]}" class="btn btn-outline-warning">Editar</a> 
+                                </div>
+                                <div class="col-sm-6" >
+                                    <a type="submit" href="delete/${row[row.length - 1]}" class="btn btn-outline-danger">Eliminar</a>
+                                </div>
+                            </div>
+                            `;
+                    }else if(row.length > 7 && !!(row[7].includes('media/') || row[7].includes('static/'))){
+                        btn = `
+                                <img src="${row[7]}" width="100" height="100" >
+                            `;
+                    }
                     return btn;
                 }
             }
         ],
-    })
+    });
+    $('#container').css( 'display', 'block' );
+    table.columns.adjust().draw();
 };

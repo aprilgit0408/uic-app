@@ -51,6 +51,18 @@
                                     </select>
                                 {% elif op.name == 'idDocente' and request.user.perfil.nombre == 'Docente' %}
                                     <input type="hidden" name="idDocente" id="id_idDocente" value="{{request.user.pk}}" >
+                                {% elif op.name == 'idProyecto' and idProyecto %}
+                                    {{op.label}}
+                                    <select name="idProyecto" class="form-control form-control-sm" autocomplete="off" required="" id="id_idProyecto">
+                                        {% for item in idProyecto %}
+                                                <option value="{{item.pk}}" >{{item.nombre}}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% elif op.name == 'fecha' and tutorias %}
+                                    {{op.label}}
+                                    <input type="datetime-local" class="form-control form-control-sm"  name="fecha" id="id_fecha"> <br>
+                                {% elif op.name == 'idProyecto' and tutorias %}
+                                    <input type="hidden" name="idProyecto" id="id_idProyecto" value="{{tutorias.idProyecto.id}}" >
                                 {% else %}
                                 {{op.label}}
                                 {{op}}
