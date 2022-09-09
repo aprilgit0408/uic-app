@@ -69,3 +69,15 @@ class formularioTutorias(ModelForm):
     class Meta:
         model = Tutoria
         fields = '__all__'
+
+class formularioGrupoExperto(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for i in self.visible_fields():
+            i.field.widget.attrs['class'] = 'form-control form-control-sm'
+            i.field.widget.attrs['autocomplete'] = 'off'
+        self.fields['nombre'].widget.attrs['autofocus'] = True
+
+    class Meta:
+        model = GrupoExperto
+        fields = '__all__'

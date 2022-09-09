@@ -2,7 +2,7 @@ from django.views.generic import CreateView, ListView
 from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioTutorias
-from App.models import Proyecto, Tutoria
+from App.models import GrupoExperto, Proyecto, Tutoria
 from django.http.response import JsonResponse
 
 from django.urls import reverse_lazy
@@ -19,6 +19,14 @@ class listarTutorias(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        nombre = ''
+        for grupo in GrupoExperto.objects.all():
+            for user in grupo.idDocentes.all():
+                if self.request.user == user:
+                    nombre += f'<li><h5><b><i>{grupo.pk}</i></b></h5></li>'
+        if nombre:
+            nombre = f'<ul>{nombre}</ul>'
+        context['grupo'] = nombre
         context['encabezado'] = ['#', 'proyecto', 'estudiante/s', 'fecha', 'Descripción de tutoría']
         context['title'] = f'{entidad}' 
         context['listado'] = f'Listado de {entidad}' 
@@ -29,7 +37,6 @@ class listarTutorias(LoginRequiredMixin, ListView):
             cont = 1
             admin = True if request.user.perfil.nombre == 'Admin' else False
             query = modelo.objects.all() if admin else modelo.objects.filter(idProyecto__idDocente = request.user.pk)
-            print('query: ', query)
             for i in query:
                 if admin:
                     data.append([
@@ -51,7 +58,6 @@ class listarTutorias(LoginRequiredMixin, ListView):
                         i.id
                     ])
                 cont +=1
-            print('data: ', data)
         except Exception as e:
             print(f'Error al cargar los datos l-55 de {entidad}: ',e)
             data = {}

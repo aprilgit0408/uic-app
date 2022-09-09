@@ -5,7 +5,7 @@ from django.views.generic.edit import DeleteView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioProyectos
-from App.models import Proyecto, Usuarios
+from App.models import GrupoExperto, Proyecto, Usuarios
 from django.http.response import JsonResponse
 
 from django.urls import reverse_lazy
@@ -22,6 +22,14 @@ class listarProyectos(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        nombre = ''
+        for grupo in GrupoExperto.objects.all():
+            for user in grupo.idDocentes.all():
+                if self.request.user == user:
+                    nombre += f'<li><h5><b><i>{grupo.pk}</i></b></h5></li>'
+        if nombre:
+            nombre = f'<ul>{nombre}</ul>'
+        context['grupo'] = nombre
         context['encabezado'] = ['#', 'carrera','tema de investigación','estudiantes asignados', 'avances']
         context['title'] = f'{entidad}' 
         context['listado'] = f'Listado de {entidad}' 
@@ -121,6 +129,14 @@ class listarEstudiantes(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        nombre = ''
+        for grupo in GrupoExperto.objects.all():
+            for user in grupo.idDocentes.all():
+                if self.request.user == user:
+                    nombre += f'<li><h5><b><i>{grupo.pk}</i></b></h5></li>'
+        if nombre:
+            nombre = f'<ul>{nombre}</ul>'
+        context['grupo'] = nombre
         context['encabezado'] = ['#', 'cédula', 'Nombre y Apellido', 'correo electrónico', 'teléfono', 'carrera', 'fotografía']
         context['title'] = 'Estudiantes'
         context['listado'] = f'Listado de Estudiantes'

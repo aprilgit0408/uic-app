@@ -105,10 +105,10 @@ class Proyecto(models.Model):
         txt = '{0}'
         return txt.format(self.nombre)
     def getEstudiantes(self):
-        ul = '<li>'
+        ul = ''
         for estudiante in self.idEstudiantes.all():
-            ul += f'<ul> {estudiante} </ul>'
-        ul += '</ul>'
+            ul += f'<li> {estudiante} </li>'
+        ul = f'<ul>{ul}</ul>'
         return ul
     def getDocente(self):
         return Usuarios.objects.get(pk = self.idDocente)
@@ -170,6 +170,17 @@ class Tutoria(models.Model):
     archivo = models.FileField(upload_to='tutorias', null = True, blank = True, verbose_name='Archivo de Tutoría')
     def __str__(self):
         return self.descripcion
+class GrupoExperto(models.Model):
+    nombre = models.CharField(max_length=40, verbose_name='Nombre del grupo', primary_key=True)
+    idDocentes = models.ManyToManyField(Usuarios, verbose_name='Docentes')
+    def __str__(self):
+        return self.nombre
+    def getMiembros(self):
+        ul = ''
+        for docentes in self.idDocentes.all():
+            ul += f'<li> {docentes} </li>'
+        ul = f'<ul>{ul}</ul>'
+        return ul
 
 
     

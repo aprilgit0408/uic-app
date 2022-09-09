@@ -17,6 +17,7 @@ function getItems(id, url) {
     let parametros = {
         'action': 'searchdata'
     }
+    let responsiveTable = !!url ? url : false;
     console.log('valor de id: ', id);
     let table = $(id).DataTable({
         responsive: true,
@@ -34,7 +35,7 @@ function getItems(id, url) {
             "infoEmpty": "Ninguna coincidencia encontrada ",
             "infoFiltered": "en los _MAX_ registro actuales"
         },
-        autoWidth: false, // respetar anchos de columna
+        autoWidth: responsiveTable, // respetar anchos de columna
         destroy: true, // reiniciar con otro proceso
         deferRender: true,
         ajax: {

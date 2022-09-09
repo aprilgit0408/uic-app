@@ -1,6 +1,7 @@
 from django.urls import path
 from App.Modules.Facultades.view import listarFacultades, addFacultades, editFacultades, deleteFacultades
 from App.Modules.Carreras.view import listarCarreras, addCarreras, editCarreras, deleteCarreras
+from App.Modules.GrupoExperto.view import addGrupoExpertos, deleteGrupoExpertos, editGrupoExpertos, listarGrupoExpertos
 from App.Modules.Login.views import Login,LogoutView
 from App.Modules.Tutorias.view import addTutorias, deleteTutorias, editTutorias, listarTutorias
 from App.Modules.Verificacion.view import listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
@@ -32,6 +33,12 @@ urlpatterns = [
     path('app/proyectos/add',  addProyectos.as_view(), name='addProyectos'),
     path('app/proyectos/edit/<int:pk>',  editProyectos.as_view(), name='editProyectos'),
     path('app/proyectos/delete/<int:pk>',  deleteProyectos.as_view(), name='deleteProyectos'),
+
+    #Grupo de expertos
+    path('app/grupoExpertos/',  listarGrupoExpertos.as_view(), name='grupoExpertos'),
+    path('app/grupoExpertos/add',  addGrupoExpertos.as_view(), name='addGrupoExpertos'),
+    path('app/grupoExpertos/edit/<pk>',  editGrupoExpertos.as_view(), name='editGrupoExpertos'),
+    path('app/grupoExpertos/delete/<pk>',  deleteGrupoExpertos.as_view(), name='deleteGrupoExpertos'),
     
     path('app/estudiantes/',  listarEstudiantes.as_view(), name='estudiantes'),
     

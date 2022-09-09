@@ -39,15 +39,15 @@
                         {% else %}
                             {% for op in form %}
                                 {% if op.name == 'idEstudiantes' %}
-                                {{op.label}}
-                                <select name="idEstudiantes" class="form-control form-control-sm" autocomplete="off" required="" id="id_idEstudiantes" multiple="">
-                                    {% for item in idEstudiantes %}
-                                        {% if item.selected %}
-                                            <option value="{{item.pk}}" selected >{{item.nombre}}</option>
-                                        {% else %}
-                                            <option value="{{item.pk}}" >{{item.nombre}}</option>
-                                        {% endif %}
-                                    {% endfor %}
+                                    {{op.label}}
+                                    <select name="idEstudiantes" class="form-control form-control-sm" autocomplete="off" required="" id="id_idEstudiantes" multiple="">
+                                        {% for item in idEstudiantes %}
+                                            {% if item.selected %}
+                                                <option value="{{item.pk}}" selected >{{item.nombre}}</option>
+                                            {% else %}
+                                                <option value="{{item.pk}}" >{{item.nombre}}</option>
+                                            {% endif %}
+                                        {% endfor %}
                                     </select>
                                 {% elif op.name == 'idDocente' and request.user.perfil.nombre == 'Docente' %}
                                     <input type="hidden" name="idDocente" id="id_idDocente" value="{{request.user.pk}}" >
@@ -63,6 +63,13 @@
                                     <input type="datetime-local" class="form-control form-control-sm"  name="fecha" id="id_fecha"> <br>
                                 {% elif op.name == 'idProyecto' and tutorias %}
                                     <input type="hidden" name="idProyecto" id="id_idProyecto" value="{{tutorias.idProyecto.id}}" >
+                                {% elif op.name == 'idDocentes' and grupoExpertos %}
+                                    {{op.label}}
+                                    <select name="idDocentes" class="form-control form-control-sm" autocomplete="off" required="" id="id_idDocentes" multiple="">
+                                        {% for item in grupoExpertos %}
+                                            <option value="{{item.pk}}" >{{item.getInformacion}}</option>
+                                        {% endfor %}
+                                    </select>
                                 {% else %}
                                 {{op.label}}
                                 {{op}}

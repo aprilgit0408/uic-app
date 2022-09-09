@@ -21,7 +21,7 @@
                     {% for item in items %}
                         <tr>
                             <td class="header" scope="col">{{ item.nombre }} </td>
-                            <td class="header" scope="col">{{ item.idFacultad }} </td>
+                            <td class="header" scope="col">{{ item.getMiembros | safe }} </td>
                             <td class="header" scope="col">
                                 <a type="button" href='edit/{{item.pk}}' class="btn btn-outline-warning">Editar</a>
                             </td>
@@ -31,7 +31,6 @@
                         </tr>
                     {% endfor %}
                 </tbody>
-        
             </table>
         </div>
         <div class="card-footer">
@@ -41,5 +40,4 @@
 </div>
 <br><br>
 <br><br>
-
 {% endblock content %}
