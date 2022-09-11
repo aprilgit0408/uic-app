@@ -2,7 +2,7 @@ from django.urls import path
 from App.Modules.Facultades.view import listarFacultades, addFacultades, editFacultades, deleteFacultades
 from App.Modules.Carreras.view import listarCarreras, addCarreras, editCarreras, deleteCarreras
 from App.Modules.GrupoExperto.view import addGrupoExpertos, deleteGrupoExpertos, editGrupoExpertos, listarGrupoExpertos
-from App.Modules.Login.views import Login,LogoutView, addUser
+from App.Modules.Login.views import Login, LogoutView, addUser, resetPassword, resetPasswordLink
 from App.Modules.Tutorias.view import addTutorias, deleteTutorias, editTutorias, listarTutorias
 from App.Modules.Verificacion.view import listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
 from App.Modules.Proyectos.view import listarEstudiantes, listarProyectos, addProyectos, editProyectos, deleteProyectos
@@ -51,7 +51,8 @@ urlpatterns = [
     path('',  Index.as_view(), name='index'),
     path('login/',  Login.as_view(), name='login'),
     path('login/add',  addUser.as_view(), name='agregarUsuario'),
+    path('login/reset',  resetPassword.as_view(), name='reset'),
+    path('login/password/<str:token>',resetPasswordLink.as_view(), name='resetPassword'),
     path('logout/',LogoutView.as_view(), name='logout'),
-    
     path('index',  Index.as_view(), name='index')
 ]

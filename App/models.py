@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models.deletion import CASCADE
-from uicApp.settings import *
 from Usuarios.models import Carrera, Usuarios
 # Registro de los modelos de la base de datos
 
@@ -29,11 +28,14 @@ class Nivel(models.Model):
 
 class Proyecto(models.Model):
     usuarios = []
-    for user in Usuarios.objects.all():
-        nombre = user.getInformacion()
-        if user.perfil:
-            if user.perfil.nombre == 'Docente':
-                usuarios.append((str(user.pk), nombre))
+    try:
+        for user in Usuarios.objects.all():
+            nombre = user.getInformacion()
+            if user.perfil:
+                if user.perfil.nombre == 'Docente':
+                    usuarios.append((str(user.pk), nombre))
+    except:
+        print('No hay perfiles')
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE)
     idNivel = models.ForeignKey(Nivel, verbose_name='Nivel', on_delete=CASCADE)
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Proyecto')
@@ -52,7 +54,7 @@ class Proyecto(models.Model):
         return ul
     def getDocente(self):
         return Usuarios.objects.get(pk = self.idDocente)
-        
+
 class Avance(models.Model):
     idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
     nombreAvance = models.CharField(max_length=100, verbose_name='Nombre Avance')
