@@ -1,8 +1,5 @@
-from django.db.models import fields
-from django.db.models.base import Model
-from django.forms.widgets import Select, TextInput
-from django import forms
-from App.models import *
+from App.models import Avance,GrupoExperto, ListaVerificacion, Proyecto, Tribunal, Tutoria
+from Usuarios.models import Facultad, Carrera, Usuarios
 from django.forms import ModelForm
 class formularioFacultades(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -81,3 +78,14 @@ class formularioGrupoExperto(ModelForm):
     class Meta:
         model = GrupoExperto
         fields = '__all__'
+class formularioUsuarios(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for i in self.visible_fields():
+            i.field.widget.attrs['class'] = 'form-control form-control-sm'
+            i.field.widget.attrs['autocomplete'] = 'off'
+        self.fields['username'].widget.attrs['autofocus'] = True
+
+    class Meta:
+        model = Usuarios
+        fields = ('username', 'first_name', 'last_name', 'idCarrera', 'celular','email', 'password', 'imagen')

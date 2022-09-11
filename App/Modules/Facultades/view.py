@@ -4,7 +4,7 @@ from django.views.generic.edit import DeleteView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioFacultades
-from App.models import Facultad 
+from Usuarios.models import Facultad 
 from django.urls import reverse_lazy
 modelo = Facultad
 formulario = formularioFacultades

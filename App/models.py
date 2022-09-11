@@ -1,69 +1,8 @@
-from urllib import request
 from django.db import models
 from django.db.models.deletion import CASCADE
 from uicApp.settings import *
-from django.contrib.auth.models import AbstractUser
-from django.forms import model_to_dict
-from django.core import validators
-from django.utils.deconstruct import deconstructible
+from Usuarios.models import Carrera, Usuarios
 # Registro de los modelos de la base de datos
-class Facultad(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name='Nombre de la Facultad', primary_key=True)
-    sigla = models.CharField(max_length=20, verbose_name='Nombre corto de la Facultad')
-    fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
-    def __str__(self) -> str:
-        txt = '{0}'
-        return txt.format(self.nombre)
-
-class Carrera(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name='Nombre de la Carrera', primary_key=True)
-    idFacultad = models.ForeignKey(Facultad, verbose_name='Facultad', on_delete=CASCADE)
-    fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
-    def __str__(self) -> str:
-        txt = '{0}'
-        return txt.format(self.nombre)
-#Creación de usuarios para la administración del sitio Web
-class Perfiles(models.Model):
-    nombre = models.CharField(max_length=20, verbose_name='Perfiles', primary_key=True)
-    def __str__(self) -> str:
-        return '{}'.format(self.nombre)
-class Usuarios(AbstractUser):
-    @deconstructible
-    class UnicodeUsernameValidator(validators.RegexValidator):
-        regex = r'^[\w.@+-]+\Z'
-        message = (
-            'Enter a valid username. This value may contain only letters, '
-            'numbers, and @/./+/-/_ characters.'
-        )
-        flags = 0
-    imagen = models.ImageField(verbose_name='Imagen', upload_to='users', null = True, blank = True)
-    perfil = models.ForeignKey(Perfiles, verbose_name='Perfil', default='Estudiante', on_delete=CASCADE, null=True, blank=True)
-    celular = models.CharField(max_length=10, verbose_name='Celular')
-    username_validator = UnicodeUsernameValidator
-    idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE, null=True, blank=True)
-    username = models.CharField(
-        ('Usuario'),
-        max_length=13,
-        unique=True,
-        help_text=('Se requiere al menos 10 catacteres'),
-        validators=[username_validator],
-        error_messages={
-            'unique': ("Un usuario con esta cédula ya se encuentra registrado"),
-        },
-    )   
-    def getImagen(self):
-        if self.imagen:
-            return '{}{}'.format(MEDIA_URL, self.imagen)
-        return '{}{}'.format(STATIC_URL, 'images/default.jpg')
-    def __str__(self):
-        return '{} {}'.format(self.first_name, self.last_name)
-    def getInformacion(self):
-        return '{} {}'.format(self.first_name, self.last_name)
-    def clean(self):
-        super().clean()
-    
 
 class ListaVerificacion(models.Model):
     detalles = [
@@ -92,8 +31,9 @@ class Proyecto(models.Model):
     usuarios = []
     for user in Usuarios.objects.all():
         nombre = user.getInformacion()
-        if user.perfil.nombre == 'Docente':
-            usuarios.append((str(user.pk), nombre))
+        if user.perfil:
+            if user.perfil.nombre == 'Docente':
+                usuarios.append((str(user.pk), nombre))
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE)
     idNivel = models.ForeignKey(Nivel, verbose_name='Nivel', on_delete=CASCADE)
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Proyecto')
@@ -181,8 +121,3 @@ class GrupoExperto(models.Model):
             ul += f'<li> {docentes} </li>'
         ul = f'<ul>{ul}</ul>'
         return ul
-
-
-    
-    
-    

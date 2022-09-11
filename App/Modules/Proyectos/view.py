@@ -1,6 +1,6 @@
 from urllib import request
 from django.db import models
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView   
 from django.views.generic.edit import DeleteView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin

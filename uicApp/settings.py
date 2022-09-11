@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'App.apps.AppConfig',
+    'Usuarios.apps.UsuariosConfig',
 ]
 
 MIDDLEWARE = [
@@ -132,7 +133,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #definicion de variables 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-AUTH_USER_MODEL = 'App.Usuarios'
+AUTH_USER_MODEL = 'Usuarios.Usuarios'
 LOGIN_REDIRECT_URL = '/app/proyectos/'
 LOGOUT_REDIRECT_URL = '/login'
 LOGIN_URL = '/login/'

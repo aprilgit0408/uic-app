@@ -4,7 +4,7 @@ from django.views.generic.edit import DeleteView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioCarreras
-from App.models import Carrera
+from Usuarios.models import Carrera
 from django.http.response import JsonResponse
 from django.urls import reverse_lazy
 modelo = Carrera

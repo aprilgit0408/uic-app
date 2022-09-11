@@ -30,7 +30,6 @@
     <link rel="stylesheet" href="{% static 'css/responsive.css' %}" />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" />
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <!--[if lt IE 9]>
@@ -66,30 +65,25 @@
                     <ul class="navbar-nav">
                         {% block nav %}
                         <!-- <li><a class="nav-link" href="courses.html">Documentos</a></li> -->
-                        {% if request.user.pk and request.user.groups.all %}
-                            {% for grupo in request.user.groups.all %}
-                                {% if grupo.name == 'Admin' %}
-                                    <li><a class="nav-link" href="{% url 'app:facultades' %}">Facultades</a></li>
-                                    <li><a class="nav-link" href="{% url 'app:carreras' %}">Carreras</a></li>
-                                    <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
-                                    <li><a class="nav-link" href="{% url 'app:estudiantes' %}">Estudiantes</a></li>
-                                    <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorias</a></li>
-                                    <li><a class="nav-link" href="{% url 'app:grupoExpertos' %}">Grupo Expertos</a></li>
-                                    <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">CheckList</a></li> -->
-                                    <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Tribunal</a></li> -->
-                                    <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Documentación</a></li> -->
-                                {% elif grupo.name == 'Docente' %}
-                                    <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
-                                    <li><a class="nav-link" href="{% url 'app:estudiantes' %}">Estudiantes</a></li>
-                                    <!-- <li><a class="nav-link" href="{% url 'app:proyectos' %}">Tribunal</a></li> -->
-                                    <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorías</a></li>
-                                    <!-- <li><a class="nav-link" href="{% url 'app:proyectos' %}">Documentación</a></li> -->
-                                {% elif grupo.name == 'Estudiante' %}
-                                    <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
-                                    <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">CheckList</a></li>
-
-                                {% endif %}
-                            {% endfor %}
+                        {% if request.user.perfil.nombre == 'Admin' %}
+                            <li><a class="nav-link" href="{% url 'app:facultades' %}">Facultades</a></li>
+                            <li><a class="nav-link" href="{% url 'app:carreras' %}">Carreras</a></li>
+                            <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
+                            <li><a class="nav-link" href="{% url 'app:estudiantes' %}">Estudiantes</a></li>
+                            <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorias</a></li>
+                            <li><a class="nav-link" href="{% url 'app:grupoExpertos' %}">Grupo Expertos</a></li>
+                            <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">CheckList</a></li> -->
+                            <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Tribunal</a></li> -->
+                            <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Documentación</a></li> -->
+                        {% elif request.user.perfil.nombre == 'Docente' %}
+                            <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
+                            <li><a class="nav-link" href="{% url 'app:estudiantes' %}">Estudiantes</a></li>
+                            <!-- <li><a class="nav-link" href="{% url 'app:proyectos' %}">Tribunal</a></li> -->
+                            <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorías</a></li>
+                            <!-- <li><a class="nav-link" href="{% url 'app:proyectos' %}">Documentación</a></li> -->
+                        {% elif request.user.perfil.nombre == 'Estudiante' %}
+                            <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
+                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">CheckList</a></li>
                         {% else %}
                             <li><a class="nav-link active" href="{% url 'app:index' %}">Inicio</a></li>
                             <li><a class="nav-link" href="">Documentación General</a></li>
