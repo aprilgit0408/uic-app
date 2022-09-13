@@ -61,6 +61,7 @@ class listarProyectos(LoginRequiredMixin, ListView):
                         i.id
                     ])
                 cont +=1
+            print('data : ', data)
         except Exception as e:
             print(f'Error al cargar los datos l-60 de {entidad}: ',e)
             data = {}

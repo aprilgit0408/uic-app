@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models.deletion import CASCADE
-from uicApp.settings import *
+from uicApp.settings import MEDIA_URL, STATIC_URL
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
 from django.utils.deconstruct import deconstructible
@@ -30,7 +30,6 @@ class Perfiles(models.Model):
         return '{}'.format(self.nombre)
 
 def vcedula(texto):
-    print('Valor de text: ', texto)
     nocero = texto.strip("0")
     cedula = int(nocero,0)
     verificador = cedula%10
@@ -81,7 +80,7 @@ class Usuarios(AbstractUser):
         max_length=13,
         unique=True,
         help_text=('Se requiere al menos 10 catacteres'),
-        validators=[vcedula],
+        # validators=[vcedula],
         error_messages={
             'unique': ("Un usuario con esta cédula ya se encuentra registrado"),
         },

@@ -53,13 +53,11 @@ function getItems(id, url) {
                 class: 'text-center',
                 orderable: false,
                 render: function (data, type, row) {
-                    console.log('row: ', row);
-                    console.log('row length : ', row.length);
                     let btn = data;
                     if(!!row[row.length - 1]){
                         btn = `
                             <div class="row" >
-                                <div class="col-sm-6" style=" margin-right: -12px; ">
+                                <div class="col-sm-6">
                                     <a type="submit" href="edit/${row[row.length - 1]}" class="btn btn-outline-warning">Editar</a> 
                                 </div>
                                 <div class="col-sm-6" >

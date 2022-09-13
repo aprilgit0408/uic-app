@@ -43,9 +43,9 @@
                                     <select name="idEstudiantes" class="form-control form-control-sm" autocomplete="off" required="" id="id_idEstudiantes" multiple="">
                                         {% for item in idEstudiantes %}
                                             {% if item.selected %}
-                                                <option value="{{item.pk}}" selected >{{item.nombre}}</option>
+                                                <option value="{{item.pk}}" selected >{{item.getInformacion}}</option>
                                             {% else %}
-                                                <option value="{{item.pk}}" >{{item.nombre}}</option>
+                                                <option value="{{item.pk}}" >{{item.getInformacion}}</option>
                                             {% endif %}
                                         {% endfor %}
                                     </select>
