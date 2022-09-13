@@ -14,7 +14,7 @@
                         {% for titulo in encabezado %}
                             <th class="header" scope="col">{{ titulo | upper }}</th>
                         {% endfor %}
-                        <th class="header" scope="col" colspan="2" >Opciones</th>
+                        <th class="header" scope="col" colspan="2" >OPCIONES</th>
                     </tr>
                 </thead>
                 <tbody class="fija1">
@@ -23,10 +23,19 @@
                             <td class="header" scope="col">{{ item.nombre }} </td>
                             <td class="header" scope="col">{{ item.getMiembros | safe }} </td>
                             <td class="header" scope="col">
-                                <a type="button" href='edit/{{item.pk}}' class="btn btn-outline-warning">Editar</a>
+                                <a type="button" href='edit/{{item.pk}}' class="btn btn-outline-warning" title="Editar Registro" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                        </svg>
+                                </a>
                             </td>
                             <td class="header" scope="col">
-                                <a type="button" href="delete/{{item.pk}}" class="btn btn-outline-danger">Eliminar</a>
+                                <a type="button" href="delete/{{item.pk}}" class="btn btn-outline-danger" title="Eliminar Registro" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bucket" viewBox="0 0 16 16">
+                                        <path d="M2.522 5H2a.5.5 0 0 0-.494.574l1.372 9.149A1.5 1.5 0 0 0 4.36 16h7.278a1.5 1.5 0 0 0 1.483-1.277l1.373-9.149A.5.5 0 0 0 14 5h-.522A5.5 5.5 0 0 0 2.522 5zm1.005 0a4.5 4.5 0 0 1 8.945 0H3.527zm9.892 1-1.286 8.574a.5.5 0 0 1-.494.426H4.36a.5.5 0 0 1-.494-.426L2.58 6h10.838z"/>
+                                        </svg>
+                                </a>
                             </td>
                         </tr>
                     {% endfor %}

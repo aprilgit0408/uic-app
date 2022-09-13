@@ -61,7 +61,6 @@ class listarProyectos(LoginRequiredMixin, ListView):
                         i.id
                     ])
                 cont +=1
-            print('data : ', data)
         except Exception as e:
             print(f'Error al cargar los datos l-60 de {entidad}: ',e)
             data = {}
@@ -98,7 +97,7 @@ class editProyectos(LoginRequiredMixin, UpdateView):
         estudiantes = []
         listado = Proyecto.objects.get(id = self.kwargs['pk']).idEstudiantes.all()
         for i in Usuarios.objects.filter(perfil = 'Estudiante'):
-            datosEst = {'pk' : i.pk, 'nombre' : i}
+            datosEst = {'pk' : i.pk, 'getInformacion' : i}
             if i in listado:
                 datosEst['selected'] = True
                 estudiantes.append(datosEst)
@@ -158,32 +157,59 @@ class listarEstudiantes(LoginRequiredMixin, ListView):
                     listadoEstudiantes.append(item)
 
             for i in listadoEstudiantes:
-                if admin:
-                    data.append([
-                        cont,
-                        i.username,
-                        i.getInformacion(),
-                        i.email,
-                        i.celular,
-                        i.idCarrera.nombre,
-                        request.user.getInformacion(),
-                        i.getImagen(),
-                        False
-                    ])
-                else:
-                    data.append([
-                        cont,
-                        i.username,
-                        i.getInformacion(),
-                        i.email,
-                        i.celular,
-                        i.idCarrera.nombre,
-                        False,
-                        i.getImagen(),
-                        False
+                data.append([
+                    cont,
+                    i.username,
+                    i.getInformacion(),
+                    i.email,
+                    i.celular,
+                    i.idCarrera.nombre,
+                    i.getImagen(),
+                    False
                     ])
                 cont +=1
         except Exception as e:
-            print(f'Error al cargar los datos l-165 de {entidad}: ',e)
+            print(f'Error al cargar los datos l-173 de {entidad}: ',e)
+            data = {}
+        return JsonResponse(data, safe=False)
+class listarDocentes(LoginRequiredMixin, ListView):
+    model = modelo
+    template_name = f'{entidad}/listado.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        nombre = ''
+        for grupo in GrupoExperto.objects.all():
+            for user in grupo.idDocentes.all():
+                if self.request.user == user:
+                    nombre += f'<li><h5><b><i>{grupo.pk}</i></b></h5></li>'
+        if nombre:
+            nombre = f'<ul>{nombre}</ul>'
+        context['grupo'] = nombre
+        context['encabezado'] = ['#', 'cédula', 'Nombre y Apellido', 'correo electrónico', 'teléfono', 'carrera', 'fotografía']
+        context['title'] = 'Estudiantes'
+        context['listado'] = f'Listado de Estudiantes'
+        return context
+    def post(self, request, *args, **kwargs):
+        data = []
+        try:
+            cont = 1
+            for i in Usuarios.objects.filter(perfil = 'Docente'):
+                data.append([
+                    cont,
+                    i.username,
+                    i.getInformacion(),
+                    i.email,
+                    i.celular,
+                    i.idCarrera.nombre,
+                    i.getImagen(),
+                    False
+                    ])
+                cont +=1
+        except Exception as e:
+            print(f'Error al cargar los datos l-214 de {entidad}: ',e)
             data = {}
         return JsonResponse(data, safe=False)

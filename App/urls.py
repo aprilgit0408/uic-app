@@ -5,7 +5,7 @@ from App.Modules.GrupoExperto.view import addGrupoExpertos, deleteGrupoExpertos,
 from App.Modules.Login.views import Login, LogoutView, addUser, resetPassword, resetPasswordLink
 from App.Modules.Tutorias.view import addTutorias, deleteTutorias, editTutorias, listarTutorias
 from App.Modules.Verificacion.view import listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
-from App.Modules.Proyectos.view import listarEstudiantes, listarProyectos, addProyectos, editProyectos, deleteProyectos
+from App.Modules.Proyectos.view import listarDocentes, listarEstudiantes, listarProyectos, addProyectos, editProyectos, deleteProyectos
 
 from App.views import Index
 app_name = 'app'
@@ -41,6 +41,7 @@ urlpatterns = [
     path('app/grupoExpertos/delete/<pk>',  deleteGrupoExpertos.as_view(), name='deleteGrupoExpertos'),
     
     path('app/estudiantes/',  listarEstudiantes.as_view(), name='estudiantes'),
+    path('app/docentes/',  listarDocentes.as_view(), name='docentes'),
     
     path('app/tutorias/',  listarTutorias.as_view(), name='tutorias'),
     path('app/tutorias/add',  addTutorias.as_view(), name='addTutorias'),

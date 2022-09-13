@@ -46,7 +46,7 @@ class listarTutorias(LoginRequiredMixin, ListView):
                         i.fecha.strftime("%Y-%m-%d %H:%M:%S"),
                         i.descripcion,
                         i.idProyecto.getDocente().getInformacion(),
-                        False
+                        None
                     ])
                 else:
                     data.append([

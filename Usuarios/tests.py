@@ -23,4 +23,3 @@ def vcedula(texto):
         validado = False
         
     return validado
-print('validación: ', vcedula('0401645221'))

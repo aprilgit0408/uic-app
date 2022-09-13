@@ -69,6 +69,7 @@
                             <li><a class="nav-link" href="{% url 'app:facultades' %}">Facultades</a></li>
                             <li><a class="nav-link" href="{% url 'app:carreras' %}">Carreras</a></li>
                             <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
+                            <li><a class="nav-link" href="{% url 'app:docentes' %}">Docentes</a></li>
                             <li><a class="nav-link" href="{% url 'app:estudiantes' %}">Estudiantes</a></li>
                             <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorias</a></li>
                             <li><a class="nav-link" href="{% url 'app:grupoExpertos' %}">Grupo Expertos</a></li>
@@ -97,7 +98,7 @@
                         <div class="btn-group">
                             {% if request.user.pk %}
                             <button type="button" class="btn btn-outline-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                              {{request.user.getInformacion}}
+                              {{request.user.getAlias}}
                             </button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="" ><b>{{request.user.perfil}}</b></a>

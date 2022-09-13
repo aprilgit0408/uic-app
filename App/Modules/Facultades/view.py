@@ -1,4 +1,3 @@
-from django.db import models
 from django.views.generic import CreateView, ListView
 from django.views.generic.edit import DeleteView, UpdateView
 from django.shortcuts import redirect
@@ -6,6 +5,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioFacultades
 from Usuarios.models import Facultad 
 from django.urls import reverse_lazy
+from django.http.response import JsonResponse
+
 modelo = Facultad
 formulario = formularioFacultades
 entidad = 'Facultades'
@@ -18,11 +19,28 @@ class listarFacultades(LoginRequiredMixin, ListView):
         return super().dispatch(request, *args, **kwargs)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['encabezado'] = ['nombre', 'sigla']
+        context['encabezado'] = ['#', 'nombre', 'sigla']
         context['items'] = modelo.objects.all()
         context['title'] = f'{entidad}' 
         context['listado'] = f'Listado de {entidad}' 
         return context
+    def post(self, request, *args, **kwargs):
+        data = []
+        try:
+            cont = 1
+            for i in modelo.objects.all():
+                data.append([
+                    cont,
+                    i.nombre,
+                    i.sigla,
+                    i.pk,
+                ])
+                cont +=1
+        except Exception as e:
+            print(f'Error al cargar los datos l-42 de {entidad}: ',e)
+            data = {}
+        return JsonResponse(data, safe=False)
+
     
 class addFacultades(LoginRequiredMixin, CreateView):
     model = modelo

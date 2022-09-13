@@ -34,7 +34,6 @@ class Proyecto(models.Model):
             if user.perfil:
                 if user.perfil.nombre == 'Docente':
                     usuarios.append((str(user.pk), nombre))
-        print('Docentes: ', usuarios)
     except:
         print('No hay perfiles')
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE)

@@ -23,7 +23,7 @@ class listarCarreras(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['encabezado'] = ['nombre', 'facultad']
+        context['encabezado'] = ['#','nombre', 'facultad']
         context['items'] = modelo.objects.all()
         context['title'] = f'{entidad}'
         context['listado'] = f'Listado de {entidad}'
@@ -31,21 +31,17 @@ class listarCarreras(LoginRequiredMixin, ListView):
     def post(self, request, *args, **kwargs):
         data = []
         try:
-            btn = ''
+            cont = 1
             for i in modelo.objects.all():
                 data.append([
                     cont,
-                    i.carrera,
-                    i.nivel,
-                    i.nombreCompleto(),
-                    i.celular,
-                    i.direccion, 
-                    i.email,
-                    btn
+                    i.nombre,
+                    i.idFacultad.nombre,
+                    i.pk
                 ])
                 cont +=1
         except Exception as e:
-            print('Error Empleados l-54 ',e)
+            print('Error Empleados l-43 ',e)
             data = {}
         return JsonResponse(data, safe=False)
 

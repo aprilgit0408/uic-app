@@ -12,8 +12,7 @@ class Facultad(models.Model):
     fechaCreacion = models.DateField(auto_now_add=True)
     fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
-        txt = '{0}'
-        return txt.format(self.nombre)
+        return self.nombre
 
 class Carrera(models.Model):
     nombre = models.CharField(max_length=100, verbose_name='Nombre de la Carrera', primary_key=True)
@@ -93,6 +92,8 @@ class Usuarios(AbstractUser):
         return '{} {} [{}]'.format(self.first_name, self.last_name, self.username)
     def getInformacion(self):
         return '{} {}'.format(self.first_name, self.last_name)
+    def getAlias(self):
+        return '{}. {}'.format(self.first_name, self.last_name[0])
     def clean(self):
         super().clean()
     def save(self, *args, **kwargs):
