@@ -1,0 +1,35 @@
+{% extends 'Views/header.html'  %}
+{% load static %}
+{% block title %} {{title}} {% endblock %}
+{% block content %}
+<div style="margin-top: 7%;" >
+     <div class="card container">
+        <div class="card-header">
+            <b style="font-size: 20px;" > {{listado}} </b>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-hover table-responsive" id="{{title | lower }}">
+                <thead class="table-light container">
+                    <tr>
+                        {% for titulo in encabezado %}
+                            <th class="header" scope="col">{{ titulo | upper }}</th>
+                        {% endfor %}
+                       </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="card-footer">
+            <a href="add" class="btn btn-outline-success">Agregar {{title}} </a>
+        </div>
+            
+    </div>
+</div>
+<script>
+    $(function(){
+        getItems('#{{title | lower }}', '');
+    });
+</script>
+{% endblock content %}

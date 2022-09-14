@@ -1,0 +1,143 @@
+<html>
+
+<head>
+  <style>
+    @page {
+      size: letter portrait;
+
+      @frame header_frame {
+        /* LOGO . ENCABEZADO*/
+        -pdf-frame-content: header_content;
+        left: 20pt;
+        top: 5pt;
+        height: 100pt;
+        width: 560pt;
+      }
+
+      @frame header_frame {
+        /* Static frame */
+        -pdf-frame-content: title;
+        left: 40pt;
+        top: 85pt;
+        bottom: -100pt;
+        width: 600pt;
+      }
+
+      @frame header_frame {
+        /* Static frame */
+        -pdf-frame-content: super;
+        left: 40pt;
+        top: 125pt;
+        bottom: -100pt;
+        width: 600pt;
+      }
+     
+      @frame header_frame {
+        -pdf-frame-content: game;
+        left: 295pt;
+        bottom: 100pt;
+        top: 100pt;
+
+        /* width: 100pt; */
+
+      }
+      @frame header_frame {
+        -pdf-frame-content: imagenCentro;
+        left: 175pt;
+        right: -50pt;
+        top: 300pt;
+      }
+
+
+      @frame col1_frame {
+        /* Content frame 1 */
+        top: 90pt;
+      }
+
+
+
+      @frame footer_frame {
+        /* PAGINA 1 DE X*/
+        -pdf-frame-content: footer_content;
+        left: 500pt;
+        width: 512pt;
+        top: 775pt;
+        height: 20pt;
+      }
+
+      p.separator {
+        -pdf-keep-with-next: false;
+        font-size: 6pt;
+      }
+      @frame header_frame {
+        -pdf-frame-content: piePagina;
+        top: 740pt;
+        right: 1pt;
+        left: 1pt;
+      }
+    }
+    b{
+        font-size: 15px;
+        letter-spacing: 2pt;      /* para separar entgre letras */
+        word-spacing: 5pt;        /* para separacion entre palabras */  
+        line-height: 20pt;        /* para la separacion entre lineas */ 
+        text-indent: 30pt;
+    }
+    p{
+        font-size: 16px;
+    }
+    .container{
+        margin-left: 100px;
+        margin-right: 100px;
+    }
+   
+   
+  </style>
+
+  <head>
+
+  <body>
+    <pdf:nextframe">
+    
+    
+    <div id="header_content">
+      <img src=".{{encabezado}}" alt="" style="width: 950px; height: 100px; text-align: center;" />
+    </div>
+    <div id="imagenCentro">
+      <img src=".{{imagenCentro}}" alt="" style="width: 750px; height: 450px; text-align: center; margin-left: -100px;" />
+    </div>
+    <div id="piePagina">
+      <img src=".{{piePagina}}" alt="" style="width: 915px; height: 75px; text-align: center;" />
+      <h1 style="color: rgb(114, 110, 110); text-align: right; font-size: 10px;"><i>{{code}}</i></h1>
+    </div>
+
+    <div>
+        <center>
+            <h1>UNIDAD DE INTEGRACIÓN CURRICULAR</h1>
+            <h1>FORMATO SOLICITUD DE OPCIÓN DE TITULACIÓN</h1>
+            <h1>{{usuario.idCarrera.idFacultad | upper}}</h1>
+        </center>
+        <p style="margin-left: 450px;" > Tulcán, {{fecha}} </p>
+        <div class="container">
+            <p> {{usuario.idCarrera.genero}} </p>
+            <p> {{usuario.idCarrera.abreviatura}} {{usuario.idCarrera.nombreDirector}} </p>
+            <p> <b> {% if usuario.idCarrera.genero == 'Señor' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera.nombre | upper}}  </b> </p>
+            <br>
+            <p style="text-align: justify;" >
+                Yo  {{usuario.getInformacion}}, con CI: {{usuario.username}}, estudiante del {{usuario.idNivel}} nivel, en cumplimiento de los requisitos establecidos en el Reglamento de la Unidad de Integración Curricular, Titulación e Incorporación de la UPEC, me dirijo a usted con la finalidad de solicitar la aprobación de la opción de titulación de {{usuario.modalidad}} que he elegido para culminar la mencionada unidad. Adjunto el récord académico debidamente legalizado.
+                
+                </p>
+
+
+
+
+
+
+            </div>
+
+        
+    </div>
+    <p class="separator">&nbsp;</p>
+  </body>
+
+</html>
