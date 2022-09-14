@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models.deletion import CASCADE
-from Usuarios.models import Carrera, Usuarios
+from Usuarios.models import Carrera, Perfiles, Usuarios
 # Registro de los modelos de la base de datos
 
 class ListaVerificacion(models.Model):
@@ -17,14 +17,7 @@ class ListaVerificacion(models.Model):
     fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def getNombreArchivo(self):
         return f'{self.detalles[self.nombreArchivo][1]}'
-class Nivel(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name='Nombre del Nivel')
-    periodoInicio = models.DateField( verbose_name='Periodo de inicio de Proyecto')
-    periodoFin = models.DateField( verbose_name='Periodo de fin de Proyecto', null = True, blank = True)
-    periodoActual = models.DateField( verbose_name='Periodo Actual')
-    def __str__(self) -> str:
-        txt = '{0}'
-        return txt.format(self.nombre)
+
 
 class Proyecto(models.Model):
     usuarios = []
@@ -37,7 +30,6 @@ class Proyecto(models.Model):
     except:
         print('No hay perfiles')
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE)
-    idNivel = models.ForeignKey(Nivel, verbose_name='Nivel', on_delete=CASCADE)
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Proyecto')
     idDocente = models.CharField(choices=usuarios, verbose_name='Docente', max_length=13)
     idEstudiantes = models.ManyToManyField(Usuarios, verbose_name='Listado de Estudiantes')
@@ -93,18 +85,6 @@ class Tribunal(models.Model):
     def __str__(self) -> str:
         txt = '{0} - {1}'
         return txt.format(self.aula, self.fechaDefensa)
-class Imagenes(models.Model):
-    nombre = models.CharField(max_length=10, verbose_name='Nombre')
-    imagen = models.ImageField(verbose_name='Imagen', upload_to='informacion', null = True, blank = True)
-    def __str__(self) -> str:
-        return '{}'.format(self.nombre)
-
-class Informacion(models.Model):
-    nombre = models.CharField(max_length=10, verbose_name='Nombre')
-    detalle = models.TextField(max_length=100, verbose_name='Detalles', null = True, blank = True)
-    imagen = models.ManyToManyField(Imagenes,verbose_name='Imagen', blank = True)
-    def __str__(self) -> str:
-        return '{} {}'.format(self.nombre, self.detalle)
 class Tutoria(models.Model):
     idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
     descripcion = models.TextField(verbose_name='Temas a tratarse')
@@ -123,3 +103,11 @@ class GrupoExperto(models.Model):
             ul += f'<li> {docentes} </li>'
         ul = f'<ul>{ul}</ul>'
         return ul
+class Documento(models.Model):
+    nombre = models.CharField(max_length=200, verbose_name='Nombre del Documento', primary_key=True)
+    archivo = models.FileField(verbose_name='Archivo', upload_to='documentacion')
+    idPerfiles = models.ManyToManyField(Perfiles, verbose_name='Disponible para')
+    def __str__(self):
+        return self.nombre
+
+

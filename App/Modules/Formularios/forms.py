@@ -1,6 +1,6 @@
 from django.forms import TextInput, EmailInput, PasswordInput, ModelForm
 
-from App.models import Avance, GrupoExperto, ListaVerificacion, Proyecto, Tribunal, Tutoria
+from App.models import Avance, Documento, GrupoExperto, ListaVerificacion, Proyecto, Tribunal, Tutoria
 from Usuarios.models import Facultad, Carrera, Usuarios
 from django import forms
 
@@ -94,6 +94,17 @@ class formularioGrupoExperto(ModelForm):
     class Meta:
         model = GrupoExperto
         fields = '__all__'
+class formularioDocumentos(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for i in self.visible_fields():
+            i.field.widget.attrs['class'] = 'form-control form-control-sm'
+            i.field.widget.attrs['autocomplete'] = 'off'
+        self.fields['nombre'].widget.attrs['autofocus'] = True
+
+    class Meta:
+        model = Documento
+        fields = '__all__'
 
 
 class formularioUsuarios(ModelForm):
@@ -106,7 +117,7 @@ class formularioUsuarios(ModelForm):
 
     class Meta:
         model = Usuarios
-        fields = ('username', 'first_name', 'last_name', 'idCarrera', 'celular', 'email', 'password', 'imagen')
+        fields = ('username', 'first_name', 'last_name', 'idCarrera', 'celular', 'email', 'password', 'imagen', 'idNivel')
 
 
 class resetPasswordForm(forms.Form):

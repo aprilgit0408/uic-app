@@ -93,6 +93,14 @@
                   </select>
                   <label for="floatingSelect">Listado de Carreras</label>
                 </div>
+                <div class="form-floating last mb-2">
+                  <select class="form-select" style="background-color: rgb(237,242,245);" name="idNivel" id="floatingSelect" required aria-label="Listado de Niveles">
+                    {% for item in nivel %}
+                      <option value="{{item.pk}}">{{item}}</option>
+                    {% endfor %}
+                  </select>
+                  <label for="floatingSelect">Nivel</label>
+                </div>
                 <div class="form-group first">
                   <label for="id_password">Contraseña</label>
                   <input type="password" class="form-control" required name="password" id="id_password">

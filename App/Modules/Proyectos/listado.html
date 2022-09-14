@@ -19,7 +19,7 @@
                             <th class="header" scope="col" >DOCENTE</th>
                         {% endif %}
                         
-                        {% if title == 'Proyectos' %}
+                        {% if title == 'Proyectos' and request.user.perfil.nombre != 'Estudiante' %}
                             <th class="header" scope="col">OPCIONES</th>
                         {% endif %}
                     </tr>

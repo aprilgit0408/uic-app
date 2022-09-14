@@ -83,8 +83,9 @@
                             <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorías</a></li>
                             <!-- <li><a class="nav-link" href="{% url 'app:proyectos' %}">Documentación</a></li> -->
                         {% elif request.user.perfil.nombre == 'Estudiante' %}
+                            <li><a class="nav-link" href="{% url 'app:documentos' %}">Documentos</a></li>
                             <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
-                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">CheckList</a></li>
+                            <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">CheckList</a></li> -->
                         {% else %}
                             <li><a class="nav-link active" href="{% url 'app:index' %}">Inicio</a></li>
                             <li><a class="nav-link" href="">Documentación General</a></li>

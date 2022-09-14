@@ -9,6 +9,7 @@ from django.views.generic import CreateView, FormView
 from django.shortcuts import redirect, render
 from App.Modules.Formularios.forms import formularioUsuarios, resetPasswordForm, resetPasswordFormLink
 from App.models import Carrera, Usuarios
+from Usuarios.models import Nivel
 from uicApp.settings import LOGIN_REDIRECT_URL, EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, DOMAIN
 import uuid
 modelo = Usuarios
@@ -51,6 +52,7 @@ class addUser(CreateView):
         context = super().get_context_data(**kwargs)
         context['title'] = f'{entidad}'
         context['carreras'] = Carrera.objects.all()
+        context['nivel'] = Nivel.objects.all()
         return context
 
 

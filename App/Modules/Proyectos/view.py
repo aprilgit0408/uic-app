@@ -29,8 +29,9 @@ class listarProyectos(LoginRequiredMixin, ListView):
                     nombre += f'<li><h5><b><i>{grupo.pk}</i></b></h5></li>'
         if nombre:
             nombre = f'<ul>{nombre}</ul>'
+        esEstudiante = True if self.request.user.perfil.nombre == 'Estudiante' else False
         context['grupo'] = nombre
-        context['encabezado'] = ['#', 'carrera','tema de investigación','estudiantes asignados', 'avances']
+        context['encabezado'] = ['#', 'carrera','tema de investigación','estudiantes asignados', 'avances'] if not esEstudiante else ['carrera','tema de investigación','avances'] 
         context['title'] = f'{entidad}' 
         context['listado'] = f'Listado de {entidad}' 
         return context
@@ -39,6 +40,7 @@ class listarProyectos(LoginRequiredMixin, ListView):
         try:
             cont = 1
             admin = True if request.user.perfil.nombre == 'Admin' else False
+            esEstudiante = True if request.user.perfil.nombre == 'Estudiante' else False
             query = modelo.objects.all() if admin else modelo.objects.filter(idDocente = request.user.pk)
             for i in query:
                 if admin:
@@ -50,6 +52,13 @@ class listarProyectos(LoginRequiredMixin, ListView):
                         'Ver',
                         i.getDocente().getInformacion(),
                         i.id
+                    ])
+                elif esEstudiante:
+                    data.append([
+                        i.idCarrera.nombre,
+                        i.nombre,
+                        'Ver',
+                        None
                     ])
                 else:
                     data.append([
