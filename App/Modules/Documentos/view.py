@@ -1,7 +1,7 @@
 from django.views.generic import CreateView, ListView
 from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from App.Modules.Formularios.forms import formularioDocumentos
+from App.Modules.Formularios.forms import formularioDocumentos, formularioFirma
 from App.models import Documento
 from django.views.generic.base import  View
 from django.http.response import HttpResponse, JsonResponse
@@ -11,34 +11,49 @@ import os
 from xhtml2pdf import pisa
 from django.contrib.staticfiles import finders
 from django.template.loader import get_template
+from django.shortcuts import redirect, render
 from Usuarios.models import Usuarios
 from uicApp import settings
 modelo = Documento
 formulario = formularioDocumentos
+formularioFirmaEst = formularioFirma
 entidad = 'Documentos'
 main = 'main.html'
 url = reverse_lazy(f'app:{entidad.lower()}')
 
 
-class listarDocumentos(LoginRequiredMixin, ListView):
-    model = modelo
+class listarDocumentos(LoginRequiredMixin, UpdateView):
+    model = Usuarios
     template_name = f'{entidad}/listado.html'
+    form_class = formularioFirmaEst
+    success_url = url
 
     def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
+    def get_object(self, queryset = None):
+        return self.request.user
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['encabezado'] = ['#','nombre del documento', 'archivo']
-        context['items'] = modelo.objects.all()
+        context['items'] = Documento.objects.all()
         context['title'] = f'{entidad}'
         context['listado'] = f'Listado de {entidad}'
         return context
     def post(self, request, *args, **kwargs):
+        try:
+            nombre = request.POST['nombre']
+            form = self.form_class(request.POST, instance=self.get_object())
+            if form.is_valid():
+                form.save()
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            pass
         data = []
         try:
             cont = 1
-            for i in modelo.objects.all():
+            for i in Documento.objects.all():
                 data.append([
                     cont,
                     i.nombre,

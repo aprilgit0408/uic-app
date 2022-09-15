@@ -1,3 +1,4 @@
+from distutils.command.upload import upload
 from django.db import models
 from django.db.models.deletion import CASCADE
 from uicApp.settings import MEDIA_URL, STATIC_URL
@@ -83,6 +84,7 @@ class Usuarios(AbstractUser):
     idNivel = models.ForeignKey(Nivel, verbose_name='Nivel', on_delete=CASCADE, null = True, blank = True)
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE, null=True, blank=True)
     token = models.CharField(max_length=36, blank=True, null=True, editable=False)
+    firma = models.ImageField(verbose_name='Firma', upload_to='usuario/firma', null = True, blank = True)
     def getImagen(self):
         if self.imagen:
             return '{}{}'.format(MEDIA_URL, self.imagen)

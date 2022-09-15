@@ -21,12 +21,62 @@
             </table>
         </div>
         
-        <div class="card-footer">
-            <a href="add" class="btn btn-outline-success">Agregar {{title}} </a>
-        </div>
+        
+        {% if request.user.perfil.nombre != 'Estudiante' %}
+            <div class="card-footer">
+                <a href="add" class="btn btn-outline-success">Agregar {{title}} </a>
+            </div>
+        {% else %}
+            <div class="card-footer">
+                <form action="" method="POST" class="form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="nombre" value="{{request.user.username}}" >
+                    <!-- {{form}} -->
+                    <div class="form-group medium">
+                        <div class="row">
+                           {% if request.user.firma %}
+                                <a href="{{request.user.firma.url}}" target="_blank" >Ver Firma Actual</a>
+                                <div class="row">
+                                    <label for="id_firma">Cambiar Firma</label>
+                                    <div class="col">
+                                        <div class="form-group medium">
+                                            <input type="file" name="firma" accept="image/*" class="form-control form-control-sm" required autocomplete="off" id="id_firma">
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <button class="btn btn-success" title="Guardar Firma"  type="submit" style="margin-left: -20px; margin-top: -5px;" >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-file-check" viewBox="0 0 16 16">
+                                                <path d="M10.854 6.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 8.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                                                <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                           {% else %}
+                                <div class="col-md-5">
+                                      <label for="id_firma">Agregar Firma</label>
+                                        <input type="file" name="firma" accept="image/*" class="form-control form-control-sm" required autocomplete="off" id="id_firma">
+                                </div>
+                                <div class="col-md-1">
+                                    <button class="btn btn-primary" title="Guardar Firma"  type="submit" style="margin-left: -20px; margin-top: 20px;" >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-file-check" viewBox="0 0 16 16">
+                                            <path d="M10.854 6.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 8.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                                            <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <p>Nota: <b><i>La resolución de la imagen debe ser de 150 x 100 pixeles</i></b> </p>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+            
             
     </div>
 </div>
+<br><br>
 <script>
     $(function(){
         getItems('#{{title | lower }}', '');

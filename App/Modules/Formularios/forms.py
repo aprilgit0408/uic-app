@@ -105,6 +105,16 @@ class formularioDocumentos(ModelForm):
     class Meta:
         model = Documento
         fields = '__all__'
+class formularioFirma(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for i in self.visible_fields():
+            i.field.widget.attrs['class'] = 'form-control form-control-sm'
+            i.field.widget.attrs['autocomplete'] = 'off'
+
+    class Meta:
+        model = Usuarios
+        fields = ('firma',)
 
 
 class formularioUsuarios(ModelForm):

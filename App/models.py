@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.deletion import CASCADE
 from Usuarios.models import Carrera, Perfiles, Usuarios
+from crum import get_current_request
 # Registro de los modelos de la base de datos
 
 class ListaVerificacion(models.Model):
@@ -106,8 +107,6 @@ class GrupoExperto(models.Model):
 class Documento(models.Model):
     nombre = models.CharField(max_length=200, verbose_name='Nombre del Documento', primary_key=True)
     archivo = models.FileField(verbose_name='Archivo', upload_to='documentacion')
-    idPerfiles = models.ManyToManyField(Perfiles, verbose_name='Disponible para')
+    idPerfiles = models.ManyToManyField(Perfiles, verbose_name='Disponible para')    
     def __str__(self):
         return self.nombre
-
-

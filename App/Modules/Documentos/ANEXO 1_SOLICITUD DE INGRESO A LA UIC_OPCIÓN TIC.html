@@ -2,98 +2,70 @@
 
 <head>
   <style>
+    @import url('http://fonts.cdnfonts.com/css/century-gothic');
     @page {
-      size: letter portrait;
+      /* size: letter portrait; */
+      size: a4 portrait;
 
       @frame header_frame {
-        /* LOGO . ENCABEZADO*/
-        -pdf-frame-content: header_content;
-        left: 20pt;
-        top: 5pt;
-        height: 100pt;
-        width: 560pt;
-      }
-
-      @frame header_frame {
-        /* Static frame */
-        -pdf-frame-content: title;
-        left: 40pt;
-        top: 85pt;
-        bottom: -100pt;
-        width: 600pt;
-      }
-
-      @frame header_frame {
-        /* Static frame */
-        -pdf-frame-content: super;
-        left: 40pt;
-        top: 125pt;
-        bottom: -100pt;
-        width: 600pt;
-      }
-     
-      @frame header_frame {
-        -pdf-frame-content: game;
-        left: 295pt;
-        bottom: 100pt;
-        top: 100pt;
-
-        /* width: 100pt; */
-
+        -pdf-frame-content: header_contents;
+        left: 16pt;
+        top: 22px;
+        right: 16pt;
       }
       @frame header_frame {
         -pdf-frame-content: imagenCentro;
-        left: 175pt;
-        right: -50pt;
-        top: 300pt;
+        left: 90pt;
+        right: 90pt;
+        top: 272pt;
+        /* bottom: 202pt; */
       }
-
-
       @frame col1_frame {
         /* Content frame 1 */
-        top: 90pt;
+        top: 105pt;
+      }
+      @frame header_frame {
+        -pdf-frame-content: piePagina;
+        top: 790pt;
+        right: 0pt;
+        left: 0pt;
+      }
+      @frame header_frame {
+        -pdf-frame-content: firma;
+        top: 420pt;
+        left: 250pt;
+        /* height: 200pt; */
+        width: 150pt;
       }
 
-
-
-      @frame footer_frame {
-        /* PAGINA 1 DE X*/
-        -pdf-frame-content: footer_content;
-        left: 500pt;
-        width: 512pt;
-        top: 775pt;
-        height: 20pt;
-      }
 
       p.separator {
         -pdf-keep-with-next: false;
         font-size: 6pt;
       }
-      @frame header_frame {
-        -pdf-frame-content: piePagina;
-        top: 740pt;
-        right: 1pt;
-        left: 1pt;
-      }
-    }
-    b{
-        font-size: 15px;
-        letter-spacing: 2pt;      /* para separar entgre letras */
-        word-spacing: 5pt;        /* para separacion entre palabras */  
-        line-height: 20pt;        /* para la separacion entre lineas */ 
-        text-indent: 30pt;
+      
     }
     p{
-        font-size: 16px;
+      font-family: 'Century Gothic', sans-serif;
+      font-weight: 400;
+      font-style: normal;
+        font-size: 15px;
+        /* font-family: 'Century Gothic, CenturyGothic, AppleGothic, sans-serif'; */
+    }
+    .titulos{
+        font-size: 14px;
+        font-family: 'Century Gothic', sans-serif;
+        line-height: 1pt;
+        /* word-spacing: -1pt; */
+        /* letter-spacing: 1pt;  */
     }
     .container{
-        margin-left: 100px;
-        margin-right: 100px;
+        margin-left: 120px;
+        margin-right: 120px;
     }
    
    
   </style>
-
   <head>
 
   <body>
@@ -101,43 +73,55 @@
     
     
     <div id="header_content">
-      <img src=".{{encabezado}}" alt="" style="width: 950px; height: 100px; text-align: center;" />
+    </div>
+    <div id="header_contents">
+      <img src=".{{encabezado}}" alt="" style="width: 970px; height: 140px; text-align: center; margin-top: -15px;" />
     </div>
     <div id="imagenCentro">
-      <img src=".{{imagenCentro}}" alt="" style="width: 750px; height: 450px; text-align: center; margin-left: -100px;" />
+      <img src=".{{imagenCentro}}" alt="" style="width: 750px; height: 735px; text-align: center;" />
     </div>
     <div id="piePagina">
       <img src=".{{piePagina}}" alt="" style="width: 915px; height: 75px; text-align: center;" />
-      <h1 style="color: rgb(114, 110, 110); text-align: right; font-size: 10px;"><i>{{code}}</i></h1>
     </div>
+    {% if usuario.firma %}
+      <div id="firma">
+        <img src=".{{usuario.firma.url}}" alt="" style="width: 150px; height: 100px; text-align: center;" />
+      </div>
+    {% endif %}
 
     <div>
         <center>
-            <h1>UNIDAD DE INTEGRACIÓN CURRICULAR</h1>
-            <h1>FORMATO SOLICITUD DE OPCIÓN DE TITULACIÓN</h1>
-            <h1>{{usuario.idCarrera.idFacultad | upper}}</h1>
+            <p class="titulos"><b>UNIDAD DE INTEGRACIÓN CURRICULAR</b></p>
+            <p class="titulos"><b>FORMATO SOLICITUD DE OPCIÓN DE TITULACIÓN</b></p>
+            <p class="titulos" style="line-height: 22pt;" ><b>FACULTAD DE {{usuario.idCarrera.idFacultad | upper}}</b></p>
         </center>
-        <p style="margin-left: 450px;" > Tulcán, {{fecha}} </p>
         <div class="container">
+          <p style="text-align:right;" class="titulos" > Tulcán, {{fecha}} </p>
             <p> {{usuario.idCarrera.genero}} </p>
-            <p> {{usuario.idCarrera.abreviatura}} {{usuario.idCarrera.nombreDirector}} </p>
-            <p> <b> {% if usuario.idCarrera.genero == 'Señor' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera.nombre | upper}}  </b> </p>
+            <p style="text-align: justify;"> 
+              {{usuario.idCarrera.abreviatura}} {{usuario.idCarrera.nombreDirector}} <br>
+              <b style=" font-size: 13px;" > {% if usuario.idCarrera.genero == 'Señor' %}DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera.nombre | upper}}  </b> </p>
             <br>
             <p style="text-align: justify;" >
                 Yo  {{usuario.getInformacion}}, con CI: {{usuario.username}}, estudiante del {{usuario.idNivel}} nivel, en cumplimiento de los requisitos establecidos en el Reglamento de la Unidad de Integración Curricular, Titulación e Incorporación de la UPEC, me dirijo a usted con la finalidad de solicitar la aprobación de la opción de titulación de {{usuario.modalidad}} que he elegido para culminar la mencionada unidad. Adjunto el récord académico debidamente legalizado.
-                
+                <br><br><br>
+                <p style="margin-left: 150px;">Firma:
+                  <br><label for="" style="margin-left: 10pt;" >_____________________________________</label>
                 </p>
-
-
-
-
-
-
+                <br>
+                <p><b>RESOLUCIÓN</b></p>
+                <p style="text-align: justify;"  >
+                  En cumplimiento al artículo 6 del Reglamento de la Unidad de Integración
+                  Curricular, Titulación e Incorporación y una vez verificado que el estudiante ha
+                  aprobado entre el 70% y 80% de su malla curricular de acuerdo a su récord
+                  académico debidamente legalizado, se declara <b>IDÓNEO</b> para continuar con el
+                  proceso en la opción de titulación elegida.
+                  </p> <br>
+                  <p style="text-align: center; font-size: 14px;" > {{usuario.idCarrera.abreviatura}} {{usuario.idCarrera.nombreDirector}} <br> </p>
+                  <p style="text-align: center; font-size: 13px;" > <b> {% if usuario.idCarrera.genero == 'Señor' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera.nombre | upper}}  </b> </p>
+              
             </div>
-
-        
     </div>
-    <p class="separator">&nbsp;</p>
   </body>
 
 </html>
