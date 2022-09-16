@@ -2,17 +2,15 @@ from django.views.generic import CreateView, ListView
 from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioDocumentos, formularioFirma
-from App.models import Documento
 from django.views.generic.base import  View
-from django.http.response import HttpResponse, JsonResponse
+from django.http.response import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 import datetime
 import os
 from xhtml2pdf import pisa
 from django.contrib.staticfiles import finders
 from django.template.loader import get_template
-from django.shortcuts import redirect, render
-from Usuarios.models import Usuarios
+from Usuarios.models import SeguimientoDocumentacion, Usuarios, Documento
 from uicApp import settings
 modelo = Documento
 formulario = formularioDocumentos
@@ -36,11 +34,26 @@ class listarDocumentos(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['encabezado'] = ['#','nombre del documento', 'archivo']
+        context['encabezado'] = ['#','nombre del documento','estado' ,'archivo']
         context['items'] = Documento.objects.all()
         context['title'] = f'{entidad}'
         context['listado'] = f'Listado de {entidad}'
         return context
+    def getEstado(self, estado, cont, datosEstado):
+        # print('cont : ', cont)
+        # print('datosEstado : ', datosEstado)
+        # print('datosEstado : ', len(datosEstado))
+        if estado == True:
+            return 'Aprobado'
+        if estado is None:
+            return 'Rechazado'
+        if estado == False and cont == 1 and len(datosEstado) == 0:
+            return 'Enviar para iniciar proceso'
+        if estado == False and cont > 1 and len(datosEstado) == 0:
+            return 'Listo para enviar'
+        if estado == False:
+            return 'Pendiente por Aprobar'
+        return 'Inhabilitado'
     def post(self, request, *args, **kwargs):
         try:
             nombre = request.POST['nombre']
@@ -53,17 +66,27 @@ class listarDocumentos(LoginRequiredMixin, UpdateView):
         data = []
         try:
             cont = 1
-            for i in Documento.objects.all():
-                data.append([
-                    cont,
-                    i.nombre,
-                    'file',
-                    i.archivo.url[-5:].split('.')[1],
-                    i.archivo.url,
-                ])
+            getDocumentacionBKP = SeguimientoDocumentacion.objects.filter(idUsuario = request.user.pk)
+            valorAnterior = ''
+            for documentacion in Documento.objects.all():
+                for perfil in documentacion.idPerfiles.all():
+                    if perfil.nombre == 'Estudiante':
+                        estado = [seguimiento for seguimiento in getDocumentacionBKP if seguimiento and seguimiento.idDocumento == documentacion]
+                        habilitar = estado if estado else False
+                        estadoPantalla = habilitar[0].estado if habilitar else  False if valorAnterior else False if cont == 1 else''
+                        data.append([
+                            cont,
+                            documentacion.nombre,
+                            self.getEstado(estadoPantalla, cont, estado),
+                            'file',
+                            estadoPantalla,
+                            documentacion.archivo.url[-5:].split('.')[1],
+                            documentacion.archivo.url,
+                        ])
+                        valorAnterior = habilitar[0].estado if habilitar else False
                 cont +=1
         except Exception as e:
-            print(f'Error {entidad} l-43 ',e)
+            print(f'Error {entidad} l-88 ',e)
             data = {}
         return JsonResponse(data, safe=False)
 
@@ -116,7 +139,14 @@ class deleteDocumentos(LoginRequiredMixin, DeleteView):
         context['accion'] = f'Eliminar {entidad}'
         context['eliminar'] = kwargs
         return context
-
+class GuardarDocumento(LoginRequiredMixin, View):
+    template_name = main
+    def get(self, request, *args, **kwargs):
+        idDocumento = Documento.objects.get(pk = self.kwargs['pk'])
+        if not SeguimientoDocumentacion.objects.filter(idDocumento = idDocumento, idUsuario = request.user).exists():
+            form = SeguimientoDocumentacion.objects.create(idDocumento = idDocumento, idUsuario = request.user)
+            form.save()
+        return HttpResponseRedirect(url)
 class generarPDF(LoginRequiredMixin, View):
     def link_callback(self, uri, rel):
             result = finders.find(uri)

@@ -104,9 +104,3 @@ class GrupoExperto(models.Model):
             ul += f'<li> {docentes} </li>'
         ul = f'<ul>{ul}</ul>'
         return ul
-class Documento(models.Model):
-    nombre = models.CharField(max_length=200, verbose_name='Nombre del Documento', primary_key=True)
-    archivo = models.FileField(verbose_name='Archivo', upload_to='documentacion')
-    idPerfiles = models.ManyToManyField(Perfiles, verbose_name='Disponible para')    
-    def __str__(self):
-        return self.nombre

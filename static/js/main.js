@@ -18,7 +18,6 @@ function getItems(id, url) {
         'action': 'searchdata'
     }
     let responsiveTable = !!url ? url : false;
-    console.log('valor de id: ', id);
     let table = $(id).DataTable({
         responsive: true,
         language: {
@@ -54,8 +53,6 @@ function getItems(id, url) {
                 orderable: false,
                 render: function (data, type, row) {
                     let btn = data;
-                    console.log('Valor de data: ', data);
-                    console.log('Valor de rows: ', row);
                     if(data === 'file'){
                         let url = row[row.length - 2];
                         tipo = '';
@@ -66,7 +63,7 @@ function getItems(id, url) {
                             <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM1.6 11.85H0v3.999h.791v-1.342h.803c.287 0 .531-.057.732-.173.203-.117.358-.275.463-.474a1.42 1.42 0 0 0 .161-.677c0-.25-.053-.476-.158-.677a1.176 1.176 0 0 0-.46-.477c-.2-.12-.443-.179-.732-.179Zm.545 1.333a.795.795 0 0 1-.085.38.574.574 0 0 1-.238.241.794.794 0 0 1-.375.082H.788V12.48h.66c.218 0 .389.06.512.181.123.122.185.296.185.522Zm1.217-1.333v3.999h1.46c.401 0 .734-.08.998-.237a1.45 1.45 0 0 0 .595-.689c.13-.3.196-.662.196-1.084 0-.42-.065-.778-.196-1.075a1.426 1.426 0 0 0-.589-.68c-.264-.156-.599-.234-1.005-.234H3.362Zm.791.645h.563c.248 0 .45.05.609.152a.89.89 0 0 1 .354.454c.079.201.118.452.118.753a2.3 2.3 0 0 1-.068.592 1.14 1.14 0 0 1-.196.422.8.8 0 0 1-.334.252 1.298 1.298 0 0 1-.483.082h-.563v-2.707Zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638H7.896Z"/>
                             </svg>
                             `;
-                            color = 'warning';
+                            color = 'danger';
                         }else if(url === 'xlsx' || url === 'xls'){
                             tipo = `
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-xlsx" viewBox="0 0 16 16">
@@ -83,20 +80,32 @@ function getItems(id, url) {
                             `;
                             color = 'primary';
                         }
+                        if(row[4] === false || row[4] === null){
+                            tipoBotonAOpen = `<a type="button" href='enviar/${row[1]}' class="btn btn-outline-${ row[4] === false || row[4] === null ? 'info' : 'secondary'}" title="Enviar al  Director"  ${ row[4] === false || row[4] === null ?' id="idEnviar" ' : 'disabled="true"'} ">`;
+                            tipoBotonAClose= `</a>`;
+                        }else{
+                            tipoBotonAOpen = `<button type="button" class="btn btn-outline-${ row[4] === false || row[4] === null ? 'info' : 'secondary'}" title="Enviar al  Director"  ${ row[4] === false || row[4] === null ?' id="idEnviar" ' : 'disabled="true"'} ">`;
+                            tipoBotonAClose= `</button>`;
+                        }
                         btn = `
                             <div class="row" >
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <a type="submit" href="${row[row.length - 1]}" class="btn btn-outline-${color}" title="Descargar Formato" >
                                     ${tipo}
                                     </a> 
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <a type="submit" href="generar/${row[1]}" class="btn btn-outline-warning" title="Generar Archivo" target="_blank" >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-arrow-down" viewBox="0 0 16 16">
                                     <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293V6.5z"/>
                                     <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
                                     </svg>
                                     </a> 
+                                </div>
+                                <div class="col-md-4">
+                                    ${tipoBotonAOpen}
+                                    ${row[4] === true ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-square-fill" viewBox="0 0 16 16"><path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"/></svg>': row[4] === false ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cursor" viewBox="0 0 16 16"><path d="M14.082 2.182a.5.5 0 0 1 .103.557L8.528 15.467a.5.5 0 0 1-.917-.007L5.57 10.694.803 8.652a.5.5 0 0 1-.006-.916l12.728-5.657a.5.5 0 0 1 .556.103zM2.25 8.184l3.897 1.67a.5.5 0 0 1 .262.263l1.67 3.897L12.743 3.52 2.25 8.184z"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/></svg>'}
+                                    ${tipoBotonAClose}
                                 </div>
                             `
                             return btn;

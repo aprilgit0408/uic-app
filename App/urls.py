@@ -1,5 +1,5 @@
 from django.urls import path
-from App.Modules.Documentos.view import addDocumentos, generarPDF, listarDocumentos
+from App.Modules.Documentos.view import GuardarDocumento, addDocumentos, generarPDF, listarDocumentos
 from App.Modules.Facultades.view import listarFacultades, addFacultades, editFacultades, deleteFacultades
 from App.Modules.Carreras.view import listarCarreras, addCarreras, editCarreras, deleteCarreras
 from App.Modules.GrupoExperto.view import addGrupoExpertos, deleteGrupoExpertos, editGrupoExpertos, listarGrupoExpertos
@@ -46,6 +46,7 @@ urlpatterns = [
     path('app/documentos/',  listarDocumentos.as_view(), name='documentos'),
     path('app/documentos/add',  addDocumentos.as_view(), name='addDocumentos'),
     path('app/documentos/generar/<pk>',  generarPDF.as_view(), name='generarPDF'),
+    path('app/documentos/enviar/<pk>',  GuardarDocumento.as_view(), name='guardarDocumento'),
     
     path('app/tutorias/',  listarTutorias.as_view(), name='tutorias'),
     path('app/tutorias/add',  addTutorias.as_view(), name='addTutorias'),

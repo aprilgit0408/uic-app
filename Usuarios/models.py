@@ -46,30 +46,31 @@ class Nivel(models.Model):
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombre)
-def vcedula(texto):
-    nocero = texto.strip("0")
-    cedula = int(nocero,0)
-    verificador = cedula%10
-    numero = cedula//10
-    suma = 0
-    while (numero > 0):
-        posimpar = numero%10
-        numero   = numero//10
-        posimpar = 2*posimpar
-        if (posimpar  > 9):
-            posimpar = posimpar-9
-        pospar = numero%10
-        numero = numero//10
-        suma = suma + posimpar + pospar
-    decenasup = suma//10 + 1
-    calculado = decenasup*10 - suma
-    if (calculado  >= 10):
-        calculado = calculado - 10
-    if (calculado == verificador):
-        return texto
-    else:
-        raise ValidationError("La cédula ingresada no es válida") 
+# def vcedula(texto):
+#     nocero = texto.strip("0")
+#     cedula = int(nocero,0)
+#     verificador = cedula%10
+#     numero = cedula//10
+#     suma = 0
+#     while (numero > 0):
+#         posimpar = numero%10
+#         numero   = numero//10
+#         posimpar = 2*posimpar
+#         if (posimpar  > 9):
+#             posimpar = posimpar-9
+#         pospar = numero%10
+#         numero = numero//10
+#         suma = suma + posimpar + pospar
+#     decenasup = suma//10 + 1
+#     calculado = decenasup*10 - suma
+#     if (calculado  >= 10):
+#         calculado = calculado - 10
+#     if (calculado == verificador):
+#         return texto
+#     else:
+#         raise ValidationError("La cédula ingresada no es válida") 
      
+
 
 class Usuarios(AbstractUser):
     modalidades = [
@@ -109,4 +110,23 @@ class Usuarios(AbstractUser):
         if self.pk is None:
             self.set_password(self.password)
         return super().save(*args, **kwargs)
-        
+    
+
+class Documento(models.Model):
+    nombre = models.CharField(max_length=200, verbose_name='Nombre del Documento', primary_key=True)
+    archivo = models.FileField(verbose_name='Archivo', upload_to='documentacion')
+    idPerfiles = models.ManyToManyField(Perfiles, verbose_name='Disponible para') 
+    def __str__(self):
+        return self.nombre
+
+class SeguimientoDocumentacion(models.Model):
+    opciones = [
+        (False, 'Pendiente'),
+        (True, 'Aprobado'),
+        (None, 'Rechazado')
+    ]
+    idDocumento = models.ForeignKey(Documento, verbose_name='Documento', on_delete=CASCADE)
+    idUsuario = models.ForeignKey(Usuarios, verbose_name='Usuario', on_delete=CASCADE)
+    estado = models.BooleanField(choices=opciones,verbose_name='Estado del archivo', default=False, null = True, blank = True)   
+    def __str__(self):
+        return f'{self.idDocumento} {self.idUsuario}'

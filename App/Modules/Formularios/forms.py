@@ -1,7 +1,7 @@
 from django.forms import TextInput, EmailInput, PasswordInput, ModelForm
 
-from App.models import Avance, Documento, GrupoExperto, ListaVerificacion, Proyecto, Tribunal, Tutoria
-from Usuarios.models import Facultad, Carrera, Usuarios
+from App.models import Avance, GrupoExperto, ListaVerificacion, Proyecto, Tribunal, Tutoria
+from Usuarios.models import Facultad, Carrera, Usuarios, Documento
 from django import forms
 
 
