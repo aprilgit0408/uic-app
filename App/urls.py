@@ -1,5 +1,5 @@
 from django.urls import path
-from App.Modules.Documentos.view import GuardarDocumento, addDocumentos, generarPDF, listarDocumentos
+from App.Modules.Documentos.view import GuardarDocumento, listadoSolicitudes, addDocumentos, generarPDF, listarDocumentos
 from App.Modules.Facultades.view import listarFacultades, addFacultades, editFacultades, deleteFacultades
 from App.Modules.Carreras.view import listarCarreras, addCarreras, editCarreras, deleteCarreras
 from App.Modules.GrupoExperto.view import addGrupoExpertos, deleteGrupoExpertos, editGrupoExpertos, listarGrupoExpertos
@@ -8,7 +8,7 @@ from App.Modules.Tutorias.view import addTutorias, deleteTutorias, editTutorias,
 from App.Modules.Verificacion.view import listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
 from App.Modules.Proyectos.view import listarDocentes, listarEstudiantes, listarProyectos, addProyectos, editProyectos, deleteProyectos
 
-from App.views import Index
+from App.views import Index, PerfilUsuario, editProfilePasswords
 app_name = 'app'
 urlpatterns = [
     # Serivicio Para las Facultades
@@ -43,7 +43,9 @@ urlpatterns = [
     
     path('app/estudiantes/',  listarEstudiantes.as_view(), name='estudiantes'),
     path('app/docentes/',  listarDocentes.as_view(), name='docentes'),
+    
     path('app/documentos/',  listarDocumentos.as_view(), name='documentos'),
+    path('app/documentos/solicitudes/',  listadoSolicitudes.as_view(), name='solicitudes'),
     path('app/documentos/add',  addDocumentos.as_view(), name='addDocumentos'),
     path('app/documentos/generar/<pk>',  generarPDF.as_view(), name='generarPDF'),
     path('app/documentos/enviar/<pk>',  GuardarDocumento.as_view(), name='guardarDocumento'),
@@ -60,5 +62,7 @@ urlpatterns = [
     path('login/reset',  resetPassword.as_view(), name='reset'),
     path('login/password/<str:token>',resetPasswordLink.as_view(), name='resetPassword'),
     path('logout/',LogoutView.as_view(), name='logout'),
+    path('perfil/',  PerfilUsuario.as_view(), name='perfil'),
+    path('perfil/password',  editProfilePasswords.as_view(), name='editPassword'),
     path('index',  Index.as_view(), name='index')
 ]

@@ -32,10 +32,9 @@
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" />
     <script src="{% static 'js/jquery.min.js' %}"></script>
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.{% static 'js/1.4.2/respond.min.js' %}"></script>
-    <![endif]-->
+    
+    <!-- ALERTS -->
+     <link rel="stylesheet" href=" {% static 'alerts/css/jquery-confirm.css' %} ">
 
 </head>
 
@@ -68,20 +67,29 @@
                         {% if request.user.perfil.nombre == 'Admin' %}
                             <li><a class="nav-link" href="{% url 'app:facultades' %}">Facultades</a></li>
                             <li><a class="nav-link" href="{% url 'app:carreras' %}">Carreras</a></li>
-                            <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
                             <li><a class="nav-link" href="{% url 'app:docentes' %}">Docentes</a></li>
-                            <li><a class="nav-link" href="{% url 'app:estudiantes' %}">Estudiantes</a></li>
-                            <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorias</a></li>
-                            <li><a class="nav-link" href="{% url 'app:grupoExpertos' %}">Grupo Expertos</a></li>
+                            <div class="dropdown">
+                                <a class="dropdown-toggle" href="#" role="button" style="margin-top: 50pt;text-transform:uppercase!important; " id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span style="line-height: 2.8;">Estudiantes</span>
+                                </a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="{% url 'app:estudiantes' %}">Listado</a>
+                                    <a class="dropdown-item" href="{% url 'app:tutorias' %}">Tutorías</a>
+                                    <a class="dropdown-item" href="{% url 'app:proyectos' %}">Proyectos</a>
+                                    <a class="dropdown-item" href="{% url 'app:solicitudes' %}">Solicitudes</a>
+                                </div>
+                            </div>
+                            <li><a class="nav-link" href="{% url 'app:grupoExpertos' %}">Grupo&nbspExpertos</a></li>
                             <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">CheckList</a></li> -->
                             <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Tribunal</a></li> -->
-                            <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Documentación</a></li> -->
+                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Documentación</a></li>
                         {% elif request.user.perfil.nombre == 'Docente' %}
-                            <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
                             <li><a class="nav-link" href="{% url 'app:estudiantes' %}">Estudiantes</a></li>
-                            <!-- <li><a class="nav-link" href="{% url 'app:proyectos' %}">Tribunal</a></li> -->
                             <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorías</a></li>
-                            <!-- <li><a class="nav-link" href="{% url 'app:proyectos' %}">Documentación</a></li> -->
+                            <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
+                            <!-- <li><a class="nav-link" href="{% url 'app:logout' %}">Solicitudes</a></li> -->
+                            <!-- <li><a class="nav-link" href="{% url 'app:proyectos' %}">Tribunal</a></li> -->
+                            <li><a class="nav-link" href="{% url 'app:proyectos' %}">Documentación</a></li>
                         {% elif request.user.perfil.nombre == 'Estudiante' %}
                             <li><a class="nav-link" href="{% url 'app:documentos' %}">Documentos</a></li>
                             <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
@@ -96,18 +104,20 @@
                             
                         
                         <!-- sesión de usuarios  -->
-                        <div class="btn-group">
+                        <div class="dropdown">
                             {% if request.user.pk %}
-                            <button type="button" class="btn btn-outline-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                              {{request.user.getAlias}}
-                            </button>
+                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <img src="{{request.user.getImagen}}" width="50" height="50" title="{{request.user.getInformacion}}" style="border-radius: 50%;"  alt="">
+                            </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="" ><b>{{request.user.perfil}}</b></a>
+                              <a class="dropdown-item" href="#" ><b>{{request.user.getAlias}} (<i>{{request.user.perfil}}</i>)</b></a>
                                 <div class="dropdown-divider"></div>
                                 {% if grupo %}
                                     {{grupo | safe}}
                                     <div class="dropdown-divider"></div>
                                 {% endif %}
+                                <a class="dropdown-item" href="{% url 'app:perfil' %}">Editar Perfil</a>
+                                <a class="dropdown-item" href="{% url 'app:editPassword' %}">Cambiar Contraseña</a>
                                 <a class="dropdown-item" href="{% url 'app:logout' %}">Cerrar Sesión</a>
                               </div>
                             {% else %}
@@ -164,6 +174,7 @@
     <script src="{% static 'js/isotope.min.js' %}"></script>
     <script src="{% static 'js/images-loded.min.js' %}"></script>
     <script src="{% static 'js/custom.js' %}"></script>
+    <script src="{% static 'alerts/js/jquery-confirm.js' %}"></script>
 	<script>
 	/* counter js */
 

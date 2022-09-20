@@ -20,6 +20,10 @@ function getItems(id, url) {
     let responsiveTable = !!url ? url : false;
     let table = $(id).DataTable({
         responsive: true,
+        fixedHeader: {
+            header: true,
+            footer: true
+        },
         language: {
             "lengthMenu": "Elementos _MENU_ por página",
             "zeroRecords": "Sin elementos que mostrar",
@@ -31,6 +35,8 @@ function getItems(id, url) {
                 "next": "Siguiente",
                 "previous": "Anterior"
             },
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
             "infoEmpty": "Ninguna coincidencia encontrada ",
             "infoFiltered": "en los _MAX_ registro actuales"
         },
@@ -53,6 +59,21 @@ function getItems(id, url) {
                 orderable: false,
                 render: function (data, type, row) {
                     let btn = data;
+                    if(data === 'descargarArchivo'){
+                        btn = `
+                            <div class="row" >
+                                <div class="col-md-6" >
+                                    <a type="submit" href="${row[row.length - 1]}" class="btn btn-outline-info" target="_blank" title="Ver/Descargar Archivo" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                                    </svg>
+                                    </a>
+                                </div>
+                            </div>
+                            `;
+                        return btn;
+                    }
                     if(data === 'file'){
                         let url = row[row.length - 2];
                         tipo = '';
@@ -139,7 +160,52 @@ function getItems(id, url) {
                 }
             }
         ],
-    });
+    }).columns.adjust();;
     $('#container').css( 'display', 'block' );
     table.columns.adjust().draw();
 };
+function guardarAprobacion(data){
+    let estado = $('#guardarSolicitud'+data)[0].checked ? true : '';
+    if(estado){
+        alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Aprobar esta solicitud?', 'Aceptar', 'Ajax', data)
+    }else{
+        alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Rechazar esta solicitud?', 'Aceptar', 'Ajax', data)
+    }
+}
+function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data) {
+    let estado = $('#guardarSolicitud'+data)[0].checked ? true : '';
+    $.confirm({
+        title: titulo,
+        type: tipo,
+        typeAnimated: true,
+        content: mensaje,
+        buttons: {
+            tryAgain: {
+                text: boton,
+                btnClass: btnClass,
+                action: function () {
+                    if (funcion === 'Ajax') {
+                        $.ajax({
+                            url: '',
+                            method: 'POST',
+                            data: {id: data, estado : estado},
+                            headers: {
+                                'X-CSRFToken': csrftoken
+                            }
+                        }).done((req) => {
+                            console.log('Datos Guardados: ', req);
+                        });
+                    }
+                }
+            },
+            Cancelar: function () {
+                if(funcion === 'reload'){
+                    location.reload();
+                }
+                $('#guardarSolicitud'+data)[0].checked = !$('#guardarSolicitud'+data)[0].checked;
+            }
+        },
+        cancelar: function () {
+        },
+    });
+}

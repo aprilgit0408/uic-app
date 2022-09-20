@@ -24,7 +24,6 @@ class listarCarreras(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['encabezado'] = ['#','nombre', 'facultad']
-        context['items'] = modelo.objects.all()
         context['title'] = f'{entidad}'
         context['listado'] = f'Listado de {entidad}'
         return context

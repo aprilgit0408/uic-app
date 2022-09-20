@@ -31,7 +31,7 @@
           <img src="{% static 'login/images/undraw_remotely_2j6y.svg' %}" alt="Image" class="img-fluid">
         </div>
         <div class="col contents">
-          <div class="row justify-content-center" style="" >
+          <div class="row justify-content-center">
             <form action="" method="post">
                 {% csrf_token %}
                 {% if form.errors %}
@@ -71,6 +71,7 @@
                     <a href="{% url 'app:login' %}" class="btn btn-outline-secondary  btn-lg btn-block" role="button"  style="text-decoration: none; font-size: 17px;" aria-pressed="false">Cancelar</a>
                   </div>
                 </div>
+            </form>
           </div>
         </div>
       </div>

@@ -129,6 +129,18 @@ class formularioUsuarios(ModelForm):
         model = Usuarios
         fields = ('username', 'first_name', 'last_name', 'idCarrera', 'celular', 'email', 'password', 'imagen', 'idNivel')
 
+class formularioPerfilUsuario(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for i in self.visible_fields():
+            i.field.widget.attrs['class'] = 'form-control form-control-sm'
+            i.field.widget.attrs['autocomplete'] = 'off'
+        self.fields['celular'].widget.attrs['autofocus'] = True
+
+    class Meta:
+        model = Usuarios
+        fields = ('celular', 'email', 'imagen')
+
 
 class resetPasswordForm(forms.Form):
     username = forms.CharField(

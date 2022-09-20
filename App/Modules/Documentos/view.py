@@ -7,6 +7,8 @@ from django.http.response import HttpResponse, JsonResponse, HttpResponseRedirec
 from django.urls import reverse_lazy
 import datetime
 import os
+from django.core.files import File
+from pathlib import Path
 from xhtml2pdf import pisa
 from django.contrib.staticfiles import finders
 from django.template.loader import get_template
@@ -40,9 +42,6 @@ class listarDocumentos(LoginRequiredMixin, UpdateView):
         context['listado'] = f'Listado de {entidad}'
         return context
     def getEstado(self, estado, cont, datosEstado):
-        # print('cont : ', cont)
-        # print('datosEstado : ', datosEstado)
-        # print('datosEstado : ', len(datosEstado))
         if estado == True:
             return 'Aprobado'
         if estado is None:
@@ -86,10 +85,9 @@ class listarDocumentos(LoginRequiredMixin, UpdateView):
                         valorAnterior = habilitar[0].estado if habilitar else False
                 cont +=1
         except Exception as e:
-            print(f'Error {entidad} l-88 ',e)
+            print(f'Error {entidad} l-89 ',e)
             data = {}
         return JsonResponse(data, safe=False)
-
 
 class addDocumentos(LoginRequiredMixin, CreateView):
     model = modelo
@@ -141,11 +139,75 @@ class deleteDocumentos(LoginRequiredMixin, DeleteView):
         return context
 class GuardarDocumento(LoginRequiredMixin, View):
     template_name = main
+    def link_callback(self, uri, rel):
+            result = finders.find(uri)
+            if result:
+                    if not isinstance(result, (list, tuple)):
+                            result = [result]
+                    result = list(os.path.realpath(path) for path in result)
+                    path=result[0]
+            else:
+                    sUrl = settings.STATIC_URL        # Typically /static/
+                    sRoot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
+                    mUrl = settings.MEDIA_URL         # Typically /media/
+                    mRoot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
+
+                    if uri.startswith(mUrl):
+                            path = os.path.join(mRoot, uri.replace(mUrl, ""))
+                    elif uri.startswith(sUrl):
+                            path = os.path.join(sRoot, uri.replace(sUrl, ""))
+                    else:
+                            return uri
+            if not os.path.isfile(path):
+                    raise Exception(
+                            'media URI must start with %s or %s' % (sUrl, mUrl)
+                    )
+            return path
+
+    def generarPDFFirmado(self, nombreArchivo, request):
+        pisa.showLogging()
+        ruta = f'media/documentacion/{request.user.getInformacion()}-{nombreArchivo}.pdf'
+        result_file = open(ruta, "w+b")
+        usuario = Usuarios.objects.get(pk = request.user.pk)
+        data = {
+            'usuario': usuario,
+            'fecha': datetime.datetime.now().date(),
+            'encabezado' : f'{settings.STATIC_URL}images/encabezado.jpg',
+            'imagenCentro' : f'{settings.STATIC_URL}images/imagenCentro.jpg',
+            'piePagina' : f'{settings.STATIC_URL}images/piePagina.jpg'
+        }
+        template = get_template(f'{entidad}/{nombreArchivo}.html')
+        html = template.render(data)
+        #Guardar PDF
+        pisa_status = pisa.CreatePDF(
+        html, dest=result_file,
+        link_callback=self.link_callback
+        )
+        return ruta
     def get(self, request, *args, **kwargs):
         idDocumento = Documento.objects.get(pk = self.kwargs['pk'])
-        if not SeguimientoDocumentacion.objects.filter(idDocumento = idDocumento, idUsuario = request.user).exists():
-            form = SeguimientoDocumentacion.objects.create(idDocumento = idDocumento, idUsuario = request.user)
-            form.save()
+        getRegistro = SeguimientoDocumentacion.objects.filter(idDocumento = idDocumento, idUsuario = request.user)
+        if not getRegistro.exists():
+            try:
+                path = Path(self.generarPDFFirmado(idDocumento.nombre,request))
+                with path.open(mode='rb') as f:
+                    archivoCargado= File(f, name=path.name)
+                    doc = SeguimientoDocumentacion.objects.create(idDocumento = idDocumento,idUsuario =  request.user, archivo = archivoCargado)
+                    doc.save()
+            except Exception as e:
+                print('Error al guardar el archivo generado ln-202: ', e)
+        else:
+            #Actualizar Documento
+            try:
+                path = Path(self.generarPDFFirmado(idDocumento.nombre, request))
+                with path.open(mode='rb') as f:
+                    archivoCargado= File(f, name=path.name)
+                    doc = getRegistro[0]
+                    doc.archivo = archivoCargado
+                    doc.save()
+            except Exception as e:
+                print('Error al Actualizar el archivo generado ln-213: ', e)
+
         return HttpResponseRedirect(url)
 class generarPDF(LoginRequiredMixin, View):
     def link_callback(self, uri, rel):
@@ -173,8 +235,11 @@ class generarPDF(LoginRequiredMixin, View):
                     )
             return path
     def get(self, request, *args, **kwargs):
-        usuario = Usuarios.objects.get(pk = request.user.pk)
+        pisa.showLogging()
         nombreArchivo = Documento.objects.get(pk = self.kwargs['pk']).nombre
+        ruta = f'media/documentacion/{request.user.getInformacion()}-{nombreArchivo}.pdf'
+        result_file = open(ruta, "w+b")
+        usuario = Usuarios.objects.get(pk = request.user.pk)
         data = {
             'usuario': usuario,
             'fecha': datetime.datetime.now().date(),
@@ -183,11 +248,29 @@ class generarPDF(LoginRequiredMixin, View):
             'piePagina' : f'{settings.STATIC_URL}images/piePagina.jpg'
         }
         response = HttpResponse(content_type='application/pdf')
-        # response['Content-Disposition'] = f'attachment; filename="{nombreArchivo}.pdf"'
+        response['Content-Disposition'] = f'attachment; filename="{nombreArchivo}.pdf"'
         template = get_template(f'{entidad}/{nombreArchivo}.html')
 
         html = template.render(data)
          # create a pdf
+        pisa_status = pisa.CreatePDF(
+        html, dest=response,
+        link_callback=self.link_callback
+        )
+        #Guardar PDF
+        pisa_status = pisa.CreatePDF(
+        html, dest=result_file,
+        link_callback=self.link_callback
+        )
+        try:
+            path = Path(ruta)
+            with path.open(mode='rb') as f:
+                archivoCargado= File(f, name=path.name)
+                doc = SeguimientoDocumentacion.objects.create(idUsuario =  request.user, archivo = archivoCargado)
+                doc.save()
+        except Exception as e:
+            print('Error_ ', e)
+        result_file.close() 
         pisa_status = pisa.CreatePDF(
         html, dest=response,
         link_callback=self.link_callback
@@ -197,4 +280,50 @@ class generarPDF(LoginRequiredMixin, View):
             return HttpResponse('We had some errors <pre>' + html + '</pre>')
         return response
 
-        # return JsonResponse(data, safe=False)
+class listadoSolicitudes(LoginRequiredMixin, ListView):
+    model = SeguimientoDocumentacion
+    template_name = f'{entidad}/solicitudes.html'
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ids = ''
+        for i in self.model.objects.all().exclude(estado = True):
+            ids += str(i.pk) + ','
+        context['encabezado'] = ['#', 'Nombre del Documento solicitado', 'Solicitado Por', 'Fecha Solicitud', 'Fecha Actualización','Aprobar','Documento']
+        context['title'] = 'Solicitudes'
+        context['listado'] = 'Listado de Solicitudes Pendientes'
+        context['idSeguimiento'] = ids
+        return context
+    def post(self, request, *args, **kwargs):
+        data = []
+        try:
+            id = request.POST['id']
+            estado = bool(request.POST['estado'])
+            actualizar = SeguimientoDocumentacion.objects.get(pk = id)
+            actualizar.estado = estado
+            actualizar.save()
+            data.append({'info':'Datos Guardados'})
+            return JsonResponse(data, safe=False)
+        except Exception as e:
+            pass
+        try:
+            cont = 1
+            for i in self.model.objects.all().exclude(estado = True):
+                estado = 'checked' if i.estado else ''
+                data.append([
+                    cont,
+                    i.idDocumento.nombre,
+                    i.idUsuario.getInformacion(),
+                    i.fechaCreacion.strftime("%Y-%m-%d %H:%M:%S"),
+                    i.fechaModificacion.strftime("%Y-%m-%d %H:%M:%S") if i.fechaModificacion else 'Sin Cambios',
+                    f'<div class="form-check form-switch"><input onClick="guardarAprobacion({i.pk})" name="{i.pk}" {estado} class="form-check-input" type="checkbox" id="guardarSolicitud{i.pk}"></div>',
+                    'descargarArchivo',
+                    i.archivo.url
+                ])
+                cont +=1
+        except Exception as e:
+            print(f'Error {entidad} ln-324: ',e)
+            data = {}
+        return JsonResponse(data, safe=False)
