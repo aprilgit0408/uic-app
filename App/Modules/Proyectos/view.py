@@ -1,8 +1,5 @@
-from urllib import request
-from django.db import models
 from django.views.generic import CreateView, ListView   
 from django.views.generic.edit import DeleteView, UpdateView
-from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioProyectos
 from App.models import GrupoExperto, Proyecto, Usuarios
@@ -51,7 +48,7 @@ class listarProyectos(LoginRequiredMixin, ListView):
                         i.getEstudiantes(),
                         'Ver',
                         i.getDocente().getInformacion(),
-                        i.id
+                        i.pk
                     ])
                 elif esEstudiante:
                     data.append([
@@ -123,12 +120,13 @@ class deleteProyectos(LoginRequiredMixin, DeleteView):
     form_class = formulario
     template_name = main
     success_url = url
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = f'{entidad}'
-        context['accion'] = f'Eliminar {entidad}'
-        context['eliminar'] = kwargs
-        return context
+    def delete(self, request, *args, **kwargs):
+        data = []
+        id = int(self.kwargs['pk'])
+        instance = modelo.objects.get(pk=id)
+        instance.delete()
+        return JsonResponse(data, safe=False)
+        
 class listarEstudiantes(LoginRequiredMixin, ListView):
     model = modelo
     template_name = f'{entidad}/listado.html'

@@ -102,8 +102,8 @@ function getItems(id, url) {
                             color = 'primary';
                         }
                         if(row[4] === false || row[4] === null){
-                            tipoBotonAOpen = `<a type="button" href='enviar/${row[1]}' class="btn btn-outline-${ row[4] === false || row[4] === null ? 'info' : 'secondary'}" title="Enviar al  Director"  ${ row[4] === false || row[4] === null ?' id="idEnviar" ' : 'disabled="true"'} ">`;
-                            tipoBotonAClose= `</a>`;
+                            tipoBotonAOpen = `<button type="button" onClick="enviarDirector('${row[1]}')" class="btn btn-outline-${ row[4] === false || row[4] === null ? 'info' : 'secondary'}" title="Enviar al  Director"  ${ row[4] === false || row[4] === null ?' id="idEnviar" ' : 'disabled="true"'} ">`;
+                            tipoBotonAClose= `</button>`;
                         }else{
                             tipoBotonAOpen = `<button type="button" class="btn btn-outline-${ row[4] === false || row[4] === null ? 'info' : 'secondary'}" title="Enviar al  Director"  ${ row[4] === false || row[4] === null ?' id="idEnviar" ' : 'disabled="true"'} ">`;
                             tipoBotonAClose= `</button>`;
@@ -143,11 +143,11 @@ function getItems(id, url) {
                                     </a> 
                                 </div>
                                 <div class="col-md-6" >
-                                    <a type="submit" href="delete/${row[row.length - 1]}" class="btn btn-outline-danger" title="Eliminar Registro" >
+                                    <button type="button" onClick="eliminarRegistro('${row[row.length - 1]}');" class="btn btn-outline-danger" title="Eliminar Registro" >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bucket" viewBox="0 0 16 16">
                                     <path d="M2.522 5H2a.5.5 0 0 0-.494.574l1.372 9.149A1.5 1.5 0 0 0 4.36 16h7.278a1.5 1.5 0 0 0 1.483-1.277l1.373-9.149A.5.5 0 0 0 14 5h-.522A5.5 5.5 0 0 0 2.522 5zm1.005 0a4.5 4.5 0 0 1 8.945 0H3.527zm9.892 1-1.286 8.574a.5.5 0 0 1-.494.426H4.36a.5.5 0 0 1-.494-.426L2.58 6h10.838z"/>
                                     </svg>
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                             `;
@@ -164,27 +164,38 @@ function getItems(id, url) {
     $('#container').css( 'display', 'block' );
     table.columns.adjust().draw();
 };
+
+
+function eliminarRegistro(datos){
+    alertas('Alerta!', 'red', 'btn-red', '¿Está seguro de eliminar este registro?', 'Eliminar Registro', 'delete', datos, 'fa fa-trash');
+}
+function enviarDirector(datos){
+    alertas('Perfecto..', 'blue', 'btn-blue', '¿Está seguro de enviar el archivo?', 'Continuar', 'enviar', datos, 'fa fa-send-o')
+}
 function guardarAprobacion(data){
     let estado = $('#guardarSolicitud'+data)[0].checked ? true : '';
     if(estado){
-        alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Aprobar esta solicitud?', 'Aceptar', 'Ajax', data)
+        alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Aprobar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
     }else{
-        alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Rechazar esta solicitud?', 'Aceptar', 'Ajax', data)
+        alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Rechazar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
     }
 }
-function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data) {
-    let estado = $('#guardarSolicitud'+data)[0].checked ? true : '';
+
+function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data, icon) {
     $.confirm({
         title: titulo,
         type: tipo,
         typeAnimated: true,
         content: mensaje,
+        icon: icon,
+        autoClose: 'Cancelar|9000',
         buttons: {
             tryAgain: {
                 text: boton,
                 btnClass: btnClass,
                 action: function () {
-                    if (funcion === 'Ajax') {
+                    if (funcion === 'solicitud') {
+                        let estado = $('#guardarSolicitud'+data)[0].checked ? true : '';
                         $.ajax({
                             url: '',
                             method: 'POST',
@@ -196,13 +207,34 @@ function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data) {
                             console.log('Datos Guardados: ', req);
                         });
                     }
+                    if (funcion === 'enviar') {
+                        $.ajax({
+                            url: `enviar/${data}`,
+                            method: 'GET',
+                            headers: {
+                                'X-CSRFToken': csrftoken
+                            }
+                        }).done((req) => {
+                            $.alert('Datos Enviados...');
+                        });
+                    }
+                    if (funcion === 'delete') {
+                        $.ajax({
+                            url: `delete/${data}`,
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRFToken': csrftoken
+                            }
+                        }).done((req) => {
+                            console.log('Datos Guardados: ', req);
+                            location.reload();
+                        });
+                    }
                 }
             },
             Cancelar: function () {
-                if(funcion === 'reload'){
-                    location.reload();
-                }
-                $('#guardarSolicitud'+data)[0].checked = !$('#guardarSolicitud'+data)[0].checked;
+                if(funcion === 'reload'){location.reload();}
+                if(funcion === 'solicitud'){$('#guardarSolicitud'+data)[0].checked = !$('#guardarSolicitud'+data)[0].checked;}
             }
         },
         cancelar: function () {
