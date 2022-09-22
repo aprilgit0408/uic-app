@@ -58,20 +58,37 @@ function getItems(id, url) {
                 class: 'text-center',
                 orderable: false,
                 render: function (data, type, row) {
+                    console.log('DAta: ', data);
+                    console.log('Row: ', row);
                     let btn = data;
                     if(data === 'descargarArchivo'){
-                        btn = `
+                        let botonAvances = `
+                                <button type="submit" onClick="guardarAvances(${row[row.length - 1]})" class="btn btn-outline-warning" title="Guardar Cambios">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sd-card" viewBox="0 0 16 16">
+                                <path d="M6.25 3.5a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2z"/>
+                                <path fill-rule="evenodd" d="M5.914 0H12.5A1.5 1.5 0 0 1 14 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5V3.914c0-.398.158-.78.44-1.06L4.853.439A1.5 1.5 0 0 1 5.914 0zM13 1.5a.5.5 0 0 0-.5-.5H5.914a.5.5 0 0 0-.353.146L3.146 3.561A.5.5 0 0 0 3 3.914V14.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-13z"/>
+                              </svg>
+                                </button> `;
+                        if(!!row[row.length - 2]){
+                            btn = `
                             <div class="row" >
                                 <div class="col-md-6" >
-                                    <a type="submit" href="${row[row.length - 1]}" class="btn btn-outline-info" target="_blank" title="Ver/Descargar Archivo" >
+                                    <a type="submit" href="${row[row.length - 2]}" class="btn btn-outline-info" target="_blank" title="Ver/Descargar Archivo" >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
                                     <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                                     <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                                     </svg>
                                     </a>
                                 </div>
+                                <div class="col-md-6">
+                                ${row[row.length - 3] == 'avances' ? botonAvances : ''}
+                                </div>
+
                             </div>
                             `;
+                        }else{
+                            btn = botonAvances;
+                        }
                         return btn;
                     }
                     if(data === 'file'){
@@ -181,6 +198,21 @@ function guardarAprobacion(data){
     }
 }
 
+function guardarAvances(id){
+    let observacion = $('#idObservacion'+id).val();
+    let porcentaje = $('#idPorcentaje'+id).val();
+    if(porcentaje < 0 || porcentaje > 100 || porcentaje == ''){
+        alertasInformativas('Alerta', 'orange', 'btn-warning', 'El porcentaje debe estar entre 1 y 100', 'Aceptar', 'fa fa-warning')
+        return;
+    }
+    let data = {
+        id : id,
+        observacion : observacion,
+        porcentaje : porcentaje
+    }
+    alertas('Alerta', 'green', 'btn-success', '¿Está seguro de guardar los cambios?', 'Aceptar', 'avances', data, 'fa fa-warning')
+}
+
 function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data, icon) {
     $.confirm({
         title: titulo,
@@ -218,6 +250,21 @@ function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data, icon) {
                             $.alert('Datos Enviados...');
                         });
                     }
+                    if (funcion === 'avances') {
+                        var self = this;
+                        $.ajax({
+                            url: `save/${data.id}`,
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': csrftoken
+                            },
+                            data: data,
+                        }).done((req) => {
+                            console.log('Valor de req: ');
+                            $.alert(req[0].info)
+                            self.autoClose = 'OK|9000';
+                        });
+                    }
                     if (funcion === 'delete') {
                         $.ajax({
                             url: `delete/${data}`,
@@ -235,6 +282,26 @@ function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data, icon) {
             Cancelar: function () {
                 if(funcion === 'reload'){location.reload();}
                 if(funcion === 'solicitud'){$('#guardarSolicitud'+data)[0].checked = !$('#guardarSolicitud'+data)[0].checked;}
+            }
+        },
+        cancelar: function () {
+        },
+    });
+}
+function alertasInformativas(titulo, tipo, btnClass, mensaje, boton, icon) {
+    $.confirm({
+        title: titulo,
+        type: tipo,
+        typeAnimated: true,
+        content: mensaje,
+        icon: icon,
+        autoClose: 'tryAgain|5000',
+        buttons: {
+            tryAgain: {
+                text: boton,
+                btnClass: btnClass,
+                action: function () {
+                }
             }
         },
         cancelar: function () {

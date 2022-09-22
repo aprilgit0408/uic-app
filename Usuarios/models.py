@@ -3,16 +3,38 @@ from django.db import models
 from django.db.models.deletion import CASCADE
 from uicApp.settings import MEDIA_URL, STATIC_URL
 from django.contrib.auth.models import AbstractUser
+from crum import get_current_user
 
-class Facultad(models.Model):
+class datosAuditoria(models.Model):
+    fechaCreacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
+    fechaModificacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
+    usuarioRegistro = models.PositiveIntegerField(editable=False, null=True, blank=True)
+    usuarioModificacion = models.PositiveIntegerField(editable=False, null=True, blank=True)
+    class Meta:
+        abstract = True
+    def setDatosAuditoria(self):
+        request = get_current_user()
+        if not self.fechaCreacion:
+            self.fechaCreacion = timezone.now()
+        else:
+            self.fechaModificacion = timezone.now()
+        #Setear Usuario Registro
+        if not self.usuarioRegistro:
+            self.usuarioRegistro = request.pk
+        else:
+            self.usuarioModificacion = request.pk
+        return self
+
+class Facultad(datosAuditoria):
     nombre = models.CharField(max_length=100, verbose_name='Nombre de la Facultad', primary_key=True)
     sigla = models.CharField(max_length=20, verbose_name='Nombre corto')
-    fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
         return self.nombre
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
 
-class Carrera(models.Model):
+class Carrera(datosAuditoria):
     generos = [
         ('Señor','Señor'),
         ('Señora','Señora')
@@ -28,17 +50,21 @@ class Carrera(models.Model):
     nombreDirector = models.CharField(max_length=50, verbose_name='Director actual de la Carrera')
     nombre = models.CharField(max_length=100, verbose_name='Nombre de la Carrera', primary_key=True)
     idFacultad = models.ForeignKey(Facultad, verbose_name='Facultad', on_delete=CASCADE)
-    fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombre)
-#Creación de usuarios para la administración del sitio Web
-class Perfiles(models.Model):
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
+
+class Perfiles(datosAuditoria):
     nombre = models.CharField(max_length=20, verbose_name='Perfiles', primary_key=True)
     def __str__(self) -> str:
         return '{}'.format(self.nombre)
-class Nivel(models.Model):
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
+class Nivel(datosAuditoria):
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Nivel')
     periodoInicio = models.DateField( verbose_name='Periodo de inicio de Proyecto')
     periodoFin = models.DateField( verbose_name='Periodo de fin de Proyecto', null = True, blank = True)
@@ -46,6 +72,9 @@ class Nivel(models.Model):
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombre)
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
 # def vcedula(texto):
 #     nocero = texto.strip("0")
 #     cedula = int(nocero,0)
@@ -112,14 +141,17 @@ class Usuarios(AbstractUser):
         return super().save(*args, **kwargs)
     
 
-class Documento(models.Model):
+class Documento(datosAuditoria):
     nombre = models.CharField(max_length=200, verbose_name='Nombre del Documento', primary_key=True)
     archivo = models.FileField(verbose_name='Archivo', upload_to='documentacion')
     idPerfiles = models.ManyToManyField(Perfiles, verbose_name='Disponible para', blank = True) 
     def __str__(self):
         return self.nombre
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
 
-class SeguimientoDocumentacion(models.Model):
+class SeguimientoDocumentacion(datosAuditoria):
     opciones = [
         (False, 'Pendiente'),
         (True, 'Aprobado'),
@@ -129,13 +161,8 @@ class SeguimientoDocumentacion(models.Model):
     idUsuario = models.ForeignKey(Usuarios, verbose_name='Usuario', on_delete=CASCADE)
     estado = models.BooleanField(choices=opciones,verbose_name='Estado del archivo', default=False, null = True, blank = True)   
     archivo = models.FileField(verbose_name='Documento', upload_to='documentacion')
-    fechaCreacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
-    fechaModificacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
     def __str__(self):
         return f'{self.idUsuario}'
     def save(self, *args, **kwargs):
-        if not self.fechaCreacion:
-            self.creatifechaCreacionon_date = timezone.now()
-        else:
-            self.fechaModificacion = timezone.now()
-        return super(SeguimientoDocumentacion, self).save(*args, **kwargs)
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)

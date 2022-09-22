@@ -1,20 +1,19 @@
-from django.db import models
+from django.views.generic.base import  View
 from django.views.generic import CreateView, ListView
 from django.views.generic.edit import DeleteView, UpdateView
-from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from App.Modules.Formularios.forms import formularioCarreras
-from Usuarios.models import Carrera
+from App.Modules.Formularios.forms import formularioAvances, formularioGuardarAvances
+from App.models import Avance, Proyecto
 from django.http.response import JsonResponse
 from django.urls import reverse_lazy
-modelo = Carrera
-formulario = formularioCarreras
-entidad = 'Carreras'
+modelo = Avance
+formulario = formularioAvances
+entidad = 'Avances'
 main = 'main.html'
 url = reverse_lazy(f'app:{entidad.lower()}')
 
 
-class listarCarreras(LoginRequiredMixin, ListView):
+class listarAvances(LoginRequiredMixin, ListView):
     model = modelo
     template_name = f'{entidad}/listado.html'
 
@@ -23,7 +22,7 @@ class listarCarreras(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['encabezado'] = ['#','nombre', 'facultad']
+        context['encabezado'] = ['#','Proyecto', 'nombre Avance', 'Estudiantes','observacion', 'porcentaje', 'archivo']
         context['title'] = f'{entidad}'
         context['listado'] = f'Listado de {entidad}'
         return context
@@ -34,18 +33,25 @@ class listarCarreras(LoginRequiredMixin, ListView):
             for i in modelo.objects.all():
                 data.append([
                     cont,
-                    i.nombre,
-                    i.idFacultad.nombre,
+                    i.idProyecto.nombre,
+                    i.nombreAvance,
+                    i.idProyecto.getEstudiantes(),
+                    f'<input type="text" name="observacion" class="form-control form-control-sm" id="idObservacion{i.pk}" value="{i.observacion if i.observacion else ""}" placeholder="Sin Observaciones" >',
+                    f'<input type="number" style="width: 65px;" min="1" max="100" name="porcentaje" class="form-control form-control-sm" id="idPorcentaje{i.pk}" value="{i.porcentaje}" >',
+                    'descargarArchivo',
+                    'avances',
+                    i.archivo.url if i.archivo else None,
                     i.pk
+
                 ])
                 cont +=1
         except Exception as e:
-            print(f'Error {entidad} l-43 ',e)
+            print('Error Empleados l-43 ',e)
             data = {}
         return JsonResponse(data, safe=False)
 
 
-class addCarreras(LoginRequiredMixin, CreateView):
+class addAvances(LoginRequiredMixin, CreateView):
     model = modelo
     form_class = formulario
     template_name = main
@@ -59,10 +65,12 @@ class addCarreras(LoginRequiredMixin, CreateView):
         context['title'] = f'{entidad}'
         context['accion'] = f'Añadir {entidad}'
         context['agregar'] = f'Añadir {entidad}'
+        context['idProyectoAvances'] = 'Avances'
+        context['idProyectoAvancesList'] = Proyecto.objects.filter(idDocente = self.request.user.pk)
         return context
 
 
-class editCarreras(LoginRequiredMixin, UpdateView):
+class editAvances(LoginRequiredMixin, UpdateView):
     model = modelo
     form_class = formulario
     template_name = main
@@ -73,6 +81,24 @@ class editCarreras(LoginRequiredMixin, UpdateView):
         if form.is_valid():
             form.save()
         return super().post(request, *args, **kwargs)
+class guardarAvance(LoginRequiredMixin, View):
+    template_name = main
+
+    def post(self, request, *args, **kwargs):
+        data = []
+        try:
+            id = int(request.POST['id'])
+            observacion = request.POST['observacion']
+            porcentaje = int(request.POST['porcentaje'])
+            instance = Avance.objects.get(pk = id)
+            instance.observacion = observacion
+            instance.porcentaje = porcentaje
+            instance.save()
+            data.append({'info':'Datos Guardados'})
+        except Exception as e:
+            data.append({'info': str(e)})
+            print('Error al guardar avances: ', e)
+        return JsonResponse(data, safe=False)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -81,7 +107,7 @@ class editCarreras(LoginRequiredMixin, UpdateView):
         return context
 
 
-class deleteCarreras(LoginRequiredMixin, DeleteView):
+class deleteAvances(LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         id = ''
         try:

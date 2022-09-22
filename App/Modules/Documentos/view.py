@@ -320,7 +320,8 @@ class listadoSolicitudes(LoginRequiredMixin, ListView):
                     i.fechaModificacion.strftime("%Y-%m-%d %H:%M:%S") if i.fechaModificacion else 'Sin Cambios',
                     f'<div class="form-check form-switch"><input onClick="guardarAprobacion({i.pk})" name="{i.pk}" {estado} class="form-check-input" type="checkbox" id="guardarSolicitud{i.pk}"></div>',
                     'descargarArchivo',
-                    i.archivo.url
+                    i.archivo.url,
+                    i.pk
                 ])
                 cont +=1
         except Exception as e:

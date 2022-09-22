@@ -1,4 +1,5 @@
 from django.urls import path
+from App.Modules.Avances.view import addAvances, deleteAvances, editAvances, guardarAvance, listarAvances
 from App.Modules.Documentos.view import GuardarDocumento, listadoSolicitudes, addDocumentos, generarPDF, listarDocumentos
 from App.Modules.Facultades.view import listarFacultades, addFacultades, editFacultades, deleteFacultades
 from App.Modules.Carreras.view import listarCarreras, addCarreras, editCarreras, deleteCarreras
@@ -34,6 +35,13 @@ urlpatterns = [
     path('app/proyectos/add',  addProyectos.as_view(), name='addProyectos'),
     path('app/proyectos/edit/<int:pk>',  editProyectos.as_view(), name='editProyectos'),
     path('app/proyectos/delete/<int:pk>',  deleteProyectos.as_view(), name='deleteProyectos'),
+
+    # Serivicio Para los Avances
+    path('app/avances/',  listarAvances.as_view(), name='avances'),
+    path('app/avances/save/<int:pk>',  guardarAvance.as_view(), name='guardarAvances'),
+    path('app/avances/add',  addAvances.as_view(), name='addAvances'),
+    path('app/avances/edit/<int:pk>',  editAvances.as_view(), name='editAvances'),
+    path('app/avances/delete/<int:pk>',  deleteAvances.as_view(), name='deleteAvances'),
 
     #Grupo de expertos
     path('app/grupoExpertos/',  listarGrupoExpertos.as_view(), name='grupoExpertos'),

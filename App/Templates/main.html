@@ -70,6 +70,19 @@
                                             <option value="{{item.pk}}" >{{item.getInformacion}}</option>
                                         {% endfor %}
                                     </select>
+                                {% elif op.name == 'idProyecto' and idProyectoAvances %}
+                                    {{op.label}}
+                                    
+                                    {% if idProyectoAvancesList %}
+                                        <select name="idProyecto" class="form-control form-control-sm" autocomplete="off" required="" id="id_idProyecto">
+                                            {% for item in idProyectoAvancesList %}
+                                                <option value="{{item.pk}}" >{{item.nombre}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    {% else %}
+                                    <p>Estimado usuario, actualmente no cuenta con ningún proyecto</p>
+                                    {% endif %}
+                                        
                                 {% else %}
                                 {{op.label}}
                                 {{op}}

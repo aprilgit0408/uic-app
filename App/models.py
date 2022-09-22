@@ -1,10 +1,32 @@
 from django.db import models
 from django.db.models.deletion import CASCADE
-from Usuarios.models import Carrera, Perfiles, Usuarios
-from crum import get_current_request
+from Usuarios.models import Carrera, Usuarios
+from crum import get_current_user
+from django.utils import timezone
+
 # Registro de los modelos de la base de datos
 
-class ListaVerificacion(models.Model):
+class datosAuditoria(models.Model):
+    fechaCreacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
+    fechaModificacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
+    usuarioRegistro = models.PositiveIntegerField(editable=False, null=True, blank=True)
+    usuarioModificacion = models.PositiveIntegerField(editable=False, null=True, blank=True)
+    class Meta:
+        abstract = True
+    def setDatosAuditoria(self):
+        request = get_current_user()
+        if not self.fechaCreacion:
+            self.fechaCreacion = timezone.now()
+        else:
+            self.fechaModificacion = timezone.now()
+        #Setear Usuario Registro
+        if not self.usuarioRegistro:
+            self.usuarioRegistro = request.pk
+        else:
+            self.usuarioModificacion = request.pk
+        return self
+    
+class ListaVerificacion(datosAuditoria):
     detalles = [
         (1,'Solicitud de opción de titulación/Certificado de idoneidad.'),
         (2,'Oficio o correo electrónico de llamado para elaborar el cronograma.'),
@@ -14,13 +36,14 @@ class ListaVerificacion(models.Model):
     nombreArchivo = models.PositiveIntegerField(verbose_name='Detalle', choices=detalles)
     cumplimiento = models.BooleanField(default=False, verbose_name='Cumplimiento')
     observacion = models.TextField(max_length=100, verbose_name='Observación', null = True, blank = True)
-    fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def getNombreArchivo(self):
         return f'{self.detalles[self.nombreArchivo][1]}'
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
 
 
-class Proyecto(models.Model):
+class Proyecto(datosAuditoria):
     usuarios = []
     try:
         for user in Usuarios.objects.all():
@@ -29,13 +52,11 @@ class Proyecto(models.Model):
                 if user.perfil.nombre == 'Docente':
                     usuarios.append((str(user.pk), nombre))
     except:
-        print('No hay perfiles')
+        pass
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE)
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Proyecto')
     idDocente = models.CharField(choices=usuarios, verbose_name='Docente', max_length=13)
     idEstudiantes = models.ManyToManyField(Usuarios, verbose_name='Listado de Estudiantes')
-    fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombre)
@@ -47,16 +68,23 @@ class Proyecto(models.Model):
         return ul
     def getDocente(self):
         return Usuarios.objects.get(pk = self.idDocente)
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
 
-class Avance(models.Model):
+class Avance(datosAuditoria):
     idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
     nombreAvance = models.CharField(max_length=100, verbose_name='Nombre Avance')
-    observacion = models.CharField(max_length=100, verbose_name='Observacion')
-    porcentaje = models.PositiveIntegerField(verbose_name='Porcentaje completado')
+    observacion = models.CharField(max_length=100, verbose_name='Observacion', blank=True, null=True)
+    porcentaje = models.PositiveIntegerField(verbose_name='Porcentaje completado', default=0)
+    archivo = models.FileField(verbose_name='Documento', upload_to='documentacion', blank=True, null=True)
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombreAvance)
-class Tribunal(models.Model):
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
+class Tribunal(datosAuditoria):
     usuarios = []
     for user in Usuarios.objects.all():
         nombre = user.getInformacion()
@@ -81,19 +109,25 @@ class Tribunal(models.Model):
     terceroDocenteSuplente = models.CharField(choices=usuarios, max_length=15, verbose_name='Tercer Docente Suplente')
     fechaDefensa = models.DateTimeField()
     aula = models.PositiveIntegerField(choices=aulas, verbose_name='Aula de defensa asignada')
-    fechaCreacion = models.DateField(auto_now_add=True)
-    fechaModificacion= models.DateField(null = True, blank = True, editable=False)
     def __str__(self) -> str:
         txt = '{0} - {1}'
         return txt.format(self.aula, self.fechaDefensa)
-class Tutoria(models.Model):
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
+
+class Tutoria(datosAuditoria):
     idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
     descripcion = models.TextField(verbose_name='Temas a tratarse')
     fecha = models.DateTimeField(verbose_name='Fecha y hora de tutoría')
     archivo = models.FileField(upload_to='tutorias', null = True, blank = True, verbose_name='Archivo de Tutoría')
     def __str__(self):
         return self.descripcion
-class GrupoExperto(models.Model):
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
+
+class GrupoExperto(datosAuditoria):
     nombre = models.CharField(max_length=40, verbose_name='Nombre del grupo', primary_key=True)
     idDocentes = models.ManyToManyField(Usuarios, verbose_name='Docentes')
     def __str__(self):
@@ -104,3 +138,6 @@ class GrupoExperto(models.Model):
             ul += f'<li> {docentes} </li>'
         ul = f'<ul>{ul}</ul>'
         return ul
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
