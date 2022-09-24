@@ -142,6 +142,18 @@ LOGIN_URL = '/login/'
 # Variables del correo
 EMAIL_HOST = 'smtp.office365.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'uicappupec@outlook.com'
-EMAIL_HOST_PASSWORD = 'Admin-upec12'
+EMAIL_HOST_USER = 'erickjosa@hotmail.com'
+EMAIL_HOST_PASSWORD = '@butterflies'
 DOMAIN = 'http://127.0.0.1:8000'
+
+def getDate(fecha):
+    '''
+    @param fecha para transformar
+    @return Vie 23 Sep del 2022
+    '''
+    meses = [None, "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+                        "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+    dias = [None, "Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
+    dia = fecha.toordinal() % 7 or 7
+    fechaActual = dias[dia] + ', ' + str(fecha.day) + ' ' +  meses[fecha.month] + ' del ' + str(fecha.year) + ' ' + fecha.strftime("%H:%M:%S")
+    return fechaActual

@@ -60,7 +60,10 @@
                                     </select>
                                 {% elif op.name == 'fecha' and tutorias %}
                                     {{op.label}}
-                                    <input type="datetime-local" class="form-control form-control-sm"  name="fecha" id="id_fecha"> <br>
+                                    <input type="datetime-local" class="form-control form-control-sm"  name="fecha" style="width: 190px;" required id="id_fecha"> <br>
+                                {% elif op.name == 'fechaEntrega'%}
+                                    {{op.label}}
+                                    <input type="datetime-local" class="form-control form-control-sm"  name="fechaEntrega" style="width: 190px;" required id="id_fechaEntrega"> <br>
                                 {% elif op.name == 'idProyecto' and tutorias %}
                                     <input type="hidden" name="idProyecto" id="id_idProyecto" value="{{tutorias.idProyecto.id}}" >
                                 {% elif op.name == 'idDocentes' and grupoExpertos %}
@@ -72,7 +75,6 @@
                                     </select>
                                 {% elif op.name == 'idProyecto' and idProyectoAvances %}
                                     {{op.label}}
-                                    
                                     {% if idProyectoAvancesList %}
                                         <select name="idProyecto" class="form-control form-control-sm" autocomplete="off" required="" id="id_idProyecto">
                                             {% for item in idProyectoAvancesList %}

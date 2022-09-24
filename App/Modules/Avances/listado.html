@@ -3,33 +3,87 @@
 {% block title %} {{title}} {% endblock %}
 {% block content %}
 <div style="margin-top: 7%;" >
-     <div class="card container">
+     <div class="card">
         <div class="card-header">
             <b style="font-size: 20px;" > {{listado}} </b>
         </div>
-        <div class="card-body table-responsive">
-            <table class="table table-hover table-responsive" id="{{title | lower }}" class="display" style="width:100%">
-                <thead class="table-light container">
-                    <tr>
-                        {% for titulo in encabezado %}
-                            <th class="header" scope="col">{{ titulo | upper }}</th>
-                        {% endfor %}
-                       </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+        
+        <div class="card-body table-responsive">  
+            {% if request.user.perfil.nombre != 'Estudiante' %}
+                <div class="row">
+                    <div class="col">
+                        <div class="form-floating last mb-2">
+                            <select class="form-select" style="background-color: rgba(11, 245, 81, 0.089);" name="idProyecto" id="idProyecto" required aria-label="Listado de Proyectos">
+                                <option value="0" >Todos</option>
+                              {% for item in idProyectos %}
+                                <option value="{{item.pk}}" >{{item}}</option>
+                              {% endfor %}
+                            </select>
+                            <label for="floatingSelect">Listado de Proyectos</label>
+                          </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-floating last mb-2">
+                            <select class="form-select" style="background-color: rgba(11, 245, 81, 0.089);" name="idCarrera" id="idCarrera" required aria-label="Listado de Carreras">
+                                <option value="0" >Todas</option>
+                              {% for item in idCarreras %}
+                                <option value="{{item.pk}}" >{{item}}</option>
+                              {% endfor %}
+                            </select>
+                            <label for="floatingSelect">Listado de Carreras</label>
+                          </div>
+                    </div>
+                </div>
+                  <hr>
+            {% endif %}
+                
+                <table class="table table-hover table-responsive" id="{{title | lower }}">
+                    <thead class="table-light container">
+                        <tr>
+                            {% for titulo in encabezado %}
+                                <th class="header" scope="col">{{ titulo | upper }}</th>
+                            {% endfor %}
+                           </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
         </div>
         
-        <div class="card-footer">
-            <a href="add" class="btn btn-outline-success">Agregar {{title}} </a>
-        </div>
-            
+        
+        {% if request.user.perfil.nombre == 'Docente' %}
+            <div class="card-footer">
+                <a href="add" class="btn btn-outline-success">Solicitar {{title}} </a>
+            </div>
+        {% endif %}   
     </div>
 </div>
 <script>
+    $('#idProyecto').on('change', function(){
+        let idProyecto = $(this).val();
+        let idCarrera = $('#idCarrera').val();
+        let data = {
+            idCarrera : idCarrera,
+            idProyecto : idProyecto
+        }
+        getItems('#{{title | lower }}', true, data);
+    });
+    $('#idCarrera').on('change', function(){
+        let idProyecto = $('#idProyecto').val();
+        let idCarrera = $(this).val();
+        let data = {
+            idCarrera : idCarrera,
+            idProyecto : idProyecto
+        }
+        getItems('#{{title | lower }}', true, data);
+    });
+    
     $(function(){
-        getItems('#{{title | lower }}', '');
+        let data = {
+            idCarrera : 0,
+            idProyecto : 0
+        }
+        getItems('#{{title | lower }}', true, data);
     });
 </script>
 {% endblock content %}

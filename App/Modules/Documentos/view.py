@@ -6,6 +6,7 @@ from django.views.generic.base import  View
 from django.http.response import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 import datetime
+from django.shortcuts import redirect
 import os
 from django.core.files import File
 from pathlib import Path
@@ -235,50 +236,53 @@ class generarPDF(LoginRequiredMixin, View):
                     )
             return path
     def get(self, request, *args, **kwargs):
-        pisa.showLogging()
-        nombreArchivo = Documento.objects.get(pk = self.kwargs['pk']).nombre
-        ruta = f'media/documentacion/{request.user.getInformacion()}-{nombreArchivo}.pdf'
-        result_file = open(ruta, "w+b")
-        usuario = Usuarios.objects.get(pk = request.user.pk)
-        data = {
-            'usuario': usuario,
-            'fecha': datetime.datetime.now().date(),
-            'encabezado' : f'{settings.STATIC_URL}images/encabezado.jpg',
-            'imagenCentro' : f'{settings.STATIC_URL}images/imagenCentro.jpg',
-            'piePagina' : f'{settings.STATIC_URL}images/piePagina.jpg'
-        }
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{nombreArchivo}.pdf"'
-        template = get_template(f'{entidad}/{nombreArchivo}.html')
-
-        html = template.render(data)
-         # create a pdf
-        pisa_status = pisa.CreatePDF(
-        html, dest=response,
-        link_callback=self.link_callback
-        )
-        #Guardar PDF
-        pisa_status = pisa.CreatePDF(
-        html, dest=result_file,
-        link_callback=self.link_callback
-        )
         try:
-            path = Path(ruta)
-            with path.open(mode='rb') as f:
-                archivoCargado= File(f, name=path.name)
-                doc = SeguimientoDocumentacion.objects.create(idUsuario =  request.user, archivo = archivoCargado)
-                doc.save()
+            nombreArchivo = Documento.objects.get(pk = self.kwargs['pk']).nombre
+            ruta = f'media/documentacion/{request.user.getInformacion()}-{nombreArchivo}.pdf'
+            result_file = open(ruta, "w+b")
+            usuario = Usuarios.objects.get(pk = request.user.pk)
+            data = {
+                'usuario': usuario,
+                'fecha': datetime.datetime.now().date(),
+                'encabezado' : f'{settings.STATIC_URL}images/encabezado.jpg',
+                'imagenCentro' : f'{settings.STATIC_URL}images/imagenCentro.jpg',
+                'piePagina' : f'{settings.STATIC_URL}images/piePagina.jpg'
+            }
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{nombreArchivo}.pdf"'
+            template = get_template(f'{entidad}/{nombreArchivo}.html')
+
+            html = template.render(data)
+            # create a pdf
+            pisa_status = pisa.CreatePDF(
+            html, dest=response,
+            link_callback=self.link_callback
+            )
+            #Guardar PDF
+            pisa_status = pisa.CreatePDF(
+            html, dest=result_file,
+            link_callback=self.link_callback
+            )
+            try:
+                path = Path(ruta)
+                with path.open(mode='rb') as f:
+                    archivoCargado= File(f, name=path.name)
+                    doc = SeguimientoDocumentacion.objects.create(idUsuario =  request.user, archivo = archivoCargado)
+                    doc.save()
+            except Exception as e:
+                print('Error_ ', e)
+            result_file.close() 
+            pisa_status = pisa.CreatePDF(
+            html, dest=response,
+            link_callback=self.link_callback
+            )
+            # if error then show some funy view
+            if pisa_status.err:
+                return HttpResponse('We had some errors <pre>' + html + '</pre>')
+            return response
         except Exception as e:
-            print('Error_ ', e)
-        result_file.close() 
-        pisa_status = pisa.CreatePDF(
-        html, dest=response,
-        link_callback=self.link_callback
-        )
-        # if error then show some funy view
-        if pisa_status.err:
-            return HttpResponse('We had some errors <pre>' + html + '</pre>')
-        return response
+            print('Error ln-283: ', e)
+            return redirect(url)
 
 class listadoSolicitudes(LoginRequiredMixin, ListView):
     model = SeguimientoDocumentacion

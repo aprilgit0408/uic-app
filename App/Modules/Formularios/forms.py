@@ -105,9 +105,9 @@ class formularioAvances(ModelForm):
 
     class Meta:
         model = Avance
-        fields = ('idProyecto', 'nombreAvance')
+        fields = ('idProyecto', 'nombreAvance', 'fechaEntrega')
 
-class formularioGuardarAvances(ModelForm):
+class formularioAvancesEstudiante(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
@@ -116,7 +116,7 @@ class formularioGuardarAvances(ModelForm):
 
     class Meta:
         model = Avance
-        fields = ('observacion', 'porcentaje')
+        fields = ('archivo',)
 
 class formularioDocumentos(ModelForm):
     def __init__(self, *args, **kwargs):

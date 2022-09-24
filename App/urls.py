@@ -1,5 +1,5 @@
 from django.urls import path
-from App.Modules.Avances.view import addAvances, deleteAvances, editAvances, guardarAvance, listarAvances
+from App.Modules.Avances.view import addAvances, deleteAvances, editAvances, guardarAvance, guardarAvanceEstudiante, listarAvances
 from App.Modules.Documentos.view import GuardarDocumento, listadoSolicitudes, addDocumentos, generarPDF, listarDocumentos
 from App.Modules.Facultades.view import listarFacultades, addFacultades, editFacultades, deleteFacultades
 from App.Modules.Carreras.view import listarCarreras, addCarreras, editCarreras, deleteCarreras
@@ -39,6 +39,7 @@ urlpatterns = [
     # Serivicio Para los Avances
     path('app/avances/',  listarAvances.as_view(), name='avances'),
     path('app/avances/save/<int:pk>',  guardarAvance.as_view(), name='guardarAvances'),
+    path('app/avances/guardar/<int:pk>',  guardarAvanceEstudiante.as_view(), name='guardarAvancesEstudiante'),
     path('app/avances/add',  addAvances.as_view(), name='addAvances'),
     path('app/avances/edit/<int:pk>',  editAvances.as_view(), name='editAvances'),
     path('app/avances/delete/<int:pk>',  deleteAvances.as_view(), name='deleteAvances'),

@@ -1,7 +1,3 @@
-from smtplib import SMTP
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-
 from django.contrib.auth.views import LoginView, LogoutView
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -10,7 +6,8 @@ from django.shortcuts import redirect, render
 from App.Modules.Formularios.forms import formularioUsuarios, resetPasswordForm, resetPasswordFormLink
 from App.models import Carrera, Usuarios
 from Usuarios.models import Nivel
-from uicApp.settings import LOGIN_REDIRECT_URL, EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, DOMAIN
+from uicApp.settings import LOGIN_REDIRECT_URL, DOMAIN
+from App.sendMail import send_mail_Reset
 import uuid
 modelo = Usuarios
 formulario = formularioUsuarios
@@ -62,39 +59,17 @@ class resetPassword(FormView):
     success_url = '/login/'
     mensaje = 'Si los datos son correctos, le eviaremos un correo al Email ingresado. \n'
     mensaje += 'Por favor, revise su bandeja de entrada.'
-    def send_mail(self, id, mail):
-        try:
-            Subject = 'Reseteo de Contraseña'
-            password = str(uuid.uuid4())
-
-            mensaje = MIMEMultipart()
-            mensaje['From'] = EMAIL_HOST_USER
-            mensaje['To'] = mail
-            mensaje['Subject'] = Subject
-            
-            mailServer = SMTP(EMAIL_HOST, port=EMAIL_PORT)
-            print(mailServer.ehlo())
-            mailServer.starttls()
-            print(mailServer.ehlo())
-            mailServer.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
-            content = render_to_string('Login/email.html',
-                                       {'user': Usuarios.objects.get(pk=id), 'password': password, 'dominio': DOMAIN})
-            mensaje.attach(MIMEText(content, 'html'))
-            mailServer.sendmail(EMAIL_HOST_USER, mail, mensaje.as_string())
-            update = Usuarios.objects.get(pk=id)
-            update.token = password
-            update.save()
-            mailServer.quit()
-        except Exception as e:
-            print('Error Email l-86', e)
-
+    
     def post(self, request, *args, **kwargs):
         try:
             username = request.POST['username']
             email = request.POST['email']
             usuario = Usuarios.objects.get(username=username)
             if usuario.email == email:
-                self.send_mail(usuario.pk, email)
+                password = str(uuid.uuid4())
+                content = render_to_string('Login/email.html',
+                                       {'user': usuario, 'password': password, 'dominio': DOMAIN})
+                send_mail_Reset(usuario.pk, email, content)
             # self.form_class.errors = self.mensaje
             return redirect('/login/?forget')
         except Exception as e:

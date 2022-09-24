@@ -28,7 +28,7 @@ class listarProyectos(LoginRequiredMixin, ListView):
             nombre = f'<ul>{nombre}</ul>'
         esEstudiante = True if self.request.user.perfil.nombre == 'Estudiante' else False
         context['grupo'] = nombre
-        context['encabezado'] = ['#', 'carrera','tema de investigación','estudiantes asignados', 'avances'] if not esEstudiante else ['carrera','tema de investigación','avances'] 
+        context['encabezado'] = ['#', 'carrera','tema de investigación','estudiantes asignados'] if not esEstudiante else ['carrera','tema de investigación'] 
         context['title'] = f'{entidad}' 
         context['listado'] = f'Listado de {entidad}' 
         return context
@@ -46,7 +46,6 @@ class listarProyectos(LoginRequiredMixin, ListView):
                         i.idCarrera.nombre,
                         i.nombre,
                         i.getEstudiantes(),
-                        'Ver',
                         i.getDocente().getInformacion(),
                         i.pk
                     ])
@@ -54,7 +53,6 @@ class listarProyectos(LoginRequiredMixin, ListView):
                     data.append([
                         i.idCarrera.nombre,
                         i.nombre,
-                        'Ver',
                         None
                     ])
                 else:

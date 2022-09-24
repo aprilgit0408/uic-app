@@ -124,7 +124,7 @@ class Usuarios(AbstractUser):
     def getInformacion(self):
         return '{} {}'.format(self.first_name, self.last_name)
     def getAlias(self):
-        return '{}. {}'.format(self.first_name, self.last_name[0])
+        return '{}. {}.'.format(self.first_name, self.last_name[0])
     def clean(self):
         super().clean()
     def save(self, *args, **kwargs):

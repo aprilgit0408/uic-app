@@ -1,3 +1,4 @@
+var table = '';
 const csrftoken = getCookie('csrftoken');
 function getCookie(name) {
     let cookieValue = null;
@@ -13,12 +14,9 @@ function getCookie(name) {
     }
     return cookieValue;
 }
-function getItems(id, url) {
-    let parametros = {
-        'action': 'searchdata'
-    }
-    let responsiveTable = !!url ? url : false;
-    let table = $(id).DataTable({
+function getItems(id, responsive, data) {
+    let responsiveTable = !!responsive ? responsive : false;
+    table = $(id).DataTable({
         responsive: true,
         fixedHeader: {
             header: true,
@@ -46,7 +44,7 @@ function getItems(id, url) {
         ajax: {
             url: '',
             type: 'POST',
-            data: parametros,
+            data: data,
             dataSrc: '',
             headers: {
                 'X-CSRFToken': csrftoken
@@ -61,18 +59,41 @@ function getItems(id, url) {
                     console.log('DAta: ', data);
                     console.log('Row: ', row);
                     let btn = data;
-                    if(data === 'descargarArchivo'){
-                        let botonAvances = `
-                                <button type="submit" onClick="guardarAvances(${row[row.length - 1]})" class="btn btn-outline-warning" title="Guardar Cambios">
+                    if(data === 'estudianteAvance'){
+                        btn = `
+                        <div class="col-md">
+                            <button type="button" onClick="guardarAvancesEstudiante(${row[row.length - 1]})" class="btn btn-outline-info" title="Guardar Cambios">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sd-card" viewBox="0 0 16 16">
                                 <path d="M6.25 3.5a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2z"/>
                                 <path fill-rule="evenodd" d="M5.914 0H12.5A1.5 1.5 0 0 1 14 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5V3.914c0-.398.158-.78.44-1.06L4.853.439A1.5 1.5 0 0 1 5.914 0zM13 1.5a.5.5 0 0 0-.5-.5H5.914a.5.5 0 0 0-.353.146L3.146 3.561A.5.5 0 0 0 3 3.914V14.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-13z"/>
-                              </svg>
-                                </button> `;
+                                </svg>
+                            </button>
+                        </div>
+                        `;
+                        return btn;
+                    }
+                    if(data === 'descargarArchivo'){
+                        let botonAvances = `
+                            <div class="col-md">
+                                <button type="submit" onClick="guardarAvances(${row[row.length - 1]})" class="btn btn-outline-warning" title="Guardar Cambios">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sd-card" viewBox="0 0 16 16">
+                                    <path d="M6.25 3.5a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2z"/>
+                                    <path fill-rule="evenodd" d="M5.914 0H12.5A1.5 1.5 0 0 1 14 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5V3.914c0-.398.158-.78.44-1.06L4.853.439A1.5 1.5 0 0 1 5.914 0zM13 1.5a.5.5 0 0 0-.5-.5H5.914a.5.5 0 0 0-.353.146L3.146 3.561A.5.5 0 0 0 3 3.914V14.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-13z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="col-md">
+                                <button type="button" onClick="eliminarRegistro('${row[row.length - 1]}');" class="btn btn-outline-danger" title="Eliminar Registro" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bucket" viewBox="0 0 16 16">
+                                    <path d="M2.522 5H2a.5.5 0 0 0-.494.574l1.372 9.149A1.5 1.5 0 0 0 4.36 16h7.278a1.5 1.5 0 0 0 1.483-1.277l1.373-9.149A.5.5 0 0 0 14 5h-.522A5.5 5.5 0 0 0 2.522 5zm1.005 0a4.5 4.5 0 0 1 8.945 0H3.527zm9.892 1-1.286 8.574a.5.5 0 0 1-.494.426H4.36a.5.5 0 0 1-.494-.426L2.58 6h10.838z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            `;
                         if(!!row[row.length - 2]){
                             btn = `
                             <div class="row" >
-                                <div class="col-md-6" >
+                                <div class="col-md" >
                                     <a type="submit" href="${row[row.length - 2]}" class="btn btn-outline-info" target="_blank" title="Ver/Descargar Archivo" >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
                                     <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
@@ -80,14 +101,15 @@ function getItems(id, url) {
                                     </svg>
                                     </a>
                                 </div>
-                                <div class="col-md-6">
                                 ${row[row.length - 3] == 'avances' ? botonAvances : ''}
-                                </div>
-
                             </div>
                             `;
                         }else{
-                            btn = botonAvances;
+                            btn = `
+                            <div class="row" >
+                                ${row[row.length - 3] == 'avances' ? botonAvances : ''}
+                            </div>
+                            `;
                         }
                         return btn;
                     }
@@ -197,7 +219,6 @@ function guardarAprobacion(data){
         alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Rechazar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
     }
 }
-
 function guardarAvances(id){
     let observacion = $('#idObservacion'+id).val();
     let porcentaje = $('#idPorcentaje'+id).val();
@@ -243,6 +264,18 @@ function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data, icon) {
                         $.ajax({
                             url: `enviar/${data}`,
                             method: 'GET',
+                            headers: {
+                                'X-CSRFToken': csrftoken
+                            }
+                        }).done((req) => {
+                            $.alert('Datos Enviados...');
+                        });
+                    }
+                    if (funcion === 'avancesEstudiante') {
+                        $.ajax({
+                            url: `guardar/${data.id}`,
+                            method: 'POST',
+                            data: data,
                             headers: {
                                 'X-CSRFToken': csrftoken
                             }

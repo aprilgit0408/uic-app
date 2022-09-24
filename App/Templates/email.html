@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+
+	<title>{{titulo}}</title>
+</head>
+<style>
+	p{
+		text-align: justify;
+	}
+</style>
+<body>
+	<div class="container">
+		<div class="card">
+			<div class="card-header">{{titulo | upper }}</div>
+			<div class="card-body">
+				<h1>Estimado/a estudiante</h1>
+				<p>
+					El presente correo, tiene como finalidad de, informale que, {{docente}} ha solicitado {{tema}} 
+					para el proyecto {{proyecto}}. A continuación, presentamos los detalles del avance solicitado:
+				</p>
+				
+				{% if requerimiento %}
+					<p>Tema: {{requerimiento}} </p>
+				{% endif %}
+					
+				{% if observacion %}
+					<p>Observación: {{observacion}} </p>
+				{% endif %}
+					
+				
+				{% if fechaEntrega %}
+					<p>Fecha de Entrega: {{fechaEntrega}} </p>
+				{% endif %}
+					
+				<hr>
+				<p><i><b>Este mensaje fue generado automáticamente, por favor no responda.</b></i></p>
+			</div>
+			<div class="card-footer" style="background-color: rgba(31, 124, 231, 0.664); align-content: center;" >
+				<p><b>© Copyrights 2022 UICAPP</b></p>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>
