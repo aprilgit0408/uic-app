@@ -8,7 +8,7 @@ from django.utils import timezone
 
 class datosAuditoria(models.Model):
     fechaCreacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
-    fechaModificacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
+    fechaModificacion = models.DateTimeField(editable=False, null=True, blank=True)
     usuarioRegistro = models.PositiveIntegerField(editable=False, null=True, blank=True)
     usuarioModificacion = models.PositiveIntegerField(editable=False, null=True, blank=True)
     class Meta:
@@ -50,12 +50,12 @@ class Proyecto(datosAuditoria):
             nombre = user.getInformacion()
             if user.perfil:
                 if user.perfil.nombre == 'Docente':
-                    usuarios.append((str(user.pk), nombre))
+                    usuarios.append((user.pk, nombre))
     except:
         pass
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE)
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Proyecto')
-    idDocente = models.CharField(choices=usuarios, verbose_name='Docente', max_length=13)
+    idDocente = models.PositiveIntegerField(choices=usuarios, verbose_name='Docente')
     idEstudiantes = models.ManyToManyField(Usuarios, verbose_name='Listado de Estudiantes')
     def __str__(self) -> str:
         txt = '{0}'
@@ -63,7 +63,7 @@ class Proyecto(datosAuditoria):
     def getEstudiantes(self):
         ul = ''
         for estudiante in self.idEstudiantes.all():
-            ul += f'<li> {estudiante} </li>'
+            ul += f'<li title="{estudiante}"> {estudiante.getAlias()} </li>'
         ul = f'<ul>{ul}</ul>'
         return ul
     def getDocente(self):
@@ -78,6 +78,7 @@ class Avance(datosAuditoria):
     observacion = models.CharField(max_length=100, verbose_name='Observacion', blank=True, null=True)
     porcentaje = models.PositiveIntegerField(verbose_name='Porcentaje completado', default=0)
     archivo = models.FileField(verbose_name='Documento', upload_to='documentacion', blank=True, null=True)
+    fechaEntrega = models.DateTimeField(default=timezone.now)
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombreAvance)
