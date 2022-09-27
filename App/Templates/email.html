@@ -21,8 +21,8 @@
 			<div class="card-body">
 				<h1>Estimado/a estudiante</h1>
 				<p>
-					El presente correo, tiene como finalidad de, informale que, {{docente}} ha solicitado {{tema}} 
-					para el proyecto {{proyecto}}. A continuación, presentamos los detalles del avance solicitado:
+					El presente correo, tiene como finalidad de, informale que, {{docente}} ha {{tema}} 
+					para el proyecto {{proyecto}}. A continuación, presentamos los detalles:
 				</p>
 				
 				{% if requerimiento %}
@@ -34,14 +34,27 @@
 				{% endif %}
 					
 				
+				{% if porcentaje %}
+					<p>Porcentaje de avance: {{porcentaje}} %</p>
+				{% endif %}
+
 				{% if fechaEntrega %}
 					<p>Fecha de Entrega: {{fechaEntrega}} </p>
 				{% endif %}
 					
 				<hr>
 				<p><i><b>Este mensaje fue generado automáticamente, por favor no responda.</b></i></p>
+				
 			</div>
-			<div class="card-footer" style="background-color: rgba(31, 124, 231, 0.664); align-content: center;" >
+			<div class="card-body">
+				<b>Universidad Politécnica Estatal del Carchi </b><br>
+				<b>Dirección</b><br>
+				<b>Calle Antisana y</b><br>
+				<b>Av. Universitaria.</b><br>
+				<b>Tulcán-Ecuador</b><br>
+				<b>Email: info@upec.edu.ec</b><br>
+			</div>
+			<div class="card-footer">
 				<p><b>© Copyrights 2022 UICAPP</b></p>
 			</div>
 		</div>

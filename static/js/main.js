@@ -299,6 +299,7 @@ function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data, icon) {
                         });
                     }
                     if (funcion === 'delete') {
+                        $.alert('Eliminando datos.....')
                         $.ajax({
                             url: `delete/${data}`,
                             method: 'DELETE',
@@ -306,7 +307,7 @@ function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data, icon) {
                                 'X-CSRFToken': csrftoken
                             }
                         }).done((req) => {
-                            console.log('Datos Guardados: ', req);
+                            $.alert('OK')
                             location.reload();
                         });
                     }

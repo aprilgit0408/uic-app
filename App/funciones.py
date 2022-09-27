@@ -48,3 +48,14 @@ def send_mail_Reset(id, mail, content):
             mailServer.quit()
         except Exception as e:
             print('Error Email l-46', e)
+def getDate(fecha):
+    '''
+    @param fecha para transformar
+    @return Vie 23 Sep del 2022
+    '''
+    meses = [None, "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+                        "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+    dias = [None, "Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
+    dia = fecha.toordinal() % 7 or 7
+    fechaActual = dias[dia] + ', ' + str(fecha.day) + ' ' +  meses[fecha.month] + ' del ' + str(fecha.year) + ' ' + fecha.strftime("%H:%M:%S")
+    return fechaActual

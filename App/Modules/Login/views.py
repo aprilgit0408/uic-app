@@ -7,7 +7,7 @@ from App.Modules.Formularios.forms import formularioUsuarios, resetPasswordForm,
 from App.models import Carrera, Usuarios
 from Usuarios.models import Nivel
 from uicApp.settings import LOGIN_REDIRECT_URL, DOMAIN
-from App.sendMail import send_mail_Reset
+from App.funciones import send_mail_Reset
 import uuid
 modelo = Usuarios
 formulario = formularioUsuarios

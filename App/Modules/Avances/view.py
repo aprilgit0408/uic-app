@@ -9,9 +9,8 @@ from django.utils.decorators import method_decorator
 from django.http.response import JsonResponse
 from django.urls import reverse_lazy
 from Usuarios.models import Usuarios
-from uicApp import settings
 from django.template.loader import render_to_string
-from App.sendMail import send_mail
+from App.funciones import send_mail, getDate
 modelo = Avance
 formulario = formularioAvances
 entidad = 'Avances'
@@ -31,6 +30,12 @@ class listarAvances(LoginRequiredMixin, ListView):
         admin = True if self.request.user.perfil.nombre == 'Admin' else False
         carreras = []
         query = Proyecto.objects.all().order_by('idCarrera__nombre') if admin else Proyecto.objects.filter(idDocente = self.request.user.pk).order_by('idCarrera__nombre')
+        estudiante = []
+        if self.request.user.perfil.nombre == 'Estudiante':
+            for av in modelo.objects.filter(archivo = ''):
+                    for est in av.idProyecto.idEstudiantes.all():
+                        if est == self.request.user:
+                            estudiante.append(av)
         for i in query:
             if i.idCarrera not in carreras:
                 carreras.append(i.idCarrera)
@@ -38,6 +43,7 @@ class listarAvances(LoginRequiredMixin, ListView):
         context['title'] = f'{entidad}'
         context['listado'] = f'Listado de {entidad}'
         context['idProyectos'] = query
+        context['pendientes'] = len(estudiante)
         context['idCarreras'] = carreras
         return context
     def post(self, request, *args, **kwargs):
@@ -54,7 +60,7 @@ class listarAvances(LoginRequiredMixin, ListView):
                 query = modelo.objects.filter(idProyecto__idDocente = request.user.pk)
             else:
                 noEstudiante = False
-                for av in Avance.objects.all():
+                for av in modelo.objects.all():
                     for est in av.idProyecto.idEstudiantes.all():
                         if est == request.user:
                             query.append(av)
@@ -65,17 +71,25 @@ class listarAvances(LoginRequiredMixin, ListView):
                 query = query.filter(idProyecto = idProyecto)
             for i in query:
                 estado = 'checked disabled' if i.archivo else 'disabled'
-                fecha = settings.getDate(i.fechaModificacion) if request.user.perfil.nombre == 'Estudiante' else ''
+                fecha = getDate(i.fechaModificacion) if request.user.perfil.nombre == 'Estudiante' else ''
                 svg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">   <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>   <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/> </svg>'
-                descargar = f'<a type="button" href="{i.archivo.url}" title="Archivo subido el {settings.getDate(i.fechaModificacion)}, descargar" class="btn btn-success">{svg}</a> <i style="font-size: 13px;" title="Fecha de subida">{fecha}</i> ' if i.archivo else f'<button type="button" title="Sin Archivo" readonly class="btn btn-outline-secondary"  >{svg}</button>'
+                descargar = f'<a type="button" href="{i.archivo.url}" title="Archivo subido el {getDate(i.fechaModificacion)}, descargar" class="btn btn-success">{svg}</a> <i style="font-size: 13px;" title="Fecha de subida">{fecha}</i> ' if i.archivo else f'<button type="button" title="Sin Archivo" readonly class="btn btn-outline-secondary"  >{svg}</button>'
                 guardarCambios = f'''
                     <div class="col-md">
-                            <button type="submit" onClick="guardarAvances({i.pk})" class="btn btn-outline-warning" title="Guardar Cambios">
+                            <button type="submit" onClick="guardarAvances({i.pk})" class="btn btn-outline-info" title="Guardar Cambios">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sd-card" viewBox="0 0 16 16">
                                 <path d="M6.25 3.5a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2zm2 0a.75.75 0 0 0-1.5 0v2a.75.75 0 0 0 1.5 0v-2z"/>
                                 <path fill-rule="evenodd" d="M5.914 0H12.5A1.5 1.5 0 0 1 14 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5V3.914c0-.398.158-.78.44-1.06L4.853.439A1.5 1.5 0 0 1 5.914 0zM13 1.5a.5.5 0 0 0-.5-.5H5.914a.5.5 0 0 0-.353.146L3.146 3.561A.5.5 0 0 0 3 3.914V14.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-13z"/>
                                 </svg>
                             </button>
+                        </div>
+                        <div class="col-md">
+                            <a type="button" href="edit/{i.pk}" class="btn btn-outline-warning" title="Editar Registro" >
+                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                </svg>
+                            </a>
                         </div>
                         <div class="col-md">
                             <button type="button" onClick="eliminarRegistro({i.pk})" class="btn btn-outline-danger" title="Eliminar Registro" >
@@ -95,7 +109,7 @@ class listarAvances(LoginRequiredMixin, ListView):
                         i.idProyecto.nombre,
                         i.nombreAvance,
                         i.idProyecto.getEstudiantes(),
-                        settings.getDate(i.fechaEntrega),
+                        getDate(i.fechaEntrega),
                         f'<textarea name="observacion" class="form-control form-control-sm" id="idObservacion{i.pk}" cols="5" rows="5">{i.observacion if i.observacion else ""}</textarea>',
                         f'<input type="number" style="width: 65px;" min="0" max="100" name="porcentaje" class="form-control form-control-sm" id="idPorcentaje{i.pk}" value="{i.porcentaje}" >',
                         guardarCambios,
@@ -109,7 +123,7 @@ class listarAvances(LoginRequiredMixin, ListView):
                         i.idProyecto.nombre,
                         i.nombreAvance,
                         i.idProyecto.getEstudiantes(),
-                        settings.getDate(i.fechaEntrega),
+                        getDate(i.fechaEntrega),
                         i.observacion,
                         f'{i.porcentaje} %',
                         f'''
@@ -152,9 +166,10 @@ class addAvances(LoginRequiredMixin, CreateView):
             content = render_to_string('email.html',
                                        {'titulo': 'Avances', 
                                        'docente': docente.getInformacion(), 
-                                       'tema': 'un nuevo avance', 'proyecto':instance.nombre, 
+                                       'tema': 'solicitado un nuevo avance', 
+                                       'proyecto':instance.nombre, 
                                        'requerimiento' : nombreAvance,
-                                       'fechaEntrega' : settings.getDate(fechaEntrega)
+                                       'fechaEntrega' : getDate(fechaEntrega)
                                        })
             for i in instance.idEstudiantes.all():
                 if emails:
@@ -180,10 +195,33 @@ class editAvances(LoginRequiredMixin, UpdateView):
     form_class = formulario
     template_name = main
     success_url = url
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'{entidad}'
+        context['accion'] = f'Edición de {entidad}'
+        return context
     def post(self, request, *args, **kwargs):
         form = formulario(request.POST, instance=self.get_object())
         if form.is_valid():
+            instance = form.cleaned_data['idProyecto']
+            nombreAvance = form.cleaned_data['nombreAvance']
+            fechaEntrega = form.cleaned_data['fechaEntrega']
+            emails = ''
+            docente = Usuarios.objects.get(pk = instance.idDocente)
+            content = render_to_string('email.html',
+                                       {'titulo': 'Actualización del Avances', 
+                                       'docente': docente.getInformacion(), 
+                                       'tema': 'actualizado el avance', 
+                                       'proyecto':instance.nombre, 
+                                       'requerimiento' : nombreAvance,
+                                       'fechaEntrega' : getDate(fechaEntrega)
+                                       })
+            for i in instance.idEstudiantes.all():
+                if emails:
+                    emails += f',{i.email}'
+                else:
+                    emails = i.email
+            send_mail('Actualización del Avance', emails, content)
             form.save()
         return super().post(request, *args, **kwargs)
 
@@ -200,6 +238,18 @@ class guardarAvance(LoginRequiredMixin, View):
             instance.observacion = observacion
             instance.porcentaje = porcentaje
             instance.save()
+            correos = ""
+            for est in instance.idProyecto.idEstudiantes.all():
+                correos += est.email + ','
+            content = render_to_string('email.html',
+                                       {'titulo': 'Avances', 
+                                       'docente': request.user.getInformacion(), 
+                                       'tema': 'revisado los cambios', 
+                                       'proyecto':instance.idProyecto.nombre, 
+                                       'observacion' : observacion,
+                                       'porcentaje' : porcentaje
+                                       })
+            send_mail('Avance Revisado', correos, content)
             data.append({'info':'Datos Guardados'})
         except Exception as e:
             data.append({'info': str(e)})
@@ -234,5 +284,20 @@ class deleteAvances(LoginRequiredMixin, DeleteView):
             id = str(self.kwargs['pk'])
         data = []
         instance = modelo.objects.get(pk=id)
+        emails = ''
+        content = render_to_string('email.html',
+                                    {'titulo': 'Eliminación del Avances', 
+                                    'docente': request.user.getInformacion(), 
+                                    'tema': 'eliminado la siguiente asignación de avance', 
+                                    'proyecto':instance.idProyecto.nombre, 
+                                    'requerimiento' : instance.nombreAvance,
+                                    'fechaEntrega' : getDate(instance.fechaEntrega)
+                                    })
+        for i in instance.idProyecto.idEstudiantes.all():
+            if emails:
+                emails += f',{i.email}'
+            else:
+                emails = i.email
+        send_mail('Actualización del Avance', emails, content)
         instance.delete()
         return JsonResponse(data, safe=False)
