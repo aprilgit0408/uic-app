@@ -10,7 +10,7 @@ from django.shortcuts import redirect
 import os
 from django.core.files import File
 from pathlib import Path
-from xhtml2pdf import pisa
+from weasyprint import HTML, CSS
 from django.contrib.staticfiles import finders
 from django.template.loader import get_template
 from Usuarios.models import SeguimientoDocumentacion, Usuarios, Documento
@@ -140,105 +140,11 @@ class deleteDocumentos(LoginRequiredMixin, DeleteView):
         return context
 class GuardarDocumento(LoginRequiredMixin, View):
     template_name = main
-    def link_callback(self, uri, rel):
-            result = finders.find(uri)
-            if result:
-                    if not isinstance(result, (list, tuple)):
-                            result = [result]
-                    result = list(os.path.realpath(path) for path in result)
-                    path=result[0]
-            else:
-                    sUrl = settings.STATIC_URL        # Typically /static/
-                    sRoot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
-                    mUrl = settings.MEDIA_URL         # Typically /media/
-                    mRoot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
-
-                    if uri.startswith(mUrl):
-                            path = os.path.join(mRoot, uri.replace(mUrl, ""))
-                    elif uri.startswith(sUrl):
-                            path = os.path.join(sRoot, uri.replace(sUrl, ""))
-                    else:
-                            return uri
-            if not os.path.isfile(path):
-                    raise Exception(
-                            'media URI must start with %s or %s' % (sUrl, mUrl)
-                    )
-            return path
-
-    def generarPDFFirmado(self, nombreArchivo, request):
-        pisa.showLogging()
-        ruta = f'media/documentacion/{request.user.getInformacion()}-{nombreArchivo}.pdf'
-        result_file = open(ruta, "w+b")
-        usuario = Usuarios.objects.get(pk = request.user.pk)
-        data = {
-            'usuario': usuario,
-            'fecha': datetime.datetime.now().date(),
-            'encabezado' : f'{settings.STATIC_URL}images/encabezado.jpg',
-            'imagenCentro' : f'{settings.STATIC_URL}images/imagenCentro.jpg',
-            'piePagina' : f'{settings.STATIC_URL}images/piePagina.jpg'
-        }
-        template = get_template(f'{entidad}/{nombreArchivo}.html')
-        html = template.render(data)
-        #Guardar PDF
-        pisa_status = pisa.CreatePDF(
-        html, dest=result_file,
-        link_callback=self.link_callback
-        )
-        return ruta
-    def get(self, request, *args, **kwargs):
-        idDocumento = Documento.objects.get(pk = self.kwargs['pk'])
-        getRegistro = SeguimientoDocumentacion.objects.filter(idDocumento = idDocumento, idUsuario = request.user)
-        if not getRegistro.exists():
-            try:
-                path = Path(self.generarPDFFirmado(idDocumento.nombre,request))
-                with path.open(mode='rb') as f:
-                    archivoCargado= File(f, name=path.name)
-                    doc = SeguimientoDocumentacion.objects.create(idDocumento = idDocumento,idUsuario =  request.user, archivo = archivoCargado)
-                    doc.save()
-            except Exception as e:
-                print('Error al guardar el archivo generado ln-202: ', e)
-        else:
-            #Actualizar Documento
-            try:
-                path = Path(self.generarPDFFirmado(idDocumento.nombre, request))
-                with path.open(mode='rb') as f:
-                    archivoCargado= File(f, name=path.name)
-                    doc = getRegistro[0]
-                    doc.archivo = archivoCargado
-                    doc.save()
-            except Exception as e:
-                print('Error al Actualizar el archivo generado ln-213: ', e)
-
-        return HttpResponseRedirect(url)
-class generarPDF(LoginRequiredMixin, View):
-    def link_callback(self, uri, rel):
-            result = finders.find(uri)
-            if result:
-                    if not isinstance(result, (list, tuple)):
-                            result = [result]
-                    result = list(os.path.realpath(path) for path in result)
-                    path=result[0]
-            else:
-                    sUrl = settings.STATIC_URL        # Typically /static/
-                    sRoot = settings.STATIC_ROOT      # Typically /home/userX/project_static/
-                    mUrl = settings.MEDIA_URL         # Typically /media/
-                    mRoot = settings.MEDIA_ROOT       # Typically /home/userX/project_static/media/
-
-                    if uri.startswith(mUrl):
-                            path = os.path.join(mRoot, uri.replace(mUrl, ""))
-                    elif uri.startswith(sUrl):
-                            path = os.path.join(sRoot, uri.replace(sUrl, ""))
-                    else:
-                            return uri
-            if not os.path.isfile(path):
-                    raise Exception(
-                            'media URI must start with %s or %s' % (sUrl, mUrl)
-                    )
-            return path
     def get(self, request, *args, **kwargs):
         try:
-            nombreArchivo = Documento.objects.get(pk = self.kwargs['pk']).nombre
-            ruta = f'media/documentacion/{request.user.getInformacion()}-{nombreArchivo}.pdf'
+            idDocumeto = Documento.objects.get(pk = self.kwargs['pk'])
+            nombreArchivo = idDocumeto.nombre
+            ruta = f'media/documentacionEstudiante/{request.user.getInformacion()}-{nombreArchivo}.pdf'
             result_file = open(ruta, "w+b")
             usuario = Usuarios.objects.get(pk = request.user.pk)
             data = {
@@ -248,40 +154,58 @@ class generarPDF(LoginRequiredMixin, View):
                 'imagenCentro' : f'{settings.STATIC_URL}images/imagenCentro.jpg',
                 'piePagina' : f'{settings.STATIC_URL}images/piePagina.jpg'
             }
-            response = HttpResponse(content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="{nombreArchivo}.pdf"'
             template = get_template(f'{entidad}/{nombreArchivo}.html')
-
             html = template.render(data)
-            # create a pdf
-            pisa_status = pisa.CreatePDF(
-            html, dest=response,
-            link_callback=self.link_callback
-            )
-            #Guardar PDF
-            pisa_status = pisa.CreatePDF(
-            html, dest=result_file,
-            link_callback=self.link_callback
-            )
-            try:
-                path = Path(ruta)
-                with path.open(mode='rb') as f:
-                    archivoCargado= File(f, name=path.name)
-                    doc = SeguimientoDocumentacion.objects.create(idUsuario =  request.user, archivo = archivoCargado)
-                    doc.save()
-            except Exception as e:
-                print('Error_ ', e)
-            result_file.close() 
-            pisa_status = pisa.CreatePDF(
-            html, dest=response,
-            link_callback=self.link_callback
-            )
-            # if error then show some funy view
-            if pisa_status.err:
-                return HttpResponse('We had some errors <pre>' + html + '</pre>')
-            return response
+            css_url = os.path.join(settings.BASE_DIR, 'static/css/bootstrap.min.css')
+            HTML(string=html, base_url='').write_pdf(result_file, stylesheets=[CSS(css_url)])
+            getRegistro = SeguimientoDocumentacion.objects.filter(idDocumento = nombreArchivo, idUsuario = request.user)
+            if not getRegistro.exists():
+                try:
+                    path = Path(ruta)
+                    with path.open(mode='rb') as f:
+                        archivoCargado= File(f, name=path.name)
+                        doc = SeguimientoDocumentacion.objects.create(idDocumento = idDocumeto,idUsuario =  request.user, archivo = archivoCargado)
+                        doc.save()
+                except Exception as e:
+                    print('Error al guardar el archivo generado ln-202: ', e)
+            else:
+                #Actualizar Documento
+                print('actualiza: ', ruta)
+                try:
+                    path = Path(ruta)
+                    with path.open(mode='rb') as f:
+                        archivoCargado= File(f, name=path.name)
+                        doc = getRegistro[0]
+                        doc.archivo = archivoCargado
+                        doc.save()
+                except Exception as e:
+                    print('Error al Actualizar el archivo generado ln-213: ', e)
+            result_file.close()
         except Exception as e:
-            print('Error ln-283: ', e)
+            print('Error ln-185: ', e)
+        return HttpResponseRedirect(url)
+class generarPDF(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            nombreArchivo = Documento.objects.get(pk = self.kwargs['pk']).nombre
+            ruta = f'media/documentacionEstudiante/{request.user.getInformacion()}-{nombreArchivo}.pdf'
+            result_file = open(ruta, "w+b")
+            usuario = Usuarios.objects.get(pk = request.user.pk)
+            data = {
+                'usuario': usuario,
+                'fecha': datetime.datetime.now().date(),
+                'encabezado' : f'{settings.STATIC_URL}images/encabezado.jpg',
+                'imagenCentro' : f'{settings.STATIC_URL}images/imagenCentro.jpg',
+                'piePagina' : f'{settings.STATIC_URL}images/piePagina.jpg'
+            }
+            template = get_template(f'{entidad}/{nombreArchivo}.html')
+            html = template.render(data)
+            css_url = os.path.join(settings.BASE_DIR, 'static/css/bootstrap.min.css')
+            pdf = HTML(string=html, base_url='').write_pdf(stylesheets=[CSS(css_url)])
+            result_file.close()
+            return HttpResponse(pdf, content_type='application/pdf')
+        except Exception as e:
+            print('Error ln-210: ', e)
             return redirect(url)
 
 class listadoSolicitudes(LoginRequiredMixin, ListView):

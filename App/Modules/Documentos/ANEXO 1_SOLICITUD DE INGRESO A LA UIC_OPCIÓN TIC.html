@@ -2,113 +2,88 @@
 
 <head>
   <style>
-    @import url('http://fonts.cdnfonts.com/css/century-gothic');
-    @page {
-      /* size: letter portrait; */
-      size: a4 portrait;
-
-      @frame header_frame {
-        -pdf-frame-content: header_contents;
-        left: 16pt;
-        top: 22px;
-        right: 16pt;
-      }
-      @frame header_frame {
-        -pdf-frame-content: imagenCentro;
-        left: 90pt;
-        right: 90pt;
-        top: 272pt;
-        /* bottom: 202pt; */
-      }
-      @frame col1_frame {
-        /* Content frame 1 */
-        top: 105pt;
-      }
-      @frame header_frame {
-        -pdf-frame-content: piePagina;
-        top: 790pt;
-        right: 0pt;
-        left: 0pt;
-      }
-      @frame header_frame {
-        -pdf-frame-content: firma;
-        top: 420pt;
-        left: 250pt;
-        /* height: 200pt; */
-        width: 150pt;
-      }
-
-
-      p.separator {
-        -pdf-keep-with-next: false;
-        font-size: 6pt;
-      }
-      
+   @page {
+    size: A4; /* Change from the default size of A4 */
+    margin: 0mm;
     }
     p{
       font-family: 'Century Gothic', sans-serif;
       font-weight: 400;
       font-style: normal;
-        font-size: 15px;
+      font-size: 14.5px;
+        /* font-family: 'Century Gothic, CenturyGothic, AppleGothic, sans-serif'; */
+    }
+    spam {
+      font-family: 'Century Gothic', sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14.5px;
         /* font-family: 'Century Gothic, CenturyGothic, AppleGothic, sans-serif'; */
     }
     .titulos{
-        font-size: 14px;
-        font-family: 'Century Gothic', sans-serif;
-        line-height: 1pt;
-        /* word-spacing: -1pt; */
-        /* letter-spacing: 1pt;  */
+      font-family: 'Century Gothic', sans-serif;
+      line-height: 12pt;
     }
     .container{
-        margin-left: 120px;
-        margin-right: 120px;
+        margin-left: 40px;
+        margin-right: 25px;
+        width: 88%;
     }
-   
-   
+    .pagina {
+      margin-left: 0px;
+      margin-right: 0px;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+    
+    .piePagina{
+      margin-left: -75px;
+      margin-top: 40pt;
+      display: inline-block;
+      padding-top: 0px;
+      padding-bottom: 0px;
+      margin-bottom: 0;
+     
+    }
+    .pagina{
+      margin: 2cm;
+    }
+      
+
   </style>
   <head>
 
   <body>
-    <pdf:nextframe">
-    
-    
-    <div id="header_content">
-    </div>
-    <div id="header_contents">
-      <img src=".{{encabezado}}" alt="" style="width: 970px; height: 140px; text-align: center; margin-top: -15px;" />
-    </div>
-    <div id="imagenCentro">
-      <img src=".{{imagenCentro}}" alt="" style="width: 750px; height: 735px; text-align: center;" />
-    </div>
-    <div id="piePagina">
-      <img src=".{{piePagina}}" alt="" style="width: 915px; height: 75px; text-align: center;" />
-    </div>
-    {% if usuario.firma %}
-      <div id="firma">
-        <img src=".{{usuario.firma.url}}" alt="" style="width: 150px; height: 100px; text-align: center;" />
-      </div>
-    {% endif %}
-
-    <div>
-        <center>
-            <p class="titulos"><b>UNIDAD DE INTEGRACIÓN CURRICULAR</b></p>
-            <p class="titulos"><b>FORMATO SOLICITUD DE OPCIÓN DE TITULACIÓN</b></p>
-            <p class="titulos" style="line-height: 22pt;" ><b>FACULTAD DE {{usuario.idCarrera.idFacultad | upper}}</b></p>
+    <div class="pagina">
+        
+        <div>
+          <img src=".{{encabezado}}" alt="" style="width: 800px; height: 110px; margin-left: -68px; margin-top: -48px;z-index: 0;" />
+          <!-- <img src=".{{piePagina}}" alt="" style="width: 915px; height: 75px;" /> -->
+        </div>
+        <center class="titulos" >
+            <p style="font-size: 16px;" ><b>UNIDAD DE INTEGRACIÓN CURRICULAR</b></p>
+            <p style="font-size: 16px;" ><b>FORMATO SOLICITUD DE OPCIÓN DE TITULACIÓN</b></p>
+            <p style="font-size: 14.5px;" ><b>FACULTAD DE {{usuario.idCarrera.idFacultad | upper}}</b></p>
         </center>
+        
         <div class="container">
-          <p style="text-align:right;" class="titulos" > Tulcán, {{fecha}} </p>
-            <p> {{usuario.idCarrera.genero}} </p>
-            <p style="text-align: justify;"> 
+          <p style="text-align:right; margin-top: 34px; " class="titulos" > Tulcán, {{fecha}} </p>
+            <spam> {{usuario.idCarrera.genero}} </spam>
+            <p>
               {{usuario.idCarrera.abreviatura}} {{usuario.idCarrera.nombreDirector}} <br>
-              <b style=" font-size: 13px;" > {% if usuario.idCarrera.genero == 'Señor' %}DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera.nombre | upper}}  </b> </p>
-            <br>
-            <p style="text-align: justify;" >
-                Yo  {{usuario.getInformacion}}, con CI: {{usuario.username}}, estudiante del {{usuario.idNivel}} nivel, en cumplimiento de los requisitos establecidos en el Reglamento de la Unidad de Integración Curricular, Titulación e Incorporación de la UPEC, me dirijo a usted con la finalidad de solicitar la aprobación de la opción de titulación de {{usuario.modalidad}} que he elegido para culminar la mencionada unidad. Adjunto el récord académico debidamente legalizado.
-                <br><br><br>
-                <p style="margin-left: 150px;">Firma:
-                  <br><label for="" style="margin-left: 10pt;" >_____________________________________</label>
-                </p>
-                <br>
+              <b> {% if usuario.idCarrera.genero == 'Señor' %}DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera.nombre | upper}}  </b>
+            </p>
+            <div style="text-align: justify; background: url('.{{imagenCentro}}'); background-size: 100% 85%; background-repeat: no-repeat; " >
+                <p>Yo  {{usuario.getInformacion}}, con CI: {{usuario.username}}, estudiante del {{usuario.idNivel}} nivel, en cumplimiento de los requisitos establecidos en el Reglamento de la Unidad de Integración Curricular, Titulación e Incorporación de la UPEC, me dirijo a usted con la finalidad de solicitar la aprobación de la opción de titulación de {{usuario.modalidad}} que he elegido para culminar la mencionada unidad. Adjunto el récord académico debidamente legalizado.</p>
+                <br><br>
+                <p style="margin-left: 150px;">Firma: <br>
+                  <label for="" style="margin-left: 15%; margin-bottom: 20px; " >_____________________________________</label>
+                  {% if usuario.firma %}
+                    <div id="firma">
+                      <img src=".{{usuario.firma.url}}" alt="" style="width: 150px; height: 100px; text-align: center; margin-left: 47%;  margin-top: -185px;" />
+                    </div>
+                  {% endif %}
+                </p><br>
                 <p><b>RESOLUCIÓN</b></p>
                 <p style="text-align: justify;"  >
                   En cumplimiento al artículo 6 del Reglamento de la Unidad de Integración
@@ -116,12 +91,16 @@
                   aprobado entre el 70% y 80% de su malla curricular de acuerdo a su récord
                   académico debidamente legalizado, se declara <b>IDÓNEO</b> para continuar con el
                   proceso en la opción de titulación elegida.
-                  </p> <br>
-                  <p style="text-align: center; font-size: 14px;" > {{usuario.idCarrera.abreviatura}} {{usuario.idCarrera.nombreDirector}} <br> </p>
-                  <p style="text-align: center; font-size: 13px;" > <b> {% if usuario.idCarrera.genero == 'Señor' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera.nombre | upper}}  </b> </p>
-              
-            </div>
+                  </p> <br><br>
+                  <p style="text-align: center;"> {{usuario.idCarrera.abreviatura}} {{usuario.idCarrera.nombreDirector}} <br> </p>
+                  <p style="text-align: center;"> <b> {% if usuario.idCarrera.genero == 'Señor' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera.nombre | upper}}  </b> </p>
+                </div>
+        </div>
+        <div class="piePagina">
+          <img src=".{{piePagina}}" style="width: 800px; height: 75px;" />
+        </div>
     </div>
+
   </body>
 
 </html>

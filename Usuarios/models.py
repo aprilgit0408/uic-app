@@ -7,7 +7,7 @@ from crum import get_current_user
 
 class datosAuditoria(models.Model):
     fechaCreacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
-    fechaModificacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
+    fechaModificacion = models.DateTimeField(editable=False, null=True, blank=True)
     usuarioRegistro = models.PositiveIntegerField(editable=False, null=True, blank=True)
     usuarioModificacion = models.PositiveIntegerField(editable=False, null=True, blank=True)
     class Meta:
@@ -143,7 +143,7 @@ class Usuarios(AbstractUser):
 
 class Documento(datosAuditoria):
     nombre = models.CharField(max_length=200, verbose_name='Nombre del Documento', primary_key=True)
-    archivo = models.FileField(verbose_name='Archivo', upload_to='documentacion')
+    archivo = models.FileField(verbose_name='Archivo', upload_to='formatoDocumentos')
     idPerfiles = models.ManyToManyField(Perfiles, verbose_name='Disponible para', blank = True) 
     def __str__(self):
         return self.nombre
@@ -160,7 +160,7 @@ class SeguimientoDocumentacion(datosAuditoria):
     idDocumento = models.ForeignKey(Documento, verbose_name='Documento', on_delete=CASCADE)
     idUsuario = models.ForeignKey(Usuarios, verbose_name='Usuario', on_delete=CASCADE)
     estado = models.BooleanField(choices=opciones,verbose_name='Estado del archivo', default=False, null = True, blank = True)   
-    archivo = models.FileField(verbose_name='Documento', upload_to='documentacion')
+    archivo = models.FileField(verbose_name='Documento', upload_to='documentacionEstudiante')
     def __str__(self):
         return f'{self.idUsuario}'
     def save(self, *args, **kwargs):
