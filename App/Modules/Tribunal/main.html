@@ -1,0 +1,120 @@
+{% extends 'Views/header.html'  %}
+{% load static %}
+{% block title %} {{title}} {% endblock %}
+{% block content %}
+    <div class="container" style="margin-top: 10%; align-content: center;" >
+        <form action="" method="POST" class="form" enctype="multipart/form-data">
+            <div class="card">
+                <div class="card-header">
+                    <b style="font-size: 20px;" > {{accion}} </b>
+                </div>
+                <div class="card-body">
+                    {% if listadoDocentes %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="idUsuarios">Asignación de tribunal</label>
+                                <select name="idUsuarios" class="form-control form-control-sm" autocomplete="off" id="idUsuarios" multiple="">
+                                    {% for item in listadoDocentes %}
+                                        <option value="{{item.pk}}" title="{{item.user.getInformacion }}" >{{item.user.getInformacion}} 
+                                        {% if item.grupo %}
+                                            <spam>&nbsp"{{item.grupo |safe}}"</spam>
+                                        {% endif %}
+                                             </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <label for="">
+                                    Opción
+                                </label>
+                                <button type="button" class="btn btn-outline-primary" title="Agregar Docentes principales" onclick="opciones('#idDocentes')" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                                      </svg>
+                                </button><br>
+                                <button type="button" class="btn btn-outline-info" title="Agregar Docente Suplente" onclick="opciones('#idDocentesSuplentes')" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-right-circle" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
+                                      </svg>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" title="Limpiar Selección" onclick="limpiarSeleccion()" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat" viewBox="0 0 16 16">
+                                        <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+                                        <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+                                      </svg>
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="idDocentes">Docentes principales</label>
+                                <select name="idDocentes" class="form-control form-control-sm" autocomplete="off" disabled id="idDocentes" multiple="">
+                                   <div id="principales">Erick</div>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="idDocentesSuplentes">Docentes Suplentes</label>
+                                <select name="idDocentesSuplentes" class="form-control form-control-sm" autocomplete="off" disabled id="idDocentesSuplentes" multiple="">
+                                    
+                                </select>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <td class="header" scope="col">
+                        <button type="submit" class="btn btn-outline-primary">Aceptar</button>
+                    </td>
+                    <td class="header" scope="col">
+                        {% if agregar %}
+                            <a type="button" onClick="history.go(-1);" class="btn btn-outline-secondary">Cancelar</a>
+                        {% else %}
+                            <a type="button" href="{{ view.get_success_url }}" class="btn btn-outline-secondary">Cancelar</a>
+                        {% endif %}
+                    </td>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div style="margin-top: 30px;" ></div>
+<script>
+        function opciones(btn){
+            let idUsuarios = $('#idUsuarios').val();
+            let data = "";
+            idUsuarios.forEach(element => {
+                data += element + ','
+            });
+            ajax(data, btn);
+            
+        }
+        function limpiarSeleccion(){
+            $('#idDocentesSuplentes').empty();
+            $('#idDocentes').empty();
+        }
+        function ajax(data, id){
+            $.ajax({
+                url: '',
+                method: 'POST',
+                data: {'usuarios': data},
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            }).done((req) => {
+                let docentesP = document.querySelector(id);
+                req.forEach(item => {
+                    let option = document.createElement('option');
+                    option.value = item.pk;
+                    option.text = item.user;
+                    option.selected = true;
+                    let datosSecundarios = $('#idDocentesSuplentes').val()
+                    let datosPrincipales = $('#idDocentes').val();
+                    let datosGenerales = datosPrincipales.concat(datosSecundarios)
+                    let findIndex = datosGenerales.find(index => index == item.pk);
+                    if(!findIndex){
+                        docentesP.appendChild(option);
+                    }
+                });
+            });
+        }
+</script>
+
+{% endblock content %}
+

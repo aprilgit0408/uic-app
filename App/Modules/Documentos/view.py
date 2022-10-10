@@ -170,7 +170,6 @@ class GuardarDocumento(LoginRequiredMixin, View):
                     print('Error al guardar el archivo generado ln-202: ', e)
             else:
                 #Actualizar Documento
-                print('actualiza: ', ruta)
                 try:
                     path = Path(ruta)
                     with path.open(mode='rb') as f:

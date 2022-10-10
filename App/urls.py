@@ -5,6 +5,7 @@ from App.Modules.Facultades.view import listarFacultades, addFacultades, editFac
 from App.Modules.Carreras.view import listarCarreras, addCarreras, editCarreras, deleteCarreras
 from App.Modules.GrupoExperto.view import addGrupoExpertos, deleteGrupoExpertos, editGrupoExpertos, listarGrupoExpertos
 from App.Modules.Login.views import Login, LogoutView, addUser, resetPassword, resetPasswordLink
+from App.Modules.Tribunal.view import addTribunal, deleteTribunal, editTribunal, listarTribunal
 from App.Modules.Tutorias.view import addTutorias, deleteTutorias, editTutorias, listarTutorias
 from App.Modules.Verificacion.view import listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
 from App.Modules.Proyectos.view import listarDocentes, listarEstudiantes, listarProyectos, addProyectos, editProyectos, deleteProyectos
@@ -63,6 +64,11 @@ urlpatterns = [
     path('app/tutorias/add',  addTutorias.as_view(), name='addTutorias'),
     path('app/tutorias/edit/<int:pk>',  editTutorias.as_view(), name='editTutorias'),
     path('app/tutorias/delete/<int:pk>',  deleteTutorias.as_view(), name='deleteTutorias'),
+    
+    path('app/tribunal/',  listarTribunal.as_view(), name='tribunal'),
+    path('app/tribunal/add',  addTribunal.as_view(), name='addTribunal'),
+    path('app/tribunal/edit/<int:pk>',  editTribunal.as_view(), name='editTribunal'),
+    path('app/tribunal/delete/<int:pk>',  deleteTribunal.as_view(), name='deleteTribunal'),
     
     
     path('',  Index.as_view(), name='index'),

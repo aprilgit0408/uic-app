@@ -1,7 +1,7 @@
 from django.forms import TextInput, EmailInput, PasswordInput, ModelForm
 
-from App.models import Avance, GrupoExperto, ListaVerificacion, Proyecto, Tribunal, Tutoria
-from Usuarios.models import Facultad, Carrera, Usuarios, Documento
+from App.models import Avance,ListaVerificacion, Proyecto, Tribunal, Tutoria
+from Usuarios.models import Facultad, Carrera, Usuarios, Documento, GrupoExperto
 from django import forms
 
 
@@ -93,6 +93,18 @@ class formularioGrupoExperto(ModelForm):
 
     class Meta:
         model = GrupoExperto
+        fields = '__all__'
+
+class formularioTribunal(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for i in self.visible_fields():
+            i.field.widget.attrs['class'] = 'form-control form-control-sm'
+            i.field.widget.attrs['autocomplete'] = 'off'
+        self.fields['idProyecto'].widget.attrs['autofocus'] = True
+
+    class Meta:
+        model = Tribunal
         fields = '__all__'
 
 class formularioAvances(ModelForm):
