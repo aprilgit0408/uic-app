@@ -3,17 +3,25 @@
 {% block title %} {{title}} {% endblock %}
 {% block content %}
     <div class="container" style="margin-top: 10%; align-content: center;" >
-        <form action="" method="POST" class="form" enctype="multipart/form-data">
+        <form action="" method="POST" class="form" id="form" enctype="multipart/form-data">{% csrf_token %}
             <div class="card">
                 <div class="card-header">
                     <b style="font-size: 20px;" > {{accion}} </b>
                 </div>
                 <div class="card-body">
+                    <div >
+                        <label for="idProyectos">Seleccione un Proyecto</label>
+                        <select class="form-select select1" name="proyectos" id="idProyectos" required aria-label="proyectos">
+                          {% for item in idProyectos %}
+                            <option value="{{item.pk}}" title="{{item}}" >{{item}} </option>
+                          {% endfor %}
+                        </select>
+                    </div><hr>
                     {% if listadoDocentes %}
                         <div class="row">
                             <div class="col-md-4">
-                                <label for="idUsuarios">Asignación de tribunal</label>
-                                <select name="idUsuarios" class="form-control form-control-sm" autocomplete="off" id="idUsuarios" multiple="">
+                                <label for="idUsuarios">Asignación de tribunal.</label>
+                                <select name="usuarios" class="form-select select2" autocomplete="off" id="idUsuarios" multiple="">
                                     {% for item in listadoDocentes %}
                                         <option value="{{item.pk}}" title="{{item.user.getInformacion }}" >{{item.user.getInformacion}} 
                                         {% if item.grupo %}
@@ -22,6 +30,7 @@
                                              </option>
                                     {% endfor %}
                                 </select>
+                                <i>Presione <b>Ctrl</b> para seleccionar más de uno.</i>
                             </div>
                             <div class="col-md-1">
                                 <label for="">
@@ -47,7 +56,6 @@
                             <div class="col-md-3">
                                 <label for="idDocentes">Docentes principales</label>
                                 <select name="idDocentes" class="form-control form-control-sm" autocomplete="off" disabled id="idDocentes" multiple="">
-                                   <div id="principales">Erick</div>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -58,6 +66,20 @@
                             </div>
                         </div>
                     {% endif %}
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label for="idAula">Aula a defender</label>
+                            <select class="form-select" name="aula" id="idAula" required aria-label="Modalodades">
+                            {% for item in AULAS %}
+                                <option value="{{item}}" title="Aula {{item}}" >Aula {{item}} </option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="idFecha">Fecha y hora de Defensa</label>
+                            <input type="datetime-local" name="fecha" min="{{DATE | date:'Y-m-d H:i'}}" id="idFecha" class="form-control" id="">
+                        </div>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <td class="header" scope="col">
@@ -76,44 +98,90 @@
     </div>
     <div style="margin-top: 30px;" ></div>
 <script>
-        function opciones(btn){
-            let idUsuarios = $('#idUsuarios').val();
-            let data = "";
-            idUsuarios.forEach(element => {
-                data += element + ','
-            });
-            ajax(data, btn);
-            
+    let select = $(".select2").select2();
+    $(document).ready(function() {
+        $('.select2').select2();
+        $('.select1').select2();
+    });
+
+    $('#form').on('submit', function(e){
+        e.preventDefault();
+        let idProyecto = $('#idProyectos').val();
+        let idDocentesPrincipales = $('#idDocentes').val();
+        let idDocentesSuplentes = $('#idDocentesSuplentes').val();
+        let idFecha = $('#idFecha').val();
+        let idAula = $('#idAula').val();
+        if(idDocentesPrincipales.length == 0 && idDocentesSuplentes.length == 0){
+            alertasInformativas('Alerta', 'orange', 'btn-warning', 'El grupo de docentes principales o suplentes deben tener algún valor asignado', 'Aceptar', 'fa fa-warning')
+            $('#idUsuarios').focus();
+            return;
         }
-        function limpiarSeleccion(){
-            $('#idDocentesSuplentes').empty();
-            $('#idDocentes').empty();
+        if(idDocentesPrincipales.length != parseInt('{{DOC_PRIN}}')){
+            alertasInformativas('Alerta', 'orange', 'btn-warning', 'El grupo de docentes principales debe ser igual a {{DOC_PRIN}}', 'Aceptar', 'fa fa-warning')
+            return;
         }
-        function ajax(data, id){
-            $.ajax({
-                url: '',
-                method: 'POST',
-                data: {'usuarios': data},
-                headers: {
-                    'X-CSRFToken': csrftoken
+        if(idDocentesSuplentes.length != parseInt('{{DOC_SUP}}')){
+            alertasInformativas('Alerta', 'orange', 'btn-warning', 'El grupo de docentes suplentes debe ser igual a {{DOC_SUP}}', 'Aceptar', 'fa fa-warning')
+            return;
+        }
+        if(idFecha.length == 0){
+            alertasInformativas('Alerta', 'orange', 'btn-warning', 'Por favor, seleccione una la fecha y hora a defender.', 'Aceptar', 'fa fa-warning')
+            return;
+        }
+        let data = {
+            idProyecto : idProyecto,
+            idDocentesPrincipales : idDocentesPrincipales.join(','),
+            idDocentesSuplentes : idDocentesSuplentes.join(','),
+            idAula : idAula,
+            idFecha : idFecha
+        }
+        $.ajax({
+            url: '',
+            method: 'POST',
+            data: data,
+            headers: {
+                'X-CSRFToken': csrftoken
+            }
+        }).done((req) => {
+            console.log('Valor de req: ', req);
+        });
+
+    });
+    function opciones(btn){
+        let idUsuarios = $('#idUsuarios').val().join(',');
+        ajax(idUsuarios, btn);
+        select.val(null).trigger("change");
+    }
+    function limpiarSeleccion(){
+        $('#idDocentesSuplentes').empty();
+        $('#idDocentes').empty();
+        select.val(null).trigger("change");
+    }
+    function ajax(data, id){
+        $.ajax({
+            url: '',
+            method: 'POST',
+            data: {'usuarios': data},
+            headers: {
+                'X-CSRFToken': csrftoken
+            }
+        }).done((req) => {
+            let docentesP = document.querySelector(id);
+            req.forEach(item => {
+                let option = document.createElement('option');
+                option.value = item.pk;
+                option.text = item.user;
+                option.selected = true;
+                let datosSecundarios = $('#idDocentesSuplentes').val()
+                let datosPrincipales = $('#idDocentes').val();
+                let datosGenerales = datosPrincipales.concat(datosSecundarios)
+                let findIndex = datosGenerales.find(index => index == item.pk);
+                if(!findIndex){
+                    docentesP.appendChild(option);
                 }
-            }).done((req) => {
-                let docentesP = document.querySelector(id);
-                req.forEach(item => {
-                    let option = document.createElement('option');
-                    option.value = item.pk;
-                    option.text = item.user;
-                    option.selected = true;
-                    let datosSecundarios = $('#idDocentesSuplentes').val()
-                    let datosPrincipales = $('#idDocentes').val();
-                    let datosGenerales = datosPrincipales.concat(datosSecundarios)
-                    let findIndex = datosGenerales.find(index => index == item.pk);
-                    if(!findIndex){
-                        docentesP.appendChild(option);
-                    }
-                });
             });
-        }
+        });
+    }
 </script>
 
 {% endblock content %}

@@ -6,8 +6,8 @@ from django.shortcuts import redirect, render
 from App.Modules.Formularios.forms import formularioUsuarios, resetPasswordForm, resetPasswordFormLink
 from App.models import Carrera, Usuarios
 from Usuarios.models import Nivel
-from uicApp.settings import LOGIN_REDIRECT_URL, DOMAIN
-from App.funciones import send_mail_Reset
+from uicApp.settings import LOGIN_REDIRECT_URL
+from App.funciones import send_mail_Reset, getConstante
 import uuid
 modelo = Usuarios
 formulario = formularioUsuarios
@@ -68,7 +68,7 @@ class resetPassword(FormView):
             if usuario.email == email:
                 password = str(uuid.uuid4())
                 content = render_to_string('Login/email.html',
-                                       {'user': usuario, 'password': password, 'dominio': DOMAIN})
+                                       {'user': usuario, 'password': password, 'dominio': getConstante('DOMINIO')})
                 send_mail_Reset(usuario.pk, email, content)
             # self.form_class.errors = self.mensaje
             return redirect('/login/?forget')

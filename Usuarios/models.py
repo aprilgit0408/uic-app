@@ -1,4 +1,3 @@
-from traceback import print_tb
 from django.utils import timezone
 from django.db import models
 from django.db.models.deletion import CASCADE
@@ -206,3 +205,10 @@ class SeguimientoDocumentacion(datosAuditoria):
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
+class Constantes(datosAuditoria):
+    nombre = models.CharField(max_length=10, verbose_name='* Nombre', primary_key=True)
+    valor = models.CharField(max_length=100, verbose_name='* Valor')
+    descripcion = models.TextField(max_length=200, verbose_name='Descripcion')
+    def __str__(self):
+        return self.nombre
+    

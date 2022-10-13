@@ -138,10 +138,3 @@ AUTH_USER_MODEL = 'Usuarios.Usuarios'
 LOGIN_REDIRECT_URL = '/app/proyectos/'
 LOGOUT_REDIRECT_URL = '/login'
 LOGIN_URL = '/login/'
-
-# Variables del correo
-EMAIL_HOST = 'smtp.office365.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'uicappupec@outlook.com'
-EMAIL_HOST_PASSWORD = 'Admin-upec12'
-DOMAIN = 'http://127.0.0.1:8000'

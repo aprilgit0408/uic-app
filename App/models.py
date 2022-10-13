@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models.deletion import CASCADE
-from Usuarios.models import Carrera, Usuarios
+from Usuarios.models import Carrera, Constantes, Usuarios
 from crum import get_current_user
 from django.utils import timezone
 
@@ -85,38 +85,6 @@ class Avance(datosAuditoria):
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
-class Tribunal(datosAuditoria):
-    usuarios = []
-    for user in Usuarios.objects.all():
-        nombre = user.getInformacion()
-        usuarios.append((user.pk, nombre))
-    aulas = [
-        (1, 'Aula 1'),
-        (2, 'Aula 2'),
-        (3, 'Aula 3'),
-        (4, 'Aula 4'),
-        (5, 'Aula 5'),
-        (6, 'Aula 6'),
-        (7, 'Aula 7'),
-        (8, 'Aula 8'),
-        (9, 'Aula 9')
-        ]
-    idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
-    primerDocente = models.CharField(choices=usuarios, max_length=15, verbose_name='Primer Docente')
-    segundoDocente = models.CharField(choices=usuarios, max_length=15, verbose_name='Segundo Docente')
-    terceroDocente = models.CharField(choices=usuarios, max_length=15, verbose_name='Tercer Docente')
-    primerDocenteSuplente = models.CharField(choices=usuarios, max_length=15, verbose_name='Primer Docente Suplente')
-    segundoDocenteSuplente = models.CharField(choices=usuarios, max_length=15, verbose_name='Segundo Docente Suplente')
-    terceroDocenteSuplente = models.CharField(choices=usuarios, max_length=15, verbose_name='Tercer Docente Suplente')
-    fechaDefensa = models.DateTimeField()
-    aula = models.PositiveIntegerField(choices=aulas, verbose_name='Aula de defensa asignada')
-    def __str__(self) -> str:
-        txt = '{0} - {1}'
-        return txt.format(self.aula, self.fechaDefensa)
-    def save(self, *args, **kwargs):
-        self.setDatosAuditoria()
-        return super(self.__class__, self).save(*args, **kwargs)
-
 class Tutoria(datosAuditoria):
     idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
     descripcion = models.TextField(verbose_name='Temas a tratarse')
@@ -127,3 +95,33 @@ class Tutoria(datosAuditoria):
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
+        
+class DocentesSuplente(datosAuditoria):
+    uuID = models.CharField(max_length = 36, primary_key=True) 
+    docentesSuplentes= models.ManyToManyField(Usuarios, verbose_name='Docentes Principales')
+    # def __str__(self):
+    #     docentes = ''
+    #     for doc in self.docentesSuplentes.all():
+    #         if docentes:
+    #             docentes += f', {doc}'
+    #         else:
+    #             docentes = doc
+    #     return docentes
+
+class Tribunal(datosAuditoria):
+    aulas = []
+    for i in (Constantes.objects.get(nombre = 'AULAS').valor).split(','):
+        aulas.append((f'{i}', f'Aula {i}')) 
+    idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
+    docentesPrincipales = models.ManyToManyField(Usuarios, verbose_name='Docentes Principales')
+    docentesSuplentes = models.ForeignKey(DocentesSuplente, verbose_name='Docentes Principales', on_delete=CASCADE) 
+    fechaDefensa = models.DateTimeField(null=True, blank=True, default=timezone.now)
+    aula = models.CharField(choices=aulas,  max_length = 20, verbose_name='Aula de defensa asignada')
+    def __str__(self) -> str:
+        txt = '{0} - {1}'
+        return txt.format(self.aula, self.fechaDefensa)
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
+
+
