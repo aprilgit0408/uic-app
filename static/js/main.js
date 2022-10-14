@@ -299,7 +299,7 @@ function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data, icon) {
                         });
                     }
                     if (funcion === 'delete') {
-                        $.alert('Eliminando datos.....')
+                        $.alert('Eliminando datos.....');
                         $.ajax({
                             url: `delete/${data}`,
                             method: 'DELETE',
@@ -309,6 +309,20 @@ function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data, icon) {
                         }).done((req) => {
                             $.alert('OK')
                             location.reload();
+                        });
+                    }
+                    if (funcion === 'tribunal') {
+                        $.alert('Guardando datos.....');
+                        $.ajax({
+                            url: data.url,
+                            method: 'POST',
+                            data : data,
+                            headers: {
+                                'X-CSRFToken': csrftoken
+                            }
+                        }).done((req) => {
+                            $.alert('Listo....')
+                            window.location.replace(data.urlRedirect);
                         });
                     }
                 }

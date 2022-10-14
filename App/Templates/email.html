@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+	<!DOCTYPE html>
 <html lang="es">
 <head>
 	<meta charset="UTF-8">
@@ -19,7 +19,7 @@
 		<div class="card">
 			<div class="card-header">{{titulo | upper }}</div>
 			<div class="card-body">
-				<h1>Estimado/a estudiante</h1>
+				<h1> {% if docente %} Estimado/a Estudiante {% else %} Estimados Docentes {% endif %} </h1>
 				<p>
 					El presente correo, tiene como finalidad de, informale que, {{docente}} ha {{tema}} 
 					para el proyecto {{proyecto}}. A continuación, presentamos los detalles:
@@ -41,6 +41,25 @@
 				{% if fechaEntrega %}
 					<p>Fecha de Entrega: {{fechaEntrega}} </p>
 				{% endif %}
+				
+				{% if docentesPrincipales %}
+					<p>Docentes Proncipales:</p>{{docentesPrincipales | safe}} 
+				{% endif %}
+				{% if docentesSuplentes %}
+					<p>Docentes Suplentes:</p>{{docentesSuplentes | safe}} 
+				{% endif %}
+				
+				{% if fechaDefensa %}
+					<p>Fecha defensa: {{fechaDefensa}} </p>
+					<p>Aula asignada: {{aula}} </p>
+				{% endif %}
+
+				{% if fechaDefensaEliminada %}
+					<p>Fecha en la que se iba a defender: {{fechaDefensaEliminada}} </p>
+					<p>Aula asignada: {{aula}} </p>
+
+				{% endif %}
+
 					
 				<hr>
 				<p><i><b>Este mensaje fue generado automáticamente, por favor no responda.</b></i></p>

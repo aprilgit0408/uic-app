@@ -120,6 +120,33 @@ class Tribunal(datosAuditoria):
     def __str__(self) -> str:
         txt = '{0} - {1}'
         return txt.format(self.aula, self.fechaDefensa)
+    def getDocentesPrincipales(self):
+        ul = ''
+        cont = 1
+        for doc in self.docentesPrincipales.all():
+            ul += f'<li title="{doc.getInformacion()}"> {cont}. {doc.getInformacion()} </li>'
+            cont += 1
+        ul = f'<ul>{ul}</ul>'
+        return ul
+    def getMailDocPrincipales(self):
+        mail = []
+        for doc in self.docentesPrincipales.all():
+            mail.append(doc.email)
+        return ','.join(mail)
+    def getDocentesSuplentes(self):
+        ul = ''
+        cont = 1
+        for doc in self.docentesSuplentes.docentesSuplentes.all():
+            ul += f'<li title="{doc.getInformacion()}"> {cont}. {doc.getInformacion()} </li>'
+            cont += 1
+
+        ul = f'<ul>{ul}</ul>'
+        return ul
+    def getMailDocSuplentes(self):
+        mail = []
+        for doc in self.docentesSuplentes.docentesSuplentes.all():
+            mail.append(doc.email)
+        return ','.join(mail)
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)

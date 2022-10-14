@@ -10,12 +10,21 @@
                 </div>
                 <div class="card-body">
                     <div >
-                        <label for="idProyectos">Seleccione un Proyecto</label>
-                        <select class="form-select select1" name="proyectos" id="idProyectos" required aria-label="proyectos">
-                          {% for item in idProyectos %}
-                            <option value="{{item.pk}}" title="{{item}}" >{{item}} </option>
-                          {% endfor %}
-                        </select>
+                        
+                        {% if idProyectos %}
+                            <label for="idProyectos">Seleccione un Proyecto</label>
+                            <select class="form-select select1" name="proyectos" id="idProyectos" required aria-label="proyectos">
+                              {% for item in idProyectos %}
+                                <option value="{{item.pk}}" title="{{item}}" >{{item}} </option>
+                              {% endfor %}
+                            </select>
+                        {% else %}
+                            <label for="idProyectos">Proyecto Seleccionado</label>
+                            <select class="form-select" name="proyectos" id="idProyectos" required aria-label="proyectos" disabled >
+                                <option value="{{instance.idProyecto.nombre.pk}}" title="{{iinstance.idProyecto.nombre}}" >{{instance.idProyecto.nombre}} </option>
+                            </select>
+                        {% endif %}
+                            
                     </div><hr>
                     {% if listadoDocentes %}
                         <div class="row">
@@ -56,12 +65,21 @@
                             <div class="col-md-3">
                                 <label for="idDocentes">Docentes principales</label>
                                 <select name="idDocentes" class="form-control form-control-sm" autocomplete="off" disabled id="idDocentes" multiple="">
+                                    {% if instance %}
+                                        {% for item in instance.docentesPrincipales.all %}
+                                            <option value="{{item.pk}}" selected title="{{item.getInformacion}}" >{{item.getInformacion}} </option>
+                                        {% endfor %}
+                                    {% endif %}
                                 </select>
                             </div>
                             <div class="col-md-3">
                                 <label for="idDocentesSuplentes">Docentes Suplentes</label>
                                 <select name="idDocentesSuplentes" class="form-control form-control-sm" autocomplete="off" disabled id="idDocentesSuplentes" multiple="">
-                                    
+                                    {% if instance %}
+                                        {% for item in instance.docentesSuplentes.docentesSuplentes.all %}
+                                            <option value="{{item.pk}}" selected title="{{item.getInformacion}}" >{{item.getInformacion}} </option>
+                                        {% endfor %}
+                                    {% endif %}
                                 </select>
                             </div>
                         </div>
@@ -71,13 +89,13 @@
                             <label for="idAula">Aula a defender</label>
                             <select class="form-select" name="aula" id="idAula" required aria-label="Modalodades">
                             {% for item in AULAS %}
-                                <option value="{{item}}" title="Aula {{item}}" >Aula {{item}} </option>
+                                <option value="{{item}}" title="Aula {{item}}" {% if instance.aula == item %} selected {% endif %} >Aula {{item}} </option>
                             {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <label for="idFecha">Fecha y hora de Defensa</label>
-                            <input type="datetime-local" name="fecha" min="{{DATE | date:'Y-m-d H:i'}}" id="idFecha" class="form-control" id="">
+                            <input type="datetime-local" name="fecha" min="{{DATE | date:'Y-m-d H:i'}}" id="idFecha" {% if instance %} value="{{instance.fechaDefensa | date:'Y-m-d H:i'}}" {% endif %} class="form-control" id="">
                         </div>
                     </div>
                 </div>
@@ -86,11 +104,7 @@
                         <button type="submit" class="btn btn-outline-primary">Aceptar</button>
                     </td>
                     <td class="header" scope="col">
-                        {% if agregar %}
-                            <a type="button" onClick="history.go(-1);" class="btn btn-outline-secondary">Cancelar</a>
-                        {% else %}
-                            <a type="button" href="{{ view.get_success_url }}" class="btn btn-outline-secondary">Cancelar</a>
-                        {% endif %}
+                        <a type="button" href="{{ URL }}" class="btn btn-outline-secondary">Regresar</a>
                     </td>
                 </div>
             </div>
@@ -133,19 +147,10 @@
             idDocentesPrincipales : idDocentesPrincipales.join(','),
             idDocentesSuplentes : idDocentesSuplentes.join(','),
             idAula : idAula,
-            idFecha : idFecha
+            idFecha : idFecha,
+            urlRedirect : '{{URL}}'
         }
-        $.ajax({
-            url: '',
-            method: 'POST',
-            data: data,
-            headers: {
-                'X-CSRFToken': csrftoken
-            }
-        }).done((req) => {
-            console.log('Valor de req: ', req);
-        });
-
+        alertas('Alerta', 'green', 'btn-success', '¿Está seguro de guardar los cambios?', 'Aceptar', 'tribunal', data, 'fa fa-warning');
     });
     function opciones(btn){
         let idUsuarios = $('#idUsuarios').val().join(',');

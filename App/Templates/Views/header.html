@@ -86,7 +86,7 @@
                             <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">CheckList</a></li> -->
                             <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Tribunal</a></li> -->
                             <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Documentación</a></li>
-                            <li><a class="nav-link" href="{% url 'app:addTribunal' %}">Tribunal</a></li>
+                            <li><a class="nav-link" href="{% url 'app:tribunal' %}">Tribunal</a></li>
                             {% elif request.user.perfil.nombre == 'Docente' %}
                             <li><a class="nav-link" href="{% url 'app:estudiantes' %}">Estudiantes</a></li>
                             <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorías</a></li>
