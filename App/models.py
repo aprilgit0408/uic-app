@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 from django.db.models.deletion import CASCADE
 from Usuarios.models import Carrera, Constantes, Usuarios
@@ -57,6 +58,7 @@ class Proyecto(datosAuditoria):
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Proyecto')
     idDocente = models.PositiveIntegerField(choices=usuarios, verbose_name='Docente')
     idEstudiantes = models.ManyToManyField(Usuarios, verbose_name='Listado de Estudiantes')
+    defensa = models.BooleanField(default = False, verbose_name = 'Proyecto listo para pre/defensa')
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombre)

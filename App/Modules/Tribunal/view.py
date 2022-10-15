@@ -129,7 +129,7 @@ class addTribunal(LoginRequiredMixin, ListView):
         context['URL'] = url
         context['listadoDocentes'] = data
         context['AULAS'] = aulas.split(',')
-        context['idProyectos'] = Proyecto.objects.all()
+        context['idProyectos'] = Proyecto.objects.filter(defensa = True)
         context['DOC_PRIN'] = Constantes.objects.get(nombre = 'DOC_PRIN').valor
         context['DOC_SUP'] = Constantes.objects.get(nombre = 'DOC_SUP').valor
         context['DATE'] = datetime.now()

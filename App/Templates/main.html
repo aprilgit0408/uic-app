@@ -51,6 +51,8 @@
                                     </select>
                                 {% elif op.name == 'idDocente' and request.user.perfil.nombre == 'Docente' %}
                                     <input type="hidden" name="idDocente" id="id_idDocente" value="{{request.user.pk}}" >
+                                    {% elif op.name == 'idDocente' and request.user.perfil.nombre == 'Admin' and agregar is None %}
+                                    <input type="hidden" name="idDocente" id="id_idDocente" value="{{op.value}}" >
                                 {% elif op.name == 'idProyecto' and idProyecto %}
                                     {{op.label}}
                                     <select name="idProyecto" class="form-control form-control-sm" autocomplete="off" required="" id="id_idProyecto">

@@ -9,8 +9,13 @@ class formularioFacultades(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['nombre'].widget.attrs['autofocus'] = True
 
     class Meta:
@@ -22,8 +27,13 @@ class formularioCarreras(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['nombre'].widget.attrs['autofocus'] = True
 
     class Meta:
@@ -35,8 +45,13 @@ class formularioListaVerificaciones(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['idEstudiante'].widget.attrs['autofocus'] = True
 
     class Meta:
@@ -48,8 +63,13 @@ class formularioProyectos(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['idCarrera'].widget.attrs['autofocus'] = True
 
     class Meta:
@@ -61,8 +81,13 @@ class formularioEstudiantes(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['username'].widget.attrs['autofocus'] = True
 
     class Meta:
@@ -74,8 +99,13 @@ class formularioTutorias(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['idProyecto'].widget.attrs['autofocus'] = True
 
     class Meta:
@@ -87,8 +117,13 @@ class formularioGrupoExperto(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['nombre'].widget.attrs['autofocus'] = True
 
     class Meta:
@@ -99,8 +134,13 @@ class formularioTribunal(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['idProyecto'].widget.attrs['autofocus'] = True
 
     class Meta:
@@ -111,8 +151,13 @@ class formularioAvances(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['idProyecto'].widget.attrs['autofocus'] = True
 
     class Meta:
@@ -123,8 +168,13 @@ class formularioAvancesEstudiante(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
 
     class Meta:
         model = Avance
@@ -134,8 +184,13 @@ class formularioDocumentos(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['nombre'].widget.attrs['autofocus'] = True
 
     class Meta:
@@ -145,8 +200,13 @@ class formularioFirma(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
 
     class Meta:
         model = Usuarios
@@ -157,8 +217,13 @@ class formularioUsuarios(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['username'].widget.attrs['autofocus'] = True
 
     class Meta:
@@ -169,8 +234,13 @@ class formularioPerfilUsuario(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for i in self.visible_fields():
-            i.field.widget.attrs['class'] = 'form-control form-control-sm'
-            i.field.widget.attrs['autocomplete'] = 'off'
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['celular'].widget.attrs['autofocus'] = True
 
     class Meta:
