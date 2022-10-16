@@ -13,17 +13,20 @@ class datosAuditoria(models.Model):
     class Meta:
         abstract = True
     def setDatosAuditoria(self):
-        request = get_current_user()
         if not self.fechaCreacion:
             self.fechaCreacion = timezone.now()
         else:
             self.fechaModificacion = timezone.now()
         #Setear Usuario Registro
-        if not self.usuarioRegistro:
-            self.usuarioRegistro = request.pk
-        else:
-            self.usuarioModificacion = request.pk
-        return self
+        try:
+            request = get_current_user()
+            if not self.usuarioRegistro:
+                self.usuarioRegistro = request.pk
+            else:
+                self.usuarioModificacion = request.pk
+            return self
+        except:
+            pass
 
 class Facultad(datosAuditoria):
     nombre = models.CharField(max_length=100, verbose_name='Nombre de la Facultad', primary_key=True)
