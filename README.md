@@ -1,5 +1,6 @@
 
 UIC APP
+Instalar los archivos de la carpeta instaladores
 
 1. ejecutar los requerimientos necesarios: pip install -r requirements.txt esto se ejecuta una sola vez
 2. realizar los siguientes pasos en caso de que la base de datos esté llena, casi contrario ejecutar el paso 3
