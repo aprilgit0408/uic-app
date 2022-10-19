@@ -18,7 +18,7 @@
     <!-- Style -->
     <link rel="stylesheet" href="{% static 'login/css/style.css' %}">
 
-    <title>Login #7</title>
+    <title>Registro</title>
   </head>
   <body>
   
@@ -32,7 +32,7 @@
         </div>
         <div class="col contents">
           <div class="row justify-content-center" style="margin-top: -90px;" >
-            <form action="" method="post">
+            <form action="" method="POST" class="form" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% if form.errors %}
                     {% for field in form %}

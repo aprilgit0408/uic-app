@@ -1,7 +1,7 @@
 from django.views.generic import CreateView, ListView   
 from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from App.Modules.Formularios.forms import formularioProyectos
+from App.Modules.Formularios.forms import formularioDocentes, formularioProyectos, formularioUsuarios
 from App.models import Proyecto
 from Usuarios.models import Usuarios
 from django.http.response import JsonResponse
@@ -77,7 +77,7 @@ class addProyectos(LoginRequiredMixin, CreateView):
         context['title'] = f'{entidad}'
         context['accion'] = f'Añadir {entidad}'
         context['agregar'] = f'Añadir {entidad}'
-        context['idEstudiantes'] = Usuarios.objects.filter(perfil = 'Estudiante')
+        context['idEstudiantes'] = Usuarios.objects.filter(perfil__nombre = 'Estudiante')
         return context
 class editProyectos(LoginRequiredMixin, UpdateView):
     model = modelo
@@ -93,7 +93,7 @@ class editProyectos(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         estudiantes = []
         listado = Proyecto.objects.get(id = self.kwargs['pk']).idEstudiantes.all()
-        for i in Usuarios.objects.filter(perfil = 'Estudiante'):
+        for i in Usuarios.objects.filter(perfil__nombre = 'Estudiante'):
             datosEst = {'pk' : i.pk, 'getInformacion' : i}
             if i in listado:
                 datosEst['selected'] = True
@@ -137,7 +137,7 @@ class listarEstudiantes(LoginRequiredMixin, ListView):
             cont = 1
             listadoEstudiantes = []
             admin = True if request.user.perfil.nombre == 'Admin' else False
-            query = Usuarios.objects.filter(perfil = 'Estudiante') if admin else modelo.objects.filter(idDocente = request.user.pk)
+            query = Usuarios.objects.filter(perfil__nombre = 'Estudiante') if admin else modelo.objects.filter(idDocente = request.user.pk)
             for item in query:
                 if not admin:
                     for est in item.idEstudiantes.all():
@@ -172,14 +172,14 @@ class listarDocentes(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['encabezado'] = ['#', 'cédula', 'Nombre y Apellido', 'correo electrónico', 'teléfono', 'carrera', 'fotografía']
-        context['title'] = 'Estudiantes'
-        context['listado'] = f'Listado de Estudiantes'
+        context['title'] = 'Docentes'
+        context['listado'] = f'Listado de Docentes'
         return context
     def post(self, request, *args, **kwargs):
         data = []
         try:
             cont = 1
-            for i in Usuarios.objects.filter(perfil = 'Docente'):
+            for i in Usuarios.objects.filter(perfil__nombre = 'Docente'):
                 data.append([
                     cont,
                     i.username,
@@ -195,3 +195,25 @@ class listarDocentes(LoginRequiredMixin, ListView):
             print(f'Error al cargar los datos l-214 de {entidad}: ',e)
             data = {}
         return JsonResponse(data, safe=False)
+class addDocente(LoginRequiredMixin, CreateView):
+    model = Usuarios
+    form_class = formularioDocentes
+    template_name = 'main.html'
+    success_url = reverse_lazy(f'app:docentes')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['agregar'] = f'Añadir Docentes'
+        context['accion'] = f'Añadir Docentes'
+        context['title'] = f'Docentes'
+        return context
+class addEstudiantes(LoginRequiredMixin, CreateView):
+    model = Usuarios
+    form_class = formularioUsuarios
+    template_name = 'main.html'
+    success_url = reverse_lazy(f'app:estudiantes')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['agregar'] = f'Añadir Estudiante'
+        context['accion'] = f'Añadir Estudiante'
+        context['title'] = f'Docentes'
+        return context

@@ -1,3 +1,5 @@
+from email.policy import default
+from enum import unique
 from django.utils import timezone
 from django.db import models
 from django.db.models.deletion import CASCADE
@@ -29,7 +31,7 @@ class datosAuditoria(models.Model):
             pass
 
 class Facultad(datosAuditoria):
-    nombre = models.CharField(max_length=100, verbose_name='Nombre de la Facultad', primary_key=True)
+    nombre = models.CharField(max_length=100, verbose_name='Nombre de la Facultad', unique = True)
     sigla = models.CharField(max_length=20, verbose_name='Nombre corto')
     def __str__(self) -> str:
         return self.nombre
@@ -51,7 +53,7 @@ class Carrera(datosAuditoria):
     genero = models.CharField(choices=generos, max_length=10, verbose_name='Seleccione')
     abreviatura = models.CharField(choices=abreviaturas, max_length=8, verbose_name='Abreviatura')
     nombreDirector = models.CharField(max_length=50, verbose_name='Director actual de la Carrera')
-    nombre = models.CharField(max_length=100, verbose_name='Nombre de la Carrera', primary_key=True)
+    nombre = models.CharField(max_length=100, verbose_name='Nombre de la Carrera', unique = True)
     idFacultad = models.ForeignKey(Facultad, verbose_name='Facultad', on_delete=CASCADE)
     def __str__(self) -> str:
         txt = '{0}'
@@ -61,7 +63,7 @@ class Carrera(datosAuditoria):
         return super(self.__class__, self).save(*args, **kwargs)
 
 class Perfiles(datosAuditoria):
-    nombre = models.CharField(max_length=20, verbose_name='Perfiles', primary_key=True)
+    nombre = models.CharField(max_length=20, verbose_name='Perfiles', unique = True)
     def __str__(self) -> str:
         return '{}'.format(self.nombre)
     def save(self, *args, **kwargs):
@@ -69,9 +71,6 @@ class Perfiles(datosAuditoria):
         return super(self.__class__, self).save(*args, **kwargs)
 class Nivel(datosAuditoria):
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Nivel')
-    periodoInicio = models.DateField( verbose_name='Periodo de inicio de Proyecto')
-    periodoFin = models.DateField( verbose_name='Periodo de fin de Proyecto', null = True, blank = True)
-    periodoActual = models.DateField( verbose_name='Periodo Actual')
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombre)
@@ -111,7 +110,7 @@ class Usuarios(AbstractUser):
     ]
      
     imagen = models.ImageField(verbose_name='Imagen', upload_to='users', null = True, blank = True)
-    perfil = models.ForeignKey(Perfiles, verbose_name='Perfil', on_delete=CASCADE, null=True, blank=True)
+    perfil = models.ForeignKey(Perfiles, verbose_name='Perfil', default = 3, on_delete=CASCADE, null=True, blank=True)
     celular = models.CharField(max_length=10, verbose_name='Celular')
     modalidad = models.CharField(choices=modalidades,max_length=50, null = True, blank = True)
     idNivel = models.ForeignKey(Nivel, verbose_name='Nivel', on_delete=CASCADE, null = True, blank = True)
@@ -127,7 +126,7 @@ class Usuarios(AbstractUser):
     def getInformacion(self):
         return '{} {}'.format(self.first_name, self.last_name)
     def getAlias(self):
-        return '{}. {}.'.format(self.first_name, self.last_name[0])
+        return '{}. {}.'.format(self.first_name, self.last_name[0] if self.last_name else self.pk)
     def getGrupo(self):
         nombre = ''
         request = get_current_user()
@@ -157,7 +156,7 @@ class Usuarios(AbstractUser):
     def clean(self):
         super().clean()
     def save(self, *args, **kwargs):
-        if Usuarios.objects.all().count() == 0:
+        if Usuarios.objects.all().count() == 0 and Perfiles.objects.all().count() == 0:
             perfil = Perfiles.objects.create(nombre = "Admin")
             perfil.save()
             perfil = Perfiles.objects.create(nombre = "Docente")
@@ -165,11 +164,11 @@ class Usuarios(AbstractUser):
             perfil = Perfiles.objects.create(nombre = "Estudiante")
             perfil.save()
             self.perfil = Perfiles.objects.get(nombre = 'Admin')
-        if self.pk is None:
+        if self.pk is None and Usuarios.objects.all().count() > 0:
             self.set_password(self.password)
         return super().save(*args, **kwargs)
 class GrupoExperto(datosAuditoria):
-    nombre = models.CharField(max_length=40, verbose_name='Nombre del grupo', primary_key=True)
+    nombre = models.CharField(max_length=40, verbose_name='Nombre del grupo', unique = True)
     idDocentes = models.ManyToManyField(Usuarios, verbose_name='Docentes')
     def __str__(self):
         return self.nombre
@@ -209,7 +208,7 @@ class SeguimientoDocumentacion(datosAuditoria):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
 class Constantes(datosAuditoria):
-    nombre = models.CharField(max_length=10, verbose_name='* Nombre', primary_key=True)
+    nombre = models.CharField(max_length=10, verbose_name='* Nombre', unique = True)
     valor = models.CharField(max_length=100, verbose_name='* Valor')
     descripcion = models.TextField(max_length=200, verbose_name='Descripcion')
     def __str__(self):

@@ -112,8 +112,11 @@ class DocentesSuplente(datosAuditoria):
 
 class Tribunal(datosAuditoria):
     aulas = []
-    for i in (Constantes.objects.get(nombre = 'AULAS').valor).split(','):
-        aulas.append((f'{i}', f'Aula {i}')) 
+    try:
+        for i in (Constantes.objects.get(nombre = 'AULAS').valor).split(','):
+            aulas.append((f'{i}', f'Aula {i}')) 
+    except:
+        pass
     idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
     docentesPrincipales = models.ManyToManyField(Usuarios, verbose_name='Docentes Principales')
     docentesSuplentes = models.ForeignKey(DocentesSuplente, verbose_name='Docentes Principales', on_delete=CASCADE) 

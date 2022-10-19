@@ -118,7 +118,7 @@ class addTribunal(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        docentes = Usuarios.objects.filter(perfil = 'Docente')
+        docentes = Usuarios.objects.filter(perfil__nombre = 'Docente')
         aulas = Constantes.objects.get(nombre = 'AULAS').valor
         data = []
         for user in docentes:
@@ -201,7 +201,7 @@ class editTribunal(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         instance = modelo.objects.get(pk = self.kwargs['pk'])
         context = super().get_context_data(**kwargs)
-        docentes = Usuarios.objects.filter(perfil = 'Docente')
+        docentes = Usuarios.objects.filter(perfil__nombre = 'Docente')
         aulas = Constantes.objects.get(nombre = 'AULAS').valor
         data = []
         for user in docentes:

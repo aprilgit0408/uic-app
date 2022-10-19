@@ -29,7 +29,7 @@
             </table>
         </div>
         
-        {% if title != 'Estudiantes' %}
+        {% if request.user.perfil.nombre == 'Admin' %}
             <div class="card-footer">
                 <a href="add" class="btn btn-outline-success">Agregar {{title}} </a>
             </div>

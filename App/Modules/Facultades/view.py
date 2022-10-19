@@ -63,7 +63,7 @@ class editFacultades(LoginRequiredMixin, UpdateView):
     success_url = url
     def post(self, request, *args, **kwargs):
         form = formulario(request.POST, instance=self.get_object())
-        if form.is_valides():
+        if form.is_valid():
             form.save()
         return super().post(request, *args, **kwargs)
 

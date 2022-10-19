@@ -60,7 +60,7 @@ class addGrupoExpertos(LoginRequiredMixin, CreateView):
         context['title'] = f'{entidad}'
         context['accion'] = f'Añadir {entidad}'
         context['agregar'] = f'Añadir {entidad}'
-        context['grupoExpertos'] = Usuarios.objects.filter(perfil = 'Docente')
+        context['grupoExpertos'] = Usuarios.objects.filter(perfil__nombre = 'Docente')
         return context
 
 
@@ -80,7 +80,7 @@ class editGrupoExpertos(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['title'] = f'{entidad}'
         context['accion'] = f'Edición de {entidad}'
-        context['grupoExpertos'] = Usuarios.objects.filter(perfil = 'Docente')
+        context['grupoExpertos'] = Usuarios.objects.filter(perfil__nombre = 'Docente')
         return context
 
 

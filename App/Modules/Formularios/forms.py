@@ -1,7 +1,10 @@
+from distutils.command.install_egg_info import to_filename
+from random import choices
+import this
 from django.forms import TextInput, EmailInput, PasswordInput, ModelForm
-
+from django.db import models
 from App.models import Avance,ListaVerificacion, Proyecto, Tribunal, Tutoria
-from Usuarios.models import Facultad, Carrera, Usuarios, Documento, GrupoExperto
+from Usuarios.models import Facultad, Carrera, Perfiles, Usuarios, Documento, GrupoExperto
 from django import forms
 
 
@@ -225,10 +228,59 @@ class formularioUsuarios(ModelForm):
                 i.field.widget.attrs['class'] = 'form-control form-control-sm'
                 i.field.widget.attrs['autocomplete'] = 'off'
         self.fields['username'].widget.attrs['autofocus'] = True
+        self.fields['idNivel'].widget.attrs['required'] = True
+        self.fields['modalidad'].widget.attrs['required'] = True
+
+    class Meta:
+        modalidades = [
+            ('Trabajo de Integración Curricular','Trabajo de Integración Curricular'),
+            ('Examen con Carácter Complexivo','Examen con Carácter Complexivo')
+        ]
+        model = Usuarios
+        widgets = {
+            'password': forms.PasswordInput(),
+            'username': forms.TextInput(attrs={'placeholder':'cédula'}),
+    	    'email' : forms.EmailInput(attrs={'required': True}),
+    	    'imagen' : forms.FileInput(attrs={'required': True}),
+            'perfil' : forms.ChoiceField(widget=forms.RadioSelect, choices=modalidades)  
+        }
+        labels = {
+            'first_name' : 'Nombres',
+            'username' : 'Cédula'
+        }
+        fields = ('username', 'first_name', 'last_name', 'idCarrera', 'celular', 'email', 'password', 'imagen','modalidad','idNivel')
+class formularioDocentes(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for i in self.visible_fields():
+            if i.field.widget.input_type == 'checkbox':
+                i.field.widget.attrs['class'] = 'form-check-input'
+            elif i.field.widget.input_type == 'select':
+                i.field.widget.attrs['class'] = 'form-control form-control-sm select2'
+            else:
+                i.field.widget.attrs['class'] = 'form-control form-control-sm'
+                i.field.widget.attrs['autocomplete'] = 'off'
+        self.fields['perfil'].initial = 2
+        self.fields['username'].widget.attrs['autofocus'] = True
+        self.fields['perfil'].widget.attrs['hidden'] = True
 
     class Meta:
         model = Usuarios
-        fields = ('username', 'first_name', 'last_name', 'idCarrera', 'celular', 'email', 'password', 'imagen', 'idNivel')
+        widgets = {
+            'password': forms.PasswordInput(),
+            'username': forms.TextInput(attrs={'placeholder':'cédula'}),
+            'perfil': forms.TextInput(),
+    	    'email' : forms.EmailInput(attrs={'required': True}),
+    	    'imagen' : forms.FileInput(attrs={'required': True})
+        }
+        labels = {
+            'perfil' : '',
+            'first_name' : 'Nombres',
+            'username' : 'Cédula'
+        }
+
+        fields = ('username', 'first_name', 'last_name', 'idCarrera', 'celular', 'email', 'password', 'imagen', 'perfil')
+
 
 class formularioPerfilUsuario(ModelForm):
     def __init__(self, *args, **kwargs):
