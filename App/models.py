@@ -27,21 +27,7 @@ class datosAuditoria(models.Model):
             self.usuarioModificacion = request.pk
         return self
     
-class ListaVerificacion(datosAuditoria):
-    detalles = [
-        (1,'Solicitud de opción de titulación/Certificado de idoneidad.'),
-        (2,'Oficio o correo electrónico de llamado para elaborar el cronograma.'),
-        (3,'Cronograma de trabajo.')
-    ]
-    idEstudiante = models.ForeignKey(Usuarios, verbose_name='Estudiante', on_delete=CASCADE)
-    nombreArchivo = models.PositiveIntegerField(verbose_name='Detalle', choices=detalles)
-    cumplimiento = models.BooleanField(default=False, verbose_name='Cumplimiento')
-    observacion = models.TextField(max_length=100, verbose_name='Observación', null = True, blank = True)
-    def getNombreArchivo(self):
-        return f'{self.detalles[self.nombreArchivo][1]}'
-    def save(self, *args, **kwargs):
-        self.setDatosAuditoria()
-        return super(self.__class__, self).save(*args, **kwargs)
+
 
 
 class Proyecto(datosAuditoria):
@@ -73,6 +59,34 @@ class Proyecto(datosAuditoria):
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
+class NombreArchivoListaVerificacion(datosAuditoria):
+    modalidades = [
+        (1, 'Trabajo de Integración Curricular (TIC)'),
+        (2, 'Examen con Carácter Complexivo (ECC)')
+    ]
+    nombre = models.CharField(max_length=100, verbose_name='Nombre')
+    tipo = models.PositiveIntegerField(choices=modalidades, verbose_name='Modalidad', default=1)
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
+    class Meta:
+        ordering = ['pk','nombre']
+    def __str__(self):
+        return self.nombre
+
+class ListaVerificacion(datosAuditoria):
+    idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
+    nombre = models.ForeignKey(NombreArchivoListaVerificacion, verbose_name='Nombre del Archivo', on_delete=CASCADE)
+    archivo = models.FileField(verbose_name='Archivo',upload_to='listaVerificacion')
+    observacion = models.TextField(max_length=100, verbose_name='Observación', null = True, blank = True)
+    estado = models.BooleanField(default=False, verbose_name='Cumplimiento')
+    def getNombreArchivo(self):
+        return f'{self.detalles[self.nombreArchivo][1]}'
+    def save(self, *args, **kwargs):
+        self.setDatosAuditoria()
+        return super(self.__class__, self).save(*args, **kwargs)
+    def __str__(self):
+        return f'{self.nombre.nombre} -> Archivo admitido : {"(Si)" if self.estado else "(No)"}'
 
 class Avance(datosAuditoria):
     idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)

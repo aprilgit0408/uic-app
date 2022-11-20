@@ -19,7 +19,7 @@ class listarTutorias(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['encabezado'] = ['#', 'proyecto', 'estudiante/s', 'fecha', 'Descripción de tutoría']
+        context['encabezado'] = ['#', 'proyecto', 'estudiante/s', 'fecha', 'Descripción de tutoría'] if self.request.user.perfil.nombre != 'Estudiante' else ['#', 'proyecto', 'estudiantes','fecha', 'Descripción de tutoría']
         context['title'] = f'{entidad}' 
         context['listado'] = f'Listado de {entidad}' 
         return context
@@ -27,8 +27,15 @@ class listarTutorias(LoginRequiredMixin, ListView):
         data = []
         try:
             cont = 1
+            print('request.user.perfil.nombre: ')
             admin = True if request.user.perfil.nombre == 'Admin' else False
+            estudiante = False
             query = modelo.objects.all() if admin else modelo.objects.filter(idProyecto__idDocente = request.user.pk)
+            if request.user.perfil.nombre == 'Estudiante':
+                query = modelo.objects.filter(idProyecto__idEstudiantes = request.user.pk)
+                admin = False
+                estudiante = True
+
             for i in query:
                 if admin:
                     data.append([
@@ -47,7 +54,7 @@ class listarTutorias(LoginRequiredMixin, ListView):
                         i.idProyecto.getEstudiantes(),
                         i.fecha.strftime("%Y-%m-%d %H:%M:%S"),
                         i.descripcion,
-                        i.id
+                        i.id if not estudiante else None
                     ])
                 cont +=1
         except Exception as e:

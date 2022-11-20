@@ -85,19 +85,22 @@
                             <li><a class="nav-link" href="{% url 'app:grupoExpertos' %}">Grupo&nbspExpertos</a></li>
                             <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">CheckList</a></li> -->
                             <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Tribunal</a></li> -->
-                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Documentación</a></li>
+                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Lista Verificación</a></li>
                             <li><a class="nav-link" href="{% url 'app:tribunal' %}">Tribunal</a></li>
                             {% elif request.user.perfil.nombre == 'Docente' %}
                             <li><a class="nav-link" href="{% url 'app:estudiantes' %}">Estudiantes</a></li>
                             <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorías</a></li>
                             <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
                             <li><a class="nav-link" href="{% url 'app:avances' %}">Avances</a></li>
-                            <!-- <li><a class="nav-link" href="{% url 'app:proyectos' %}">Tribunal</a></li> -->
+                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Lista Verificación</a></li>
                             <li><a class="nav-link" href="{% url 'app:proyectos' %}">Documentación</a></li>
                         {% elif request.user.perfil.nombre == 'Estudiante' %}
                             <li><a class="nav-link" href="{% url 'app:documentos' %}">Documentos</a></li>
+                            <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorias</a></li>
                             <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
                             <li><a class="nav-link" href="{% url 'app:avances' %}">Avances</a></li>
+                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Lista Verificación</a></li>
+
                         {% else %}
                             <li><a class="nav-link active" href="{% url 'app:index' %}">Inicio</a></li>
                             <li><a class="nav-link" href="">Documentación General</a></li>

@@ -177,7 +177,6 @@ class addAvances(LoginRequiredMixin, CreateView):
                 else:
                     emails = i.email
             send_mail('Nuevo Avance', emails, content)
-            form.save()
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):

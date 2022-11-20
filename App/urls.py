@@ -7,7 +7,7 @@ from App.Modules.GrupoExperto.view import addGrupoExpertos, deleteGrupoExpertos,
 from App.Modules.Login.views import Login, LogoutView, addUser, resetPassword, resetPasswordLink
 from App.Modules.Tribunal.view import addTribunal, deleteTribunal, editTribunal, listarTribunal
 from App.Modules.Tutorias.view import addTutorias, deleteTutorias, editTutorias, listarTutorias
-from App.Modules.Verificacion.view import listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
+from App.Modules.Verificacion.view import guardarListaVerificacion, listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
 from App.Modules.Proyectos.view import addDocente, addEstudiantes, listarDocentes, listarEstudiantes, listarProyectos, addProyectos, editProyectos, deleteProyectos
 
 from App.views import Index, PerfilUsuario, editProfilePasswords
@@ -30,6 +30,8 @@ urlpatterns = [
     path('app/listaVerificaciones/add',  addListaVerificaciones.as_view(), name='addListaVerificaciones'),
     path('app/listaVerificaciones/edit/<pk>',  editListaVerificaciones.as_view(), name='editListaVerificaciones'),
     path('app/listaVerificaciones/delete/<pk>',  deleteListaVerificaciones.as_view(), name='deleteListaVerificaciones'),
+    path('app/listaVerificaciones/guardar/<int:pk>',  guardarListaVerificacion.as_view(), name='guardarListaVerificacion'),
+
     
     # Serivicio Para los Proyectos
     path('app/proyectos/',  listarProyectos.as_view(), name='proyectos'),

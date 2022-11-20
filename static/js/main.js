@@ -219,6 +219,15 @@ function guardarAprobacion(data){
         alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Rechazar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
     }
 }
+function guardarListaVerificacion(data){
+    console.log('Ingresó');
+    let estado = $('#guardarSolicitud'+data)[0].checked ? true : '';
+    if(estado){
+        alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Aprobar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
+    }else{
+        alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Rechazar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
+    }
+}
 function guardarAvances(id){
     let observacion = $('#idObservacion'+id).val();
     let porcentaje = $('#idPorcentaje'+id).val();
