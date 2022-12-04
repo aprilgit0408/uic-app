@@ -11,7 +11,6 @@ import os
 from django.core.files import File
 from pathlib import Path
 from weasyprint import HTML, CSS
-from django.contrib.staticfiles import finders
 from django.template.loader import get_template
 from Usuarios.models import SeguimientoDocumentacion, Usuarios, Documento
 from uicApp import settings

@@ -31,7 +31,10 @@ class listarProyectos(LoginRequiredMixin, ListView):
             cont = 1
             admin = True if request.user.perfil.nombre == 'Admin' else False
             esEstudiante = True if request.user.perfil.nombre == 'Estudiante' else False
-            query = modelo.objects.all() if admin else modelo.objects.filter(idDocente = request.user.pk)
+            if esEstudiante:
+                query = modelo.objects.filter(idEstudiantes__pk = request.user.pk)
+            else:
+                query = modelo.objects.all() if admin else modelo.objects.filter(idDocente = request.user.pk)
             for i in query:
                 if admin:
                     data.append([

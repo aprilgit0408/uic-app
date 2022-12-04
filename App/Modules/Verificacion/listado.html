@@ -84,42 +84,15 @@
             <table class="table table-striped">
                 <thead>
                   <tr>
-                    <th scope="col">#</th>
                     <th scope="col" style="text-align: center;" >DETALLE</th>
                   </tr>
                 </thead>
                 <tbody>
-                    <tr><th class="table-warning">1	</th><th>Solicitud de opción de titulación/Certificado de idoneidad.</th></tr>
-                    <tr><th class="table-warning">2	</th><th>Solicitud de aprobación del Plan del TIC.</th></tr>
-                    <tr><th class="table-warning">3	</th><th>Récord Académico </th></tr>
-                    <tr><th class="table-warning">4	</th><th>Notificación para la defensa del Plan del TIC.</th></tr>
-                    <tr><th class="table-warning">5	</th><th>Rúbrica de sustentación del Plan del TIC.                             </th></tr>
-                    <tr><th class="table-warning">6	</th><th>Acta de sustentación del Plan del TIC.</th></tr>
-                    <tr><th class="table-warning">7	</th><th>Oficio de designación de tutor</th></tr>
-                    <tr><th class="table-warning">8	</th><th>Oficio o correo electrónico de llamado para elaborar el cronograma</th></tr>
-                    <tr><th class="table-warning">9	</th><th>Cronograma de trabajo </th></tr>
-                    <tr><th class="table-warning">10</th><th>	Plan del TIC definitivo (Digital)</th></tr>
-                    <tr><th class="table-warning">11</th><th>	Informe cuali-cuantitativo de la aprobación del Plan del TIC.</th></tr>
-                    <tr><th class="table-warning">12</th><th>	Informe de avance del TIC (1 por parcial luego de la aprobación del plan).</th></tr>
-                    <tr><th class="table-warning">13</th><th>	Informe de seguimiento de tutorías (1 por semest</th></tr>
-                    <tr><th class="table-warning">14</th><th>	Certificado de suficiencia de un idioma extranjero, otorgado por el centro de idiomas de la UPE</th></tr>
-                    <tr><th class="table-warning">15</th><th>	Certificado de aprobación de suficiencia en ofimática por parte del centro de </th></tr>
-                    <tr><th class="table-warning">16</th><th>	Certificado de haber aprobado la asignatura de complementación de cultura física y estét</th></tr>
-                    <tr><th class="table-warning">17</th><th>	Certificado de la pasantía o de la práctica preprofesion</th></tr>
-                    <tr><th class="table-warning">18</th><th>	Certificado de vinculación con la socied</th></tr>
-                    <tr><th class="table-success">19</th><th>	Solicitud al director de carrera de la designación del tribunal para la predefensa.</th></tr>
-                    <tr><th class="table-success">20</th><th>	Informe cuali-cuantitativo previo a la predefensa del informe del T</th></tr>
-                    <tr><th class="table-success">21</th><th>	Certificación antiplagio (Máx. 12%).</th></tr>
-                    <tr><th class="table-success">22</th><th>	Récord académico indicando el cumplimiento del 100% de las asignaturas de la malla curricular</th></tr>
-                    <tr><th class="table-success">23</th><th>	Designación de tribunal para la predefensa del informe de TIC.</th></tr>
-                    <tr><th class="table-success">24</th><th>	Rúbrica de sustentación de la predefensa del informe de TIC.</th></tr>
-                    <tr><th class="table-success">25</th><th>	Acta de sustentación de la predefensa del informe de TIC.</th></tr>
-                    <tr><th class="table-success">26</th><th>	Informe final de cumplimiento de observaciones y recomendaciones por parte del tribunal.</th></tr>
-                    <tr><th class="table-success">27</th><th>	Informe del Abstract emitido por el Centro de Idiomas</th></tr>
-                    <tr><th class="table-success">28</th><th>	Orden de empastado</th></tr>
-                    <tr><th class="table-success">29</th><th>	Certificado de encontrarse sin deuda con las dependencias universitar</th></tr>
-                    <tr><th class="table-success">30</th><th>	Informe final del TIC CD.</th></tr>
-                    <tr><th class="table-success">31</th><th>	Solicitud de prorrogas (de ser el caso)</th></tr>                    
+                    
+                    {% for lista in nombreListaVerificacion  %}
+                    <tr><th>{{lista.nombre}} </th></tr>
+                    {% endfor %}
+                      
                 </tbody>
               </table>
         </div>

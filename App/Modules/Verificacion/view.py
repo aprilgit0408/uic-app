@@ -45,6 +45,7 @@ class listarListaVerificaciones(LoginRequiredMixin, ListView):
         context['items'] = modelo.objects.all()
         context['title'] = f'listaVerificacion'
         context['listado'] = f'{entidad}'
+        context['nombreListaVerificacion'] = NombreArchivoListaVerificacion.objects.all()
         return context
     def post(self, request, *args, **kwargs):
         data = []
@@ -106,7 +107,7 @@ class addListaVerificaciones(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         items = []
         nombresListaV = []
-        for i in ListaVerificacion.objects.filter(idProyecto__idEstudiantes = self.request.user):
+        for i in modelo.objects.filter(idProyecto__idEstudiantes = self.request.user):
             nombresListaV.append(i.nombre)
         for item in NombreArchivoListaVerificacion.objects.all():
             if item not in nombresListaV:

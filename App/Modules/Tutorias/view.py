@@ -4,6 +4,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioTutorias
 from App.models import Proyecto, Tutoria
 from django.http.response import JsonResponse
+from App.funciones import send_mail, getDate
+from django.template.loader import render_to_string
 
 from django.urls import reverse_lazy
 modelo = Tutoria
@@ -27,7 +29,6 @@ class listarTutorias(LoginRequiredMixin, ListView):
         data = []
         try:
             cont = 1
-            print('request.user.perfil.nombre: ')
             admin = True if request.user.perfil.nombre == 'Admin' else False
             estudiante = False
             query = modelo.objects.all() if admin else modelo.objects.filter(idProyecto__idDocente = request.user.pk)
@@ -35,14 +36,13 @@ class listarTutorias(LoginRequiredMixin, ListView):
                 query = modelo.objects.filter(idProyecto__idEstudiantes = request.user.pk)
                 admin = False
                 estudiante = True
-
             for i in query:
                 if admin:
                     data.append([
                         cont,
                         i.idProyecto.nombre,
                         i.idProyecto.getEstudiantes(),
-                        i.fecha.strftime("%Y-%m-%d %H:%M:%S"),
+                        i.fechaTutoria.strftime("%Y-%m-%d %H:%M:%S"),
                         i.descripcion,
                         i.idProyecto.getDocente().getInformacion(),
                         None
@@ -52,9 +52,9 @@ class listarTutorias(LoginRequiredMixin, ListView):
                         cont,
                         i.idProyecto.nombre,
                         i.idProyecto.getEstudiantes(),
-                        i.fecha.strftime("%Y-%m-%d %H:%M:%S"),
+                        i.fechaTutoria.strftime("%Y-%m-%d %H:%M:%S"),
                         i.descripcion,
-                        i.id if not estudiante else None
+                        i.pk if not estudiante else None
                     ])
                 cont +=1
         except Exception as e:
@@ -69,6 +69,27 @@ class addTutorias(LoginRequiredMixin, CreateView):
     template_name = main
     success_url = url
     def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            idProyecto = form.cleaned_data['idProyecto']
+            instance = Proyecto.objects.get(pk = idProyecto)
+            descripcion = form.cleaned_data['descripcion']
+            fechaEntrega = form.cleaned_data['fechaTutoria']
+            emails = ''
+            content = render_to_string('email.html',
+                                       {'titulo': 'Avances', 
+                                       'docente': self.request.user.getInformacion(), 
+                                       'tema': 'solicitado una tutoría', 
+                                       'proyecto': instance.nombre, 
+                                       'requerimiento' : descripcion,
+                                       'fechaEntrega' : getDate(fechaEntrega)
+                                       })
+            for i in instance.idEstudiantes.all():
+                if emails:
+                    emails += f',{i.email}'
+                else:
+                    emails = i.email
+            send_mail('Tutoría', emails, content)
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -87,7 +108,24 @@ class editTutorias(LoginRequiredMixin, UpdateView):
     def post(self, request, *args, **kwargs):
         form = formulario(request.POST, instance=self.get_object())
         if form.is_valid():
-            form.save()
+            instance = form.cleaned_data['idProyecto']
+            descripcion = form.cleaned_data['descripcion']
+            fechaEntrega = form.cleaned_data['fechaTutoria']
+            emails = ''
+            content = render_to_string('email.html',
+                                       {'titulo': 'Avances', 
+                                       'docente': self.request.user.getInformacion(), 
+                                       'tema': 'actualizado la tutoría', 
+                                       'proyecto': instance.nombre, 
+                                       'requerimiento' : descripcion,
+                                       'fechaEntrega' : getDate(fechaEntrega)
+                                       })
+            for i in instance.idEstudiantes.all():
+                if emails:
+                    emails += f',{i.email}'
+                else:
+                    emails = i.email
+            send_mail('Tutoría', emails, content)
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):

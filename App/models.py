@@ -104,7 +104,7 @@ class Avance(datosAuditoria):
 class Tutoria(datosAuditoria):
     idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
     descripcion = models.TextField(verbose_name='Temas a tratarse')
-    fecha = models.DateTimeField(verbose_name='Fecha y hora de tutoría')
+    fechaTutoria = models.DateTimeField(verbose_name='Fecha y hora de tutoría')
     archivo = models.FileField(upload_to='tutorias', null = True, blank = True, verbose_name='Archivo de Tutoría')
     def __str__(self):
         return self.descripcion

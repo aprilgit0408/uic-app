@@ -74,7 +74,7 @@ class formularioListaVerificaciones(ModelForm):
 
     class Meta:
         model = ListaVerificacion
-        fields = ('nombre','observacion', 'idProyecto') 
+        fields = ('nombre','observacion', 'idProyecto', 'archivo') 
 class formularioArchivoListaVerificacion(ModelForm):
     class Meta:
         model = ListaVerificacion
