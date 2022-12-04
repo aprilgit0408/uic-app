@@ -3,29 +3,34 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from Usuarios.models import Constantes, Usuarios
 import uuid
+import threading
 
 def send_mail(asunto, destinatarios, content):
-        '''
-        content = render_to_string('Login/email.html',
-                                        {'user': usuario, 'password': password, 'dominio': DOMAIN})
-        '''
-        try:
-            USER_MAIL = getConstante('USER_MAIL')
-            mensaje = MIMEMultipart()
-            mensaje['From'] = USER_MAIL
-            mensaje['To'] = destinatarios
-            mensaje['Subject'] = asunto
-            
-            mailServer = SMTP(getConstante('EMAIL_HOST'), port=getConstante('EMAIL_PORT'))
-            mailServer.starttls()
-            mailServer.login(USER_MAIL, getConstante('USER_PASS'))
-            mensaje.attach(MIMEText(content, 'html'))
-            mailServer.sendmail(USER_MAIL, destinatarios.split(','), mensaje.as_string())
-            print('Mails enviados a: ', destinatarios)
-            mailServer.quit()
-        except Exception as e:
-            print('Error Email l-25', e)
-        return True
+        def sendMailHilos():
+            '''
+            content = render_to_string('Login/email.html',
+                                            {'user': usuario, 'password': password, 'dominio': DOMAIN})
+            '''
+            print('Inicio de envío mail a los siguientes destinatarios: ', destinatarios)
+            try:
+                USER_MAIL = getConstante('USER_MAIL')
+                mensaje = MIMEMultipart()
+                mensaje['From'] = USER_MAIL
+                mensaje['To'] = destinatarios
+                mensaje['Subject'] = asunto
+                
+                mailServer = SMTP(getConstante('EMAIL_HOST'), port=getConstante('EMAIL_PORT'))
+                mailServer.starttls()
+                mailServer.login(USER_MAIL, getConstante('USER_PASS'))
+                mensaje.attach(MIMEText(content, 'html'))
+                mailServer.sendmail(USER_MAIL, destinatarios.split(','), mensaje.as_string())
+                print('Mails enviados a: ', destinatarios)
+                mailServer.quit()
+            except Exception as e:
+                print('Error Email l-30', e)
+            return True
+        hilo = threading.Thread(name='Send Mail', target=sendMailHilos)
+        hilo.start()
 def send_mail_Reset(id, mail, content):
         try:
             Subject = 'Reseteo de Contraseña'
