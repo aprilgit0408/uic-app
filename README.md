@@ -2,7 +2,7 @@
 UIC APP
 Instalar los archivos de la carpeta instaladores
 
-1. instalar python 3.8.6
+1. instalar python 3.8.6 enlace https://www.python.org/ftp/python/3.8.6/python-3.8.6-amd64.exe
 2. instalar weasyprint el ejecutable gtk del siguiente enlace https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases
 3. ejecutar los requerimientos necesarios: pip install -r requirements.txt esto se ejecuta una sola vez
 4. realizar los siguientes pasos en caso de que la base de datos esté llena, casi contrario ejecutar el paso 3
