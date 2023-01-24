@@ -2,8 +2,9 @@
 UIC APP
 Instalar los archivos de la carpeta instaladores
 
-1. ejecutar los requerimientos necesarios: pip install -r requirements.txt esto se ejecuta una sola vez
-2. realizar los siguientes pasos en caso de que la base de datos esté llena, casi contrario ejecutar el paso 3
+1. instalar weasyprint el ejecutable gtk del siguiente enlace https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases
+2. ejecutar los requerimientos necesarios: pip install -r requirements.txt esto se ejecuta una sola vez
+3. realizar los siguientes pasos en caso de que la base de datos esté llena, casi contrario ejecutar el paso 3
 	0. Eliminar todos los cambios en el proyecto
 	1. git pull
 	2. Eliminar las migraciones de Usuarios/migratios y App/migrations excepto __init__
