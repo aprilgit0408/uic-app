@@ -71,8 +71,7 @@ class addTutorias(LoginRequiredMixin, CreateView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            idProyecto = form.cleaned_data['idProyecto']
-            instance = Proyecto.objects.get(pk = idProyecto)
+            instance = form.cleaned_data['idProyecto']     
             descripcion = form.cleaned_data['descripcion']
             fechaEntrega = form.cleaned_data['fechaTutoria']
             emails = ''

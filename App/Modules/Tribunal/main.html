@@ -42,11 +42,7 @@
                                 <label for="idUsuarios">Asignación de tribunal.</label>
                                 <select name="usuarios" class="form-select select2" autocomplete="off" id="idUsuarios" multiple="">
                                     {% for item in listadoDocentes %}
-                                        <option value="{{item.pk}}" title="{{item.user.getInformacion }}" >{{item.user.getInformacion}} 
-                                        {% if item.grupo %}
-                                            <spam>&nbsp"{{item.grupo |safe}}"</spam>
-                                        {% endif %}
-                                             </option>
+                                        <option value="{{item.pk}}" title="{{item.user.getInformacion }}" >{{item.user.getInformacion}}</option>
                                     {% endfor %}
                                 </select>
                                 <i>Presione <b>Ctrl</b> para seleccionar más de uno.</i>

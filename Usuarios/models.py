@@ -66,6 +66,10 @@ class Perfiles(datosAuditoria):
     nombre = models.CharField(max_length=20, verbose_name='Perfiles', unique = True)
     def __str__(self) -> str:
         return '{}'.format(self.nombre)
+    def getInicial(self) -> str:
+        print('inicial: ',self.nombre[0])
+        return '{}'.format(self.nombre[0])
+        
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
@@ -134,7 +138,7 @@ class Usuarios(AbstractUser):
             for grupo in GrupoExperto.objects.all():
                 for user in grupo.idDocentes.all():
                     if request == user:
-                        nombre += f'<li><h5><b><i>{grupo.pk}</i></b></h5></li>'
+                        nombre += f'<li><h5><b><i>{grupo.nombre.upper()}</i></b></h5></li>'
             if nombre:
                 nombre = f'<ul>{nombre}</ul>'
         except Exception as e:
@@ -148,7 +152,7 @@ class Usuarios(AbstractUser):
             for grupo in GrupoExperto.objects.all():
                 for user in grupo.idDocentes.all():
                     if id == user:
-                        nombre += f'<li><i>{grupo.pk}</i></li>'
+                        nombre += f'<li><i>{grupo.nombre.upper()}</i></li>'
         except Exception as e:
             nombre = ''
             print(f'Error al obtener grupo de expertos del usuario {id}: ' , e)

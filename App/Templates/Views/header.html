@@ -117,7 +117,7 @@
                               <img src="{{request.user.getImagen}}" width="50" height="50" title="{{request.user.getInformacion}}" style="border-radius: 50%;"  alt="">
                             </a>
                             <div class="dropdown-menu">
-                              <a class="dropdown-item" href="#" ><b>{{request.user.getAlias}} (<i>{{request.user.perfil}}</i>)</b></a>
+                              <a class="dropdown-item" href="#" ><b>{{request.user.getAlias}} (<i>{{request.user.perfil.getInicial}}</i>)</b></a>
                                 <div class="dropdown-divider"></div>
                                 {% if request.user.getGrupo %}
                                     <center>{{request.user.getGrupo | safe}}</center>

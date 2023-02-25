@@ -59,8 +59,16 @@ class listarListaVerificaciones(LoginRequiredMixin, ListView):
             pass
         try:
             idCarrera = request.POST['idCarrera']
+            
             idProyecto = int(request.POST['idProyecto'])
+            
             query = modelo.objects.all()
+            
+            if(idCarrera == "0" and idProyecto == 0):
+                idProyecto = Proyecto.objects.filter(idEstudiantes__id=self.request.user.id).first()
+                
+
+
             if(idCarrera != '0'):
                 query = query.filter(idProyecto__idCarrera__nombre = idCarrera)
             if(idProyecto != 0):
