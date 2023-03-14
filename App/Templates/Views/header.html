@@ -29,6 +29,15 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <!-- Responsive CSS -->
     <link rel="stylesheet" href="{% static 'css/responsive.css' %}" />
+
+      <!-- GRAFICOS  -->
+      <script src="https://code.highcharts.com/highcharts.js"></script>
+      <script src="https://code.highcharts.com/modules/data.js"></script>
+      <script src="https://code.highcharts.com/modules/drilldown.js"></script>
+      <script src="https://code.highcharts.com/modules/exporting.js"></script>
+      <script src="https://code.highcharts.com/modules/export-data.js"></script>
+      <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -85,21 +94,22 @@
                             <li><a class="nav-link" href="{% url 'app:grupoExpertos' %}">Grupo&nbspExpertos</a></li>
                             <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">CheckList</a></li> -->
                             <!-- <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Tribunal</a></li> -->
-                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Lista Verificación</a></li>
+                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Lista&nbspVerificación</a></li>
                             <li><a class="nav-link" href="{% url 'app:tribunal' %}">Tribunal</a></li>
+                            <li><a class="nav-link" href="{% url 'app:reportes' %}">Reportes</a></li>
                             {% elif request.user.perfil.nombre == 'Docente' %}
                             <li><a class="nav-link" href="{% url 'app:estudiantes' %}">Estudiantes</a></li>
                             <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorías</a></li>
                             <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
                             <li><a class="nav-link" href="{% url 'app:avances' %}">Avances</a></li>
-                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Lista Verificación</a></li>
+                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Lista&nbspVerificación</a></li>
                             <!-- <li><a class="nav-link" href="{% url 'app:proyectos' %}">Documentación</a></li> -->
                         {% elif request.user.perfil.nombre == 'Estudiante' %}
                             <li><a class="nav-link" href="{% url 'app:documentos' %}">Documentos</a></li>
                             <li><a class="nav-link" href="{% url 'app:tutorias' %}">Tutorias</a></li>
                             <li><a class="nav-link" href="{% url 'app:proyectos' %}">Proyectos</a></li>
                             <li><a class="nav-link" href="{% url 'app:avances' %}">Avances</a></li>
-                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Lista Verificación</a></li>
+                            <li><a class="nav-link" href="{% url 'app:listaVerificaciones' %}">Lista&nbspVerificación</a></li>
 
                         {% else %}
                             <li><a class="nav-link active" href="{% url 'app:index' %}">Inicio</a></li>

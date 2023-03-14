@@ -71,3 +71,7 @@ def getConstante(nombre):
         return Constantes.objects.get(nombre = nombre).valor
     except Exception as e:
         print('No se ha econtrado el valor para : ', nombre)
+def getMeses(mes):
+    meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    return meses[mes]

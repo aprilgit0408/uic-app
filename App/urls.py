@@ -5,6 +5,7 @@ from App.Modules.Facultades.view import listarFacultades, addFacultades, editFac
 from App.Modules.Carreras.view import listarCarreras, addCarreras, editCarreras, deleteCarreras
 from App.Modules.GrupoExperto.view import addGrupoExpertos, deleteGrupoExpertos, editGrupoExpertos, listarGrupoExpertos
 from App.Modules.Login.views import Login, LogoutView, addUser, resetPassword, resetPasswordLink
+from App.Modules.Reportes.view import getReportes
 from App.Modules.Tribunal.view import addTribunal, deleteTribunal, editTribunal, listarTribunal
 from App.Modules.Tutorias.view import addTutorias, deleteTutorias, editTutorias, listarTutorias
 from App.Modules.Verificacion.view import guardarListaVerificacion, listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
@@ -58,22 +59,29 @@ urlpatterns = [
     path('app/docentes/',  listarDocentes.as_view(), name='docentes'),
     path('app/docentes/add',  addDocente.as_view(), name='addDocentes'),
     
+    #vista para documentos
     path('app/documentos/',  listarDocumentos.as_view(), name='documentos'),
     path('app/documentos/solicitudes/',  listadoSolicitudes.as_view(), name='solicitudes'),
     path('app/documentos/add',  addDocumentos.as_view(), name='addDocumentos'),
     path('app/documentos/generar/<pk>',  generarPDF.as_view(), name='generarPDF'),
     path('app/documentos/enviar/<pk>',  GuardarDocumento.as_view(), name='guardarDocumento'),
-    
+
+   #Turias 
     path('app/tutorias/',  listarTutorias.as_view(), name='tutorias'),
     path('app/tutorias/add',  addTutorias.as_view(), name='addTutorias'),
     path('app/tutorias/edit/<int:pk>',  editTutorias.as_view(), name='editTutorias'),
     path('app/tutorias/delete/<int:pk>',  deleteTutorias.as_view(), name='deleteTutorias'),
     
+    #Tribunal
     path('app/tribunal/',  listarTribunal.as_view(), name='tribunal'),
     path('app/tribunal/add',  addTribunal.as_view(), name='addTribunal'),
     path('app/tribunal/edit/<int:pk>',  editTribunal.as_view(), name='editTribunal'),
     path('app/tribunal/delete/<int:pk>',  deleteTribunal.as_view(), name='deleteTribunal'),
     
+    #Reportes
+    path('app/reportes/',  getReportes.as_view(), name='reportes'),
+    
+
     
     path('',  Index.as_view(), name='index'),
     path('login/',  Login.as_view(), name='login'),

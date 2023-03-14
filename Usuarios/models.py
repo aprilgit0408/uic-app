@@ -67,7 +67,6 @@ class Perfiles(datosAuditoria):
     def __str__(self) -> str:
         return '{}'.format(self.nombre)
     def getInicial(self) -> str:
-        print('inicial: ',self.nombre[0])
         return '{}'.format(self.nombre[0])
         
     def save(self, *args, **kwargs):
