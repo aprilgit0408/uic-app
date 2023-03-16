@@ -1,0 +1,174 @@
+{% extends 'Views/header.html' %} {% load static %} {% block title %} {{title}}
+{% endblock %} {% block content %}
+
+<div style="margin-top: 7%">
+  <div class="card">
+    <div class="card-header">
+      <b style="font-size: 20px"> {{listado}} </b>
+    </div>
+    <div class="card-body table-responsive">
+      <div class="row">
+        <div class="col-md-6">
+          <label for="tipoReporte">Reportes:</label>
+          <select
+            class="form-select select1"
+            name="reporte"
+            id="tipoReporte"
+            required
+            aria-label="tipoReporte"
+          >
+          <option value="" selected="true" >Seleccione el tipo...</option>
+          {% for item in encabezado %}
+            <option value="{{item}}">{{item}}</option>
+          {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="idProyectos">Proyectos:</label>
+          <select
+            class="form-select select1"
+            name="proyectos"
+            id="idProyectos"
+            required
+            aria-label="proyectos"
+          >
+            <option value="" selected="true">Seleccione un proyecto...</option>
+            {% for item in idProyectos %}
+            <option value="{{item.pk}}">{{item}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+            <figure class="highcharts-figure">
+                <div id="container"></div>
+                <p class="highcharts-description">
+                  <b id="tipoReporteSelect"></b>
+                </p>
+              </figure>
+              <p id="noSelected">Por favor, seleccione el tipo de reporte y su proyecto para continuar</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var tipoReporte = 'Vacío';
+var proyecto = '';
+$('#tipoReporte').on('change', function(){
+    let tipo = $(this).val();
+    let idProyecto = $('#idProyectos').val();
+    if(tipo == 'Defensa'){
+      let select = document.getElementById("idProyectos");
+      select.value = ""; 
+      proyecto = '';
+      $('#idProyectos').prop('disabled', 'disabled');
+    }else{
+      $('#idProyectos').prop('disabled', false);
+    }
+
+    if((!!tipo && !!idProyecto) || tipo == 'Defensa'){
+        document.getElementById('noSelected').innerHTML = '';
+        document.getElementById('tipoReporteSelect').innerHTML = 'Reporte de ' +tipo;
+        tipoReporte = tipo;
+        ajax(tipo, idProyecto);
+    }else{
+        document.getElementById('tipoReporteSelect').innerHTML = '';
+        document.getElementById('container').innerHTML = '';
+        document.getElementById('noSelected').innerHTML = 'Por favor, seleccione el tipo de reporte y su proyecto para continuar';
+    }
+});
+
+$('#idProyectos').on('change', function(){
+  let idProyecto = $(this).val();
+  if(!idProyecto){
+    proyecto = '';
+    document.getElementById('tipoReporteSelect').innerHTML = '';
+    document.getElementById('container').innerHTML = '';
+    document.getElementById('noSelected').innerHTML = 'Por favor, seleccione el tipo de reporte y su proyecto para continuar';
+  }else{
+    let tipo = $('#tipoReporte').val();
+    if(tipo){
+      tipoReporte = tipo;
+      let nombreProyecto = document.getElementById("idProyectos")
+      proyecto =  nombreProyecto.options[nombreProyecto.selectedIndex].innerText;;
+      ajax(tipo, idProyecto);
+    } 
+  }
+});
+  function ajax(tipo, idProyecto) {
+    $.ajax({
+      url: "",
+      method: "POST",
+      data: { 'tipo': tipo, 'idProyecto': idProyecto},
+    }).done((res) => {
+        viewGraphic(res);
+    });
+  }
+
+  function viewGraphic(response) {
+    Highcharts.chart("container", {
+      chart: {
+        type: "column",
+      },
+      title: {
+        align: "left",
+        text: "Reporte de " + tipoReporte + " del 2023. " + proyecto,
+      },
+      subtitle: {
+        align: "left",
+        text: 'Para más información, de clic en la columna',
+      },
+      accessibility: {
+        announceNewData: {
+          enabled: true,
+        },
+      },
+      xAxis: {
+        type: "category",
+      },
+      yAxis: {
+        title: {
+          text: "Total de "+ tipoReporte +" en el mes",
+        },
+      },
+      legend: {
+        enabled: false,
+      },
+      plotOptions: {
+        series: {
+          borderWidth: 0,
+          dataLabels: {
+            enabled: true,
+            format: "Total {point.y}",
+          },
+        },
+      },
+
+      tooltip: {
+        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+        pointFormat:
+          '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b> <br/>',
+      },
+
+      series: [
+        {
+          name: tipoReporte,
+          colorByPoint: true,
+          data: response.data,
+          
+        },
+      ],
+      drilldown: {
+        breadcrumbs: {
+        position: {
+            align: 'right'
+        }
+        },
+        series: response.drilldown
+    }
+    });
+  }
+</script>
+{% endblock content %}
