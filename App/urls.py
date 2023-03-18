@@ -1,9 +1,8 @@
 from django.urls import path
 from App.Modules.Avances.view import addAvances, deleteAvances, editAvances, guardarAvance, guardarAvanceEstudiante, listarAvances
-from App.Modules.Documentos.view import GuardarDocumento, listadoSolicitudes, addDocumentos, generarPDF, listarDocumentos
+from App.Modules.Documentos.view import GuardarDocumento, guardarSolicitud, listadoSolicitudes, addDocumentos, generarPDF, listarDocumentos
 from App.Modules.Facultades.view import listarFacultades, addFacultades, editFacultades, deleteFacultades
 from App.Modules.Carreras.view import listarCarreras, addCarreras, editCarreras, deleteCarreras
-from App.Modules.GrupoExperto.view import addGrupoExpertos, deleteGrupoExpertos, editGrupoExpertos, listarGrupoExpertos
 from App.Modules.Login.views import Login, LogoutView, addUser, resetPassword, resetPasswordLink
 from App.Modules.Reportes.view import getReportes
 from App.Modules.Tribunal.view import addTribunal, deleteTribunal, editTribunal, listarTribunal
@@ -49,10 +48,10 @@ urlpatterns = [
     path('app/avances/delete/<int:pk>',  deleteAvances.as_view(), name='deleteAvances'),
 
     #Grupo de expertos
-    path('app/grupoExpertos/',  listarGrupoExpertos.as_view(), name='grupoExpertos'),
-    path('app/grupoExpertos/add',  addGrupoExpertos.as_view(), name='addGrupoExpertos'),
-    path('app/grupoExpertos/edit/<pk>',  editGrupoExpertos.as_view(), name='editGrupoExpertos'),
-    path('app/grupoExpertos/delete/<pk>',  deleteGrupoExpertos.as_view(), name='deleteGrupoExpertos'),
+    # path('app/grupoExpertos/',  listarGrupoExpertos.as_view(), name='grupoExpertos'),
+    # path('app/grupoExpertos/add',  addGrupoExpertos.as_view(), name='addGrupoExpertos'),
+    # path('app/grupoExpertos/edit/<pk>',  editGrupoExpertos.as_view(), name='editGrupoExpertos'),
+    # path('app/grupoExpertos/delete/<pk>',  deleteGrupoExpertos.as_view(), name='deleteGrupoExpertos'),
     
     path('app/estudiantes/',  listarEstudiantes.as_view(), name='estudiantes'),
     path('app/estudiantes/add',  addEstudiantes.as_view(), name='addEstudiantes'),
@@ -62,6 +61,7 @@ urlpatterns = [
     #vista para documentos
     path('app/documentos/',  listarDocumentos.as_view(), name='documentos'),
     path('app/documentos/solicitudes/',  listadoSolicitudes.as_view(), name='solicitudes'),
+    path('app/documentos/solicitudes/guardar',  guardarSolicitud.as_view(), name='guardarSolicitud'),
     path('app/documentos/add',  addDocumentos.as_view(), name='addDocumentos'),
     path('app/documentos/generar/<pk>',  generarPDF.as_view(), name='generarPDF'),
     path('app/documentos/enviar/<pk>',  GuardarDocumento.as_view(), name='guardarDocumento'),

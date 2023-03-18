@@ -3,10 +3,10 @@ from django.views.generic.edit import DeleteView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioGrupoExperto
-from Usuarios.models import GrupoExperto, Usuarios
+from Usuarios.models import Usuarios
 from django.http.response import JsonResponse
 from django.urls import reverse_lazy
-modelo = GrupoExperto
+modelo = None
 formulario = formularioGrupoExperto
 entidad = 'Grupo de Expertos'
 main = 'main.html'

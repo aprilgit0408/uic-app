@@ -1,7 +1,7 @@
 from django.views.generic import CreateView, ListView
 from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from App.Modules.Formularios.forms import formularioDocumentos, formularioFirma
+from App.Modules.Formularios.forms import formularioDocumentos, formularioFirma, formActualizarfirma
 from django.views.generic.base import  View
 from django.http.response import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -12,6 +12,8 @@ from django.core.files import File
 from pathlib import Path
 from weasyprint import HTML, CSS
 from django.template.loader import get_template
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from Usuarios.models import SeguimientoDocumentacion, Usuarios, Documento
 from uicApp import settings
 modelo = Documento
@@ -73,14 +75,15 @@ class listarDocumentos(LoginRequiredMixin, UpdateView):
                         estado = [seguimiento for seguimiento in getDocumentacionBKP if seguimiento and seguimiento.idDocumento == documentacion]
                         habilitar = estado if estado else False
                         estadoPantalla = habilitar[0].estado if habilitar else  False if valorAnterior else False if cont == 1 else''
+                        getEstadoActual = self.getEstado(estadoPantalla, cont, estado)
                         data.append([
                             cont,
                             documentacion.nombre,
-                            self.getEstado(estadoPantalla, cont, estado),
+                            getEstadoActual,
                             'file',
                             estadoPantalla,
                             documentacion.archivo.url[-5:].split('.')[1],
-                            documentacion.archivo.url,
+                            documentacion.archivo.url if getEstadoActual != 'Aprobado' else estado[0].archivo.url
                         ])
                         valorAnterior = habilitar[0].estado if habilitar else False
                 cont +=1
@@ -254,3 +257,25 @@ class listadoSolicitudes(LoginRequiredMixin, ListView):
             print(f'Error {entidad} ln-324: ',e)
             data = {}
         return JsonResponse(data, safe=False)
+    
+class guardarSolicitud(LoginRequiredMixin, UpdateView):
+    model = SeguimientoDocumentacion
+    form_class = formActualizarfirma
+    template_name = main
+    success_url = reverse_lazy('app:solicitudes')
+    
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+    def get_object(self, queryset = None):
+        id = self.request.POST['id']
+        seguimiento = SeguimientoDocumentacion.objects.get(id = id)
+        return seguimiento
+    
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, instance=self.get_object())
+        if form.is_valid():
+            form.save()
+        return super().post(request, *args, **kwargs)
+

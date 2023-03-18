@@ -1,6 +1,6 @@
 from django.forms import TextInput, EmailInput, PasswordInput, ModelForm
 from App.models import Avance,ListaVerificacion, Proyecto, Tribunal, Tutoria
-from Usuarios.models import Facultad, Carrera, Usuarios, Documento, GrupoExperto
+from Usuarios.models import Facultad, Carrera, SeguimientoDocumentacion, Usuarios, Documento
 from django import forms
 
 
@@ -75,6 +75,10 @@ class formularioListaVerificaciones(ModelForm):
     class Meta:
         model = ListaVerificacion
         fields = ('nombre','observacion', 'idProyecto', 'archivo') 
+class formActualizarfirma(ModelForm):
+    class Meta:
+        model = SeguimientoDocumentacion
+        fields = ('archivo','estado') 
 class formularioArchivoListaVerificacion(ModelForm):
     class Meta:
         model = ListaVerificacion
@@ -173,7 +177,7 @@ class formularioGrupoExperto(ModelForm):
         self.fields['nombre'].widget.attrs['autofocus'] = True
 
     class Meta:
-        model = GrupoExperto
+        model = None
         fields = '__all__'
 
 class formularioTribunal(ModelForm):

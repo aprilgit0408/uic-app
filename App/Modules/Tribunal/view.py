@@ -72,6 +72,7 @@ class addTribunal(LoginRequiredMixin, ListView):
         
         try:
             idProyecto = request.POST['idProyecto']
+            print('Valor de idProyecto: ', idProyecto)
             idDocentesPrincipales = request.POST['idDocentesPrincipales']
             idDocentesSuplentes = request.POST['idDocentesSuplentes']
             idAula = request.POST['idAula']
@@ -93,6 +94,7 @@ class addTribunal(LoginRequiredMixin, ListView):
             tribunal.save()
             mailDocentesPrincipales = tribunal.getMailDocPrincipales()
             mailDocentesSuplentes = tribunal.getMailDocSuplentes()
+            mailEstudianteTribunal = proyecto.getMailEstudiantes()
             content = render_to_string('email.html',
                                        {'titulo': 'Asignación de Tribunal de Defensa de Proyectos', 
                                        'tema': 'sido asignado como uno de los docentes principales', 
@@ -102,6 +104,7 @@ class addTribunal(LoginRequiredMixin, ListView):
                                        'aula' : tribunal.aula
                                        })
             send_mail('Asignación de Tribunal', mailDocentesPrincipales, content)
+
             content = render_to_string('email.html',
                                        {'titulo': 'Asignación de Tribunal de Defensa de Proyectos', 
                                        'tema': 'sido asignado como uno de los docentes suplentes', 
@@ -111,6 +114,18 @@ class addTribunal(LoginRequiredMixin, ListView):
                                        'aula' : tribunal.aula
                                        })
             send_mail('Asignación de Tribunal', mailDocentesSuplentes, content)
+            
+            content = render_to_string('email.html',
+                                       {'titulo': 'Asignación de Tribunal de Defensa de Proyectos', 
+                                       'tema': 'sido asignado como uno de los docentes suplentes', 
+                                       'proyecto':proyecto.nombre, 
+                                       'docentesSuplentes' : tribunal.getDocentesSuplentes(),
+                                       'fechaDefensa' : getDate(tribunal.fechaDefensa),
+                                       'aula' : tribunal.aula
+                                       })
+            send_mail('Asignación de Tribunal', mailEstudianteTribunal, content)
+
+
         except Exception as e:
             print('Sin valores a agregar: ', e)
         
@@ -122,7 +137,7 @@ class addTribunal(LoginRequiredMixin, ListView):
         aulas = Constantes.objects.get(nombre = 'AULAS').valor
         data = []
         for user in docentes:
-            data.append({'pk': user.pk, 'user': user, 'grupo' : user.getGrupoById(user)})
+            data.append({'pk': user.pk, 'user': user})
         context['title'] = f'{entidad}'
         context['accion'] = f'Añadir {entidad}'
         context['agregar'] = f'Añadir {entidad}'
@@ -205,7 +220,7 @@ class editTribunal(LoginRequiredMixin, UpdateView):
         aulas = Constantes.objects.get(nombre = 'AULAS').valor
         data = []
         for user in docentes:
-            data.append({'pk': user.pk, 'user': user, 'grupo' : user.getGrupoById(user)})
+            data.append({'pk': user.pk, 'user': user})
         context['title'] = f'{entidad}'
         context['agregar'] = f'Añadir {entidad}'
         context['URL'] = url

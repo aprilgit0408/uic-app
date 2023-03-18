@@ -20,6 +20,32 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="aprobacionSolicitud" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <form action="guardar" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Firma de documentos</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                        <label for="idDocumento">Seleccione el archivo firmado para continuar</label>
+                        <input type="hidden" name="estado" value="True" >
+                        <input type="hidden" name="id" id="id">
+                        <input type="file" name="archivo" required="" class="form-control" id="id_archivo">
+                        </div>
+                        <div class="modal-footer">
+                        <input type="submit" class="btn btn-outline-primary" value="Aceptar">
+                        <!-- <button type="button" id="aceptarSolicitud"  class="btn btn-outline-primary">Validar</button> -->
+                        </div>
+                    </div>
+                    </div>
+            </form>
+        </div>
+  
     </div>
 </div>
 <br><br><br><br><br><br>

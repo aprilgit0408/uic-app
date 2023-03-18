@@ -130,32 +130,32 @@ class Usuarios(AbstractUser):
         return '{} {}'.format(self.first_name, self.last_name)
     def getAlias(self):
         return '{}. {}.'.format(self.first_name, self.last_name[0] if self.last_name else self.pk)
-    def getGrupo(self):
-        nombre = ''
-        request = get_current_user()
-        try:
-            for grupo in GrupoExperto.objects.all():
-                for user in grupo.idDocentes.all():
-                    if request == user:
-                        nombre += f'<li><h5><b><i>{grupo.nombre.upper()}</i></b></h5></li>'
-            if nombre:
-                nombre = f'<ul>{nombre}</ul>'
-        except Exception as e:
-            nombre = ''
-            print('Error al obtener grupo de expertos en usuarios: ' , e)
-        return nombre
+    # def getGrupo(self):
+    #     nombre = ''
+    #     request = get_current_user()
+    #     try:
+    #         for grupo in GrupoExperto.objects.all():
+    #             for user in grupo.idDocentes.all():
+    #                 if request == user:
+    #                     nombre += f'<li><h5><b><i>{grupo.nombre.upper()}</i></b></h5></li>'
+    #         if nombre:
+    #             nombre = f'<ul>{nombre}</ul>'
+    #     except Exception as e:
+    #         nombre = ''
+    #         print('Error al obtener grupo de expertos en usuarios: ' , e)
+    #     return nombre
     
-    def getGrupoById(self, id):
-        nombre = ''
-        try:
-            for grupo in GrupoExperto.objects.all():
-                for user in grupo.idDocentes.all():
-                    if id == user:
-                        nombre += f'<li><i>{grupo.nombre.upper()}</i></li>'
-        except Exception as e:
-            nombre = ''
-            print(f'Error al obtener grupo de expertos del usuario {id}: ' , e)
-        return nombre
+    # def getGrupoById(self, id):
+    #     nombre = ''
+    #     try:
+    #         for grupo in GrupoExperto.objects.all():
+    #             for user in grupo.idDocentes.all():
+    #                 if id == user:
+    #                     nombre += f'<li><i>{grupo.nombre.upper()}</i></li>'
+    #     except Exception as e:
+    #         nombre = ''
+    #         print(f'Error al obtener grupo de expertos del usuario {id}: ' , e)
+    #     return nombre
     def clean(self):
         super().clean()
     def save(self, *args, **kwargs):
@@ -170,20 +170,20 @@ class Usuarios(AbstractUser):
         if self.pk is None and Usuarios.objects.all().count() > 0:
             self.set_password(self.password)
         return super().save(*args, **kwargs)
-class GrupoExperto(datosAuditoria):
-    nombre = models.CharField(max_length=40, verbose_name='Nombre del grupo', unique = True)
-    idDocentes = models.ManyToManyField(Usuarios, verbose_name='Docentes')
-    def __str__(self):
-        return self.nombre
-    def getMiembros(self):
-        ul = ''
-        for docentes in self.idDocentes.all():
-            ul += f'<li> {docentes} </li>'
-        ul = f'<ul>{ul}</ul>'
-        return ul
-    def save(self, *args, **kwargs):
-        self.setDatosAuditoria()
-        return super(self.__class__, self).save(*args, **kwargs) 
+# class GrupoExperto(datosAuditoria):
+#     nombre = models.CharField(max_length=40, verbose_name='Nombre del grupo', unique = True)
+#     idDocentes = models.ManyToManyField(Usuarios, verbose_name='Docentes')
+#     def __str__(self):
+#         return self.nombre
+#     def getMiembros(self):
+#         ul = ''
+#         for docentes in self.idDocentes.all():
+#             ul += f'<li> {docentes} </li>'
+#         ul = f'<ul>{ul}</ul>'
+#         return ul
+#     def save(self, *args, **kwargs):
+#         self.setDatosAuditoria()
+#         return super(self.__class__, self).save(*args, **kwargs) 
 
 class Documento(datosAuditoria):
     nombre = models.CharField(max_length=200, verbose_name='Nombre del Documento', primary_key=True)

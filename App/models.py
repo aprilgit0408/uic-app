@@ -54,6 +54,11 @@ class Proyecto(datosAuditoria):
             ul += f'<li title="{estudiante}"> {estudiante.getAlias()} </li>'
         ul = f'<ul>{ul}</ul>'
         return ul
+    def getMailEstudiantes(self):
+        mail = []
+        for estudiante in self.idEstudiantes.all():
+             mail.append(estudiante.email)
+        return ','.join(mail)
     def getDocente(self):
         return Usuarios.objects.get(pk = self.idDocente)
     def save(self, *args, **kwargs):

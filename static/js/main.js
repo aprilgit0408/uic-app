@@ -1,4 +1,7 @@
+$('#id_archivo').val('');
+var modalAprobacionSolicitud = document.getElementById('aprobacionSolicitud');
 var table = '';
+var dataDocumentoFirma = null;
 const csrftoken = getCookie('csrftoken');
 function getCookie(name) {
     let cookieValue = null;
@@ -56,8 +59,8 @@ function getItems(id, responsive, data) {
                 class: 'text-center',
                 orderable: false,
                 render: function (data, type, row) {
-                    console.log('DAta: ', data);
-                    console.log('Row: ', row);
+                    console.log('Valor de data: ', data);
+                    console.log('Valor de row: ', row);
                     let btn = data;
                     if(data === 'estudianteAvance'){
                         btn = `
@@ -140,12 +143,18 @@ function getItems(id, responsive, data) {
                             `;
                             color = 'primary';
                         }
-                        if(row[4] === false || row[4] === null){
-                            tipoBotonAOpen = `<button type="button" onClick="enviarDirector('${row[1]}')" class="btn btn-outline-${ row[4] === false || row[4] === null ? 'info' : 'secondary'}" title="Enviar al  Director"  ${ row[4] === false || row[4] === null ?' id="idEnviar" ' : 'disabled="true"'} ">`;
-                            tipoBotonAClose= `</button>`;
+                       
+                        if(row[4]){
+                            tipoBotonAOpen = `<a type="button" class="btn btn-outline-secondary" title="Descargar archivo firmado" href="${row[6]}">`;
+                            tipoBotonAClose= `</a>`; 
                         }else{
-                            tipoBotonAOpen = `<button type="button" class="btn btn-outline-${ row[4] === false || row[4] === null ? 'info' : 'secondary'}" title="Enviar al  Director"  ${ row[4] === false || row[4] === null ?' id="idEnviar" ' : 'disabled="true"'} ">`;
-                            tipoBotonAClose= `</button>`;
+                            if(row[4] === false || row[4] === null){
+                                tipoBotonAOpen = `<button type="button" onClick="enviarDirector('${row[1]}')" class="btn btn-outline-${ row[4] === false || row[4] === null ? 'info' : 'secondary'}" title="Enviar al  Director"  ${ row[4] === false || row[4] === null ?' id="idEnviar" ' : 'disabled="true"'} ">`;
+                                tipoBotonAClose= `</button>`;
+                            }else{
+                                tipoBotonAOpen = `<button type="button" class="btn btn-outline-${ row[4] === false || row[4] === null ? 'info' : 'secondary'}" title="Enviar al  Director"  ${ row[4] === false || row[4] === null ?' id="idEnviar" ' : 'disabled="true"'} ">`;
+                                tipoBotonAClose= `</button>`;
+                            }
                         }
                         btn = `
                             <div class="row" >
@@ -214,13 +223,13 @@ function enviarDirector(datos){
 function guardarAprobacion(data){
     let estado = $('#guardarSolicitud'+data)[0].checked ? true : '';
     if(estado){
-        alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Aprobar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
+        subirDocumento(data);
+        // alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Aprobar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
     }else{
         alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Rechazar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
     }
 }
 function guardarListaVerificacion(data){
-    console.log('Ingresó');
     let estado = $('#guardarSolicitud'+data)[0].checked ? true : '';
     if(estado){
         alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Aprobar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
@@ -232,7 +241,7 @@ function guardarAvances(id){
     let observacion = $('#idObservacion'+id).val();
     let porcentaje = $('#idPorcentaje'+id).val();
     if(porcentaje < 0 || porcentaje > 100 || porcentaje == ''){
-        alertasInformativas('Alerta', 'orange', 'btn-warning', 'El porcentaje debe estar entre 1 y 100', 'Aceptar', 'fa fa-warning')
+        alertasInformativas('Alerta', 'orange', 'btn-warning', 'El porcentaje debe estar entre 1 y 100', 'Aceptar', 'fa fa-warning');
         return;
     }
     let data = {
@@ -261,7 +270,7 @@ function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data, icon) {
                         $.ajax({
                             url: '',
                             method: 'POST',
-                            data: {id: data, estado : estado},
+                            data: {id: data, estado : estado, idProyecto : data},
                             headers: {
                                 'X-CSRFToken': csrftoken
                             }
@@ -302,7 +311,6 @@ function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data, icon) {
                             },
                             data: data,
                         }).done((req) => {
-                            console.log('Valor de req: ');
                             $.alert(req[0].info)
                             self.autoClose = 'OK|9000';
                         });
@@ -338,7 +346,7 @@ function alertas(titulo, tipo, btnClass, mensaje, boton, funcion, data, icon) {
             },
             Cancelar: function () {
                 if(funcion === 'reload'){location.reload();}
-                if(funcion === 'solicitud'){$('#guardarSolicitud'+data)[0].checked = !$('#guardarSolicitud'+data)[0].checked;}
+                if(funcion === 'solicitud'){desmarcarSolicitud()}
             }
         },
         cancelar: function () {
@@ -364,4 +372,41 @@ function alertasInformativas(titulo, tipo, btnClass, mensaje, boton, icon) {
         cancelar: function () {
         },
     });
+    desmarcarSolicitud();
 }
+
+function subirDocumento(data){
+    dataDocumentoFirma = data;
+    $('#id').val(data);
+    modalAprobacionSolicitud = new bootstrap.Modal(document.getElementById('aprobacionSolicitud'), {
+        keyboard: false
+      });
+      modalAprobacionSolicitud.show(); 
+}
+$('#cancelarSolicitud').on('click', ()=>{
+        desmarcarSolicitud();
+    });
+
+function desmarcarSolicitud(){
+    if(dataDocumentoFirma){
+        $('#guardarSolicitud'+dataDocumentoFirma)[0].checked = !$('#guardarSolicitud'+dataDocumentoFirma)[0].checked;
+        dataDocumentoFirma = null;
+    }
+
+    modalAprobacionSolicitud.hide();
+    $('#id_archivo').val('');
+}
+
+$('#aceptarSolicitud').on('click', ()=>{
+    let documento = $('#id_archivo').val();
+    if(!!documento){
+        alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Aprobar esta solicitud?', 'Aceptar', 'solicitud', dataDocumentoFirma, 'fa fa-warning')
+    }else{
+        modalAprobacionSolicitud.hide();
+        alertasInformativas('Alerta', 'orange', 'btn-warning', 'Seleccione el archivo firmado para continuar', 'Aceptar', 'fa fa-warning');
+    }
+});
+
+modalAprobacionSolicitud.addEventListener('hidden.bs.modal', function (event) {
+    desmarcarSolicitud();
+})
