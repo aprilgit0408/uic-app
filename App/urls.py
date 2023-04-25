@@ -8,7 +8,7 @@ from App.Modules.Reportes.view import getReportes
 from App.Modules.Tribunal.view import addTribunal, deleteTribunal, editTribunal, listarTribunal
 from App.Modules.Tutorias.view import addTutorias, deleteTutorias, editTutorias, listarTutorias
 from App.Modules.Verificacion.view import guardarListaVerificacion, listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
-from App.Modules.Proyectos.view import addDocente, addEstudiantes, listarDocentes, listarEstudiantes, listarProyectos, addProyectos, editProyectos, deleteProyectos
+from App.Modules.Proyectos.view import addDocente, addEstudiantes, generarPDFProyecto, listarDocentes, listarEstudiantes, listarProyectos, addProyectos, editProyectos, deleteProyectos
 
 from App.views import Index, PerfilUsuario, editProfilePasswords
 app_name = 'app'
@@ -38,6 +38,7 @@ urlpatterns = [
     path('app/proyectos/add',  addProyectos.as_view(), name='addProyectos'),
     path('app/proyectos/edit/<int:pk>',  editProyectos.as_view(), name='editProyectos'),
     path('app/proyectos/delete/<int:pk>',  deleteProyectos.as_view(), name='deleteProyectos'),
+    path('app/proyectos/pdf',  generarPDFProyecto.as_view(), name='gererarPDFTEST'),
 
     # Serivicio Para los Avances
     path('app/avances/',  listarAvances.as_view(), name='avances'),

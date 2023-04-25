@@ -16,6 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from Usuarios.models import SeguimientoDocumentacion, Usuarios, Documento
 from uicApp import settings
+from App.funciones import funcionGenerarPDF
 modelo = Documento
 formulario = formularioDocumentos
 formularioFirmaEst = formularioFirma
@@ -83,7 +84,8 @@ class listarDocumentos(LoginRequiredMixin, UpdateView):
                             'file',
                             estadoPantalla,
                             documentacion.archivo.url[-5:].split('.')[1],
-                            documentacion.archivo.url if getEstadoActual != 'Aprobado' else estado[0].archivo.url
+                            documentacion.archivo.url if getEstadoActual != 'Aprobado' else estado[0].archivo.url,
+                            documentacion.pk
                         ])
                         valorAnterior = habilitar[0].estado if habilitar else False
                 cont +=1
@@ -146,6 +148,7 @@ class GuardarDocumento(LoginRequiredMixin, View):
         try:
             idDocumeto = Documento.objects.get(pk = self.kwargs['pk'])
             nombreArchivo = idDocumeto.nombre
+            templateID = idDocumeto.pk
             ruta = f'media/documentacionEstudiante/{request.user.getInformacion()}-{nombreArchivo}.pdf'
             result_file = open(ruta, "w+b")
             usuario = Usuarios.objects.get(pk = request.user.pk)
@@ -156,18 +159,18 @@ class GuardarDocumento(LoginRequiredMixin, View):
                 'imagenCentro' : f'{settings.STATIC_URL}images/imagenCentro.jpg',
                 'piePagina' : f'{settings.STATIC_URL}images/piePagina.jpg'
             }
-            template = get_template(f'{entidad}/{nombreArchivo}.html')
+            template = get_template(f'{entidad}/{templateID}.html')
             html = template.render(data)
             css_url = os.path.join(settings.BASE_DIR, 'static/css/bootstrap.min.css')
             HTML(string=html, base_url='').write_pdf(result_file, stylesheets=[CSS(css_url)])
-            getRegistro = SeguimientoDocumentacion.objects.filter(idDocumento = nombreArchivo, idUsuario = request.user)
+            getRegistro = SeguimientoDocumentacion.objects.filter(idDocumento = idDocumeto.pk, idUsuario = request.user)
             if not getRegistro.exists():
                 try:
                     path = Path(ruta)
                     with path.open(mode='rb') as f:
                         archivoCargado= File(f, name=path.name)
                         doc = SeguimientoDocumentacion.objects.create(idDocumento = idDocumeto,idUsuario =  request.user, archivo = archivoCargado)
-                        doc.save()
+                        doc.save() 
                 except Exception as e:
                     print('Error al guardar el archivo generado ln-202: ', e)
             else:
@@ -188,23 +191,10 @@ class GuardarDocumento(LoginRequiredMixin, View):
 class generarPDF(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         try:
-            nombreArchivo = Documento.objects.get(pk = self.kwargs['pk']).nombre
-            ruta = f'media/documentacionEstudiante/{request.user.getInformacion()}-{nombreArchivo}.pdf'
-            result_file = open(ruta, "w+b")
-            usuario = Usuarios.objects.get(pk = request.user.pk)
-            data = {
-                'usuario': usuario,
-                'fecha': datetime.datetime.now().date(),
-                'encabezado' : f'{settings.STATIC_URL}images/encabezado.jpg',
-                'imagenCentro' : f'{settings.STATIC_URL}images/imagenCentro.jpg',
-                'piePagina' : f'{settings.STATIC_URL}images/piePagina.jpg'
-            }
-            template = get_template(f'{entidad}/{nombreArchivo}.html')
-            html = template.render(data)
-            css_url = os.path.join(settings.BASE_DIR, 'static/css/bootstrap.min.css')
-            pdf = HTML(string=html, base_url='').write_pdf(stylesheets=[CSS(css_url)])
-            result_file.close()
-            return HttpResponse(pdf, content_type='application/pdf')
+            documento = Documento.objects.get(pk = self.kwargs['pk'])
+            nombreArchivo = documento.nombre
+            templateArchivo = documento.id
+            return funcionGenerarPDF(nombreArchivo, templateArchivo, request, url, "")
         except Exception as e:
             print('Error ln-210: ', e)
             return redirect(url)

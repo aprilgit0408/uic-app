@@ -3,10 +3,12 @@ from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioDocentes, formularioProyectos, formularioUsuarios
 from App.models import Proyecto
-from Usuarios.models import Usuarios
+from Usuarios.models import Constantes, Usuarios
 from django.http.response import JsonResponse
-
+from App.funciones import funcionGenerarPDF
 from django.urls import reverse_lazy
+from django.template.loader import render_to_string
+
 modelo = Proyecto
 formulario = formularioProyectos
 entidad = 'Proyectos'
@@ -72,7 +74,35 @@ class addProyectos(LoginRequiredMixin, CreateView):
     form_class = formulario
     template_name = main
     success_url = url
+    def generarPDFTutor(self, docenteTutor, idsEstudiantes, nombreProyecto, carrera) :
+        def sendMailHilos(estudiante):
+            idSecuencial = Constantes.objects.get(nombre = 'SEC_MEM')
+            data = {
+                'tutor': docenteTutor.getInformacion(),
+                'nombreEstudiante': estudiante.getInformacion(),
+                'cedulaEstudiante': estudiante.username,
+                'secuencial':idSecuencial.valor,
+                'nombreCarrera': carrera
+            }
+            content = ""
+            sendMail = {}
+            sendMail['asunto'] = f'Asignación de tutor del proyecto "{nombreProyecto}"'
+            sendMail['destinatarios'] = f'{docenteTutor.email},{estudiante.email}'
+            sendMail['content'] = content
+            funcionGenerarPDF("Asignación de Tutor", "Anexo_7", self.request, "", data, sendMail)
+            idSecuencial.valor = str(int(idSecuencial.valor) + 1)
+            idSecuencial.save()
+        for estudiante in idsEstudiantes.all():
+            sendMailHilos(estudiante)
     def post(self, request, *args, **kwargs):
+        form = formulario(request.POST)
+        if form.is_valid():
+            nombreProyecto = form.cleaned_data['nombre']
+            idDocente = form.cleaned_data['idDocente']
+            idEstudiantes = form.cleaned_data['idEstudiantes']
+            idCarrera = form.cleaned_data['idCarrera']
+            docenteTutor = Usuarios.objects.get(pk = idDocente)
+            self.generarPDFTutor(docenteTutor, idEstudiantes, nombreProyecto, idCarrera.nombre)
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -220,3 +250,22 @@ class addEstudiantes(LoginRequiredMixin, CreateView):
         context['accion'] = f'Añadir Estudiante'
         context['title'] = f'Docentes'
         return context
+class generarPDFProyecto(ListView):
+    def get(self, request, *args, **kwargs) :
+        data = {
+            'tutor': 'Erick Patricio Josa Narvaez',
+            'nombreEstudiante': 'Maribel Alejandra Guzman Torres',
+            'cedulaEstudiante': '0401645221',
+        }
+        content = render_to_string('email.html',
+                                       {'titulo': 'Avances', 
+                                       'docente': request.user.getInformacion(), 
+                                       'tema': 'Asignación de tutor', 
+                                       'proyecto':'Test 1', 
+                                       })
+        sendMail = {}
+        sendMail['asunto'] = 'Asignacion de tutor'
+        sendMail['destinatarios'] = 'josa.ruth145@gmail.com'
+        sendMail['content'] = content
+        return funcionGenerarPDF("Asignación Tutor", "Anexo_7", request, "", data, sendMail)
+        return super().get(request, *args, **kwargs)

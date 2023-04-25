@@ -1,0 +1,104 @@
+<html>
+<head>
+  <style>
+   @page {
+    size: A4; /* Change from the default size of A4 */
+    margin: 0mm;
+    }
+    p{
+      font-family: 'Century Gothic', sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14px;
+        /* font-family: 'Century Gothic, CenturyGothic, AppleGothic, sans-serif'; */
+    }
+    spam {
+      font-family: 'Century Gothic', sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14.5px;
+        /* font-family: 'Century Gothic, CenturyGothic, AppleGothic, sans-serif'; */
+    }
+    .titulos{
+      font-family: 'Century Gothic', sans-serif;
+      line-height: 12pt;
+    }
+    .container{
+        margin-left: 40px;
+        margin-right: 25px;
+        width: 88%;
+    }
+    .pagina {
+      margin-left: 0px;
+      margin-right: 0px;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+    
+    .piePagina{
+      margin-left: -75px;
+      margin-top: 40pt;
+      display: inline-block;
+      padding-top: 0px;
+      padding-bottom: 0px;
+      margin-bottom: 0;
+     
+    }
+    .pagina{
+      margin: 2cm;
+    }
+      
+
+  </style>
+  <title>{{nombreDocumento}}</title>
+  <head>
+<!-- ANEXO 7_DESIGNACIÓN  DE TUTOR O MENTOR -->
+  <body>
+    <div class="pagina">
+        
+        <div>
+          <img src=".{{encabezado}}" alt="" style="width: 800px; height: 110px; margin-left: -68px; margin-top: -48px;z-index: 0;" />
+          <!-- <img src=".{{piePagina}}" alt="" style="width: 915px; height: 75px;" /> -->
+        </div>
+
+        
+        <div class="container">
+          <!-- Encabezado -->
+          <p style="text-align:right; margin-top: 34px; " class="titulos"><b>Memorando N° {{datosAdicionales.secuencial}}</b></p>
+
+          <p style="text-align:right; margin-top: 5px; " class="titulos" > Tulcán, {{fecha}} </p>
+            <br>
+            <p>
+              <b>Para:</b>
+              {{datosAdicionales.tutor}}  <br>
+              <label for="" style="margin-left: 40px;" >Tutor</label>
+            </p>
+            <p>
+              <b>Asunto:</b>
+              Designación de Tutor del Trabajo de Integración Curricular con enfoque en Investigación
+            </p>
+            <p>De mi consideración:</p>
+            <div style="text-align: justify; background: url('.{{imagenCentro}}'); background-size: 100% 85%; background-repeat: no-repeat; " >
+              <p>El presente tiene como finalidad darle a conocer que la Unidad de Integración Curricular de la Carrera de {{datosAdicionales.nombreCarrera}} en función del Reglamento de la Unidad de Integración Curricular, Titulación, e Incorporación de la UPEC, <b>Resolución N° 141-CSUP-2020</b>, Título II del Trabajo de Integración Curricular, Artículo 23; ha sido designado como Tutor del estudiante {{datosAdicionales.nombreEstudiante}} con número de cédula. {{datosAdicionales.cedulaEstudiante}}, para tutorías y/o acompañamientos en la realización del Trabajo de Integración Curricular con enfoque en Investigación con las directrices y lineamientos estipulados en el Artículo 28 del Reglamento en mención.</p>
+              <br>
+              <p>Particular que pongo en su conocimiento, para los fines académicos pertinentes.</p><br><br>
+              <p>Atentamente:</p>
+
+              <center style="margin-top: 133px;" ><p> {{usuario.idCarrera.abreviatura}} {{usuario.getInformacion}}</p></center>
+              <p style="text-align: center;"> <b> {% if usuario.idCarrera.genero == 'Señor' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera | upper}}  </b> </p><br>
+              {% if usuario.firma %}
+                <div id="firma">
+                  <img src=".{{usuario.firma.url}}" alt="" style="width: 150px; height: 100px; text-align: center; margin-left: 37%;  margin-top: -300px;" />
+                </div>
+                <p style="margin-bottom: -31px;" >CC: <b>ESTUDIANTE</b> {{datosAdicionales.nombreEstudiante}}</p>
+              {% else %}
+                <p style="margin-bottom: -10px;" >CC: <b>ESTUDIANTE</b> {{datosAdicionales.nombreEstudiante}}</p>
+              {% endif %}
+            </div>
+        </div>
+        <div class="piePagina">
+          <img src=".{{piePagina}}" style="width: 800px; height: 75px;" />
+        </div>
+    </div>
+  </body>
+</html>

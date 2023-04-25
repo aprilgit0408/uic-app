@@ -16,7 +16,7 @@
                         {% endfor %}
                         
                         {% if request.user.perfil.nombre == 'Admin' and title == 'Proyectos' %}
-                            <th class="header" scope="col" >DOCENTE</th>
+                            <th class="header" scope="col" >TUTOR</th>
                         {% endif %}
                         
                         {% if title == 'Proyectos' and request.user.perfil.nombre != 'Estudiante' %}

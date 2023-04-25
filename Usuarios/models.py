@@ -111,6 +111,12 @@ class Usuarios(AbstractUser):
         ('Trabajo de Integración Curricular','Trabajo de Integración Curricular'),
         ('Examen con Carácter Complexivo','Examen con Carácter Complexivo')
     ]
+    abreviaturas = [
+        ('MSc.','MSc.'),
+        ('Mg.','Mg.'),
+        ('Mtr.','Mtr.'),
+        ('PhD.','PhD.')
+    ]
      
     imagen = models.ImageField(verbose_name='Imagen', upload_to='users', null = True, blank = True)
     perfil = models.ForeignKey(Perfiles, verbose_name='Perfil', default = 3, on_delete=CASCADE, null=True, blank=True)
@@ -120,6 +126,7 @@ class Usuarios(AbstractUser):
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE, null=True, blank=True)
     token = models.CharField(max_length=36, blank=True, null=True, editable=False)
     firma = models.ImageField(verbose_name='Firma', upload_to='usuario/firma', null = True, blank = True)
+    abreviatura = models.CharField(choices=abreviaturas, max_length=8, verbose_name='Abreviatura', default='MSc.')
     def getImagen(self):
         if self.imagen:
             return '{}{}'.format(MEDIA_URL, self.imagen)
@@ -127,7 +134,12 @@ class Usuarios(AbstractUser):
     def __str__(self):
         return '{} {} [{}]'.format(self.first_name, self.last_name, self.username)
     def getInformacion(self):
-        return '{} {}'.format(self.first_name, self.last_name)
+        if(self.perfil.id == 3):
+            return '{} {}'.format(self.first_name, self.last_name)
+        else:
+            return '{} {} {}'.format(self.abreviatura, self.first_name, self.last_name)
+
+            
     def getAlias(self):
         return '{}. {}.'.format(self.first_name, self.last_name[0] if self.last_name else self.pk)
     # def getGrupo(self):
@@ -186,7 +198,7 @@ class Usuarios(AbstractUser):
 #         return super(self.__class__, self).save(*args, **kwargs) 
 
 class Documento(datosAuditoria):
-    nombre = models.CharField(max_length=200, verbose_name='Nombre del Documento', primary_key=True)
+    nombre = models.CharField(max_length=200, verbose_name='Nombre del Documento')
     archivo = models.FileField(verbose_name='Archivo', upload_to='formatoDocumentos')
     idPerfiles = models.ManyToManyField(Perfiles, verbose_name='Disponible para', blank = True) 
     def __str__(self):

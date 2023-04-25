@@ -2,10 +2,21 @@ from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from Usuarios.models import Constantes, Usuarios
+from uicApp import settings
+from weasyprint import HTML, CSS
+from django.template.loader import get_template
+from django.http.response import HttpResponse
+from django.shortcuts import redirect
+from email.mime.base import MIMEBase
+from email.message import EmailMessage
+from email import encoders
+from os import remove
+import os
 import uuid
+import datetime
 import threading
 
-def send_mail(asunto, destinatarios, content):
+def send_mail(asunto, destinatarios, content, archivo = None):
         def sendMailHilos():
             '''
             content = render_to_string('Login/email.html',
@@ -14,7 +25,11 @@ def send_mail(asunto, destinatarios, content):
             print('Inicio de envío mail a los siguientes destinatarios: ', destinatarios)
             try:
                 USER_MAIL = getConstante('USER_MAIL')
-                mensaje = MIMEMultipart()
+                mensaje = None
+                if(archivo):
+                    mensaje = EmailMessage()
+                else:
+                    mensaje = MIMEMultipart()
                 mensaje['From'] = USER_MAIL
                 mensaje['To'] = destinatarios
                 mensaje['Subject'] = asunto
@@ -23,11 +38,22 @@ def send_mail(asunto, destinatarios, content):
                 mailServer.starttls()
                 mailServer.login(USER_MAIL, getConstante('USER_PASS'))
                 mensaje.attach(MIMEText(content, 'html'))
+                if(archivo):
+                    with open(archivo['ruta'], "rb") as f:
+                        mensaje.add_attachment(
+                        f.read(),
+                        filename=archivo['nombreArchivo'],
+                        maintype="application",
+                        subtype="pdf"
+                    )
+                
                 mailServer.sendmail(USER_MAIL, destinatarios.split(','), mensaje.as_string())
                 print('Mails enviados a: ', destinatarios)
                 mailServer.quit()
+                if(archivo):
+                    remove(archivo['ruta'])
             except Exception as e:
-                print('Error Email l-30', e)
+                print('Error Email l-56', e)
             return True
         hilo = threading.Thread(name='Send Mail', target=sendMailHilos)
         hilo.start()
@@ -75,3 +101,51 @@ def getMeses(mes):
     meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
                         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
     return meses[mes]
+
+'''
+Recibe parametrod de
+nombreArchivo, nombreTemplateArchivo, request, urlRetorno
+y retorna la respuerta http
+'''
+def funcionGenerarPDF(nombreArchivo, nombreTemplateArchivo, request, urlRetorno, datosAdicionales, enviarMail = None):
+    response = None
+    try:
+        ruta = f'media/documentacionEstudiante/{request.user.getInformacion()}-{nombreArchivo}.pdf'
+        result_file = open(ruta, "w+b")
+        usuario = Usuarios.objects.get(pk = request.user.pk)
+        data = {
+            'usuario': usuario,
+            'datosAdicionales': datosAdicionales,
+            'nombreDocumento': nombreArchivo,
+            'fecha': datetime.datetime.now().date(),
+            'encabezado' : f'{settings.STATIC_URL}images/encabezado.jpg',
+            'imagenCentro' : f'{settings.STATIC_URL}images/imagenCentro.jpg',
+            'piePagina' : f'{settings.STATIC_URL}images/piePagina.jpg'
+        }
+        template = get_template(f'Documentos/{nombreTemplateArchivo}.html')
+        html = template.render(data)
+        css_url = os.path.join(settings.BASE_DIR, 'static/css/bootstrap.min.css')
+        pdf = HTML(string=html, base_url='').write_pdf(stylesheets=[CSS(css_url)])
+        rutaPDF =  os.path.join(settings.BASE_DIR, 'media/documentacion') 
+        if os.path.exists(rutaPDF):
+            idArchivo = str(uuid.uuid4())
+            nombreArchivoPDF = f'{idArchivo}.pdf'
+            f = open(os.path.join(rutaPDF, nombreArchivoPDF), 'wb')
+            f.write(pdf)
+            f.close()
+            if(enviarMail):
+                archivo = {}
+                archivo['nombreArchivo'] = f'{nombreArchivo}.pdf'
+                archivo['ruta'] = f'{rutaPDF}/{nombreArchivoPDF}'
+                send_mail(enviarMail['asunto'], enviarMail['destinatarios'], enviarMail['content'], archivo)
+        result_file.close()
+        response = HttpResponse(pdf, content_type='application/pdf')
+    except Exception as e:
+        print('Error al generar PDF ln-141: ', e)
+        response = redirect(urlRetorno)
+    return response
+
+def funcionGuardarPDF(pdf,ruta, nombreArchivo):
+    if os.path.exists(ruta):
+        f = open(os.path.join(ruta, f'{nombreArchivo}.pdf'), 'wb')
+        f.write(pdf)

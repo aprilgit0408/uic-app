@@ -27,9 +27,6 @@ class datosAuditoria(models.Model):
             self.usuarioModificacion = request.pk
         return self
     
-
-
-
 class Proyecto(datosAuditoria):
     usuarios = []
     try:
@@ -42,7 +39,7 @@ class Proyecto(datosAuditoria):
         pass
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE)
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Proyecto')
-    idDocente = models.PositiveIntegerField(choices=usuarios, verbose_name='Docente')
+    idDocente = models.PositiveIntegerField(choices=usuarios, verbose_name='Docente Tutor del Proyecto')
     idEstudiantes = models.ManyToManyField(Usuarios, verbose_name='Listado de Estudiantes')
     defensa = models.BooleanField(default = False, verbose_name = 'Proyecto listo para pre/defensa')
     def __str__(self) -> str:
