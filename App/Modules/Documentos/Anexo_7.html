@@ -84,7 +84,7 @@
               <p>Particular que pongo en su conocimiento, para los fines académicos pertinentes.</p><br><br>
               <p>Atentamente:</p>
 
-              <center style="margin-top: 133px;" ><p> {{usuario.idCarrera.abreviatura}} {{usuario.getInformacion}}</p></center>
+              <center style="margin-top: 133px;" ><p>{{usuario.getInformacion}}</p></center>
               <p style="text-align: center;"> <b> {% if usuario.idCarrera.genero == 'Señor' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera | upper}}  </b> </p><br>
               {% if usuario.firma %}
                 <div id="firma">
