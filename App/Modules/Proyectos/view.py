@@ -2,12 +2,13 @@ from django.views.generic import CreateView, ListView
 from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioDocentes, formularioProyectos, formularioUsuarios
-from App.models import Proyecto
+from App.models import Proyecto, Tribunal
 from Usuarios.models import Constantes, Usuarios
 from django.http.response import JsonResponse
 from App.funciones import funcionGenerarPDF
 from django.urls import reverse_lazy
 from django.template.loader import render_to_string
+import datetime
 
 modelo = Proyecto
 formulario = formularioProyectos
@@ -84,12 +85,17 @@ class addProyectos(LoginRequiredMixin, CreateView):
                 'secuencial':idSecuencial.valor,
                 'nombreCarrera': carrera
             }
-            content = ""
+            content = render_to_string('email.html',
+                                       {'titulo': 'Asignación de Tutor', 
+                                       'docente': self.request.user.getInformacion(), 
+                                       'tema': ' generado un documento donde se ha seleccionado el tutor', 
+                                       'proyecto':nombreProyecto,  
+                                       })
             sendMail = {}
             sendMail['asunto'] = f'Asignación de tutor del proyecto "{nombreProyecto}"'
             sendMail['destinatarios'] = f'{docenteTutor.email},{estudiante.email}'
             sendMail['content'] = content
-            funcionGenerarPDF("Asignación de Tutor", "Anexo_7", self.request, "", data, sendMail)
+            funcionGenerarPDF("ASIGNACION_TUTOR", "Anexo_7", self.request, "", data, sendMail)
             idSecuencial.valor = str(int(idSecuencial.valor) + 1)
             idSecuencial.save()
         for estudiante in idsEstudiantes.all():
@@ -252,20 +258,25 @@ class addEstudiantes(LoginRequiredMixin, CreateView):
         return context
 class generarPDFProyecto(ListView):
     def get(self, request, *args, **kwargs) :
+        
         data = {
             'tutor': 'Erick Patricio Josa Narvaez',
             'nombreEstudiante': 'Maribel Alejandra Guzman Torres',
             'cedulaEstudiante': '0401645221',
+            'year': datetime.datetime.now().year,
+            'secuencial': 1015,
+            'tribunal': Tribunal.objects.get(pk = 2)
         }
         content = render_to_string('email.html',
                                        {'titulo': 'Avances', 
                                        'docente': request.user.getInformacion(), 
-                                       'tema': 'Asignación de tutor', 
-                                       'proyecto':'Test 1', 
+                                       'tema': ' generado un documento donde se ha seleccionado el tutor', 
+                                       'proyecto':'Hola mundo buen día',  
                                        })
+        
         sendMail = {}
         sendMail['asunto'] = 'Asignacion de tutor'
-        sendMail['destinatarios'] = 'josa.ruth145@gmail.com'
+        sendMail['destinatarios'] = 'josaerick@gmail.com'
         sendMail['content'] = content
-        return funcionGenerarPDF("Asignación Tutor", "Anexo_7", request, "", data, sendMail)
+        return funcionGenerarPDF("ASIGNACION_Tutor", "Anexo_15", request, "", data, sendMail)
         return super().get(request, *args, **kwargs)

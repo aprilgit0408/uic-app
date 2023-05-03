@@ -12,7 +12,7 @@ from backports.zoneinfo import ZoneInfo
 from django.utils.dateparse import parse_datetime
 from Usuarios.models import Constantes, Usuarios
 from uicApp.settings import TIME_ZONE
-from App.funciones import getDate, send_mail
+from App.funciones import getDate, send_mail, funcionGenerarPDF
 modelo = Tribunal
 formulario = formularioTribunal
 entidad = 'Tribunal'
@@ -72,7 +72,6 @@ class addTribunal(LoginRequiredMixin, ListView):
         
         try:
             idProyecto = request.POST['idProyecto']
-            print('Valor de idProyecto: ', idProyecto)
             idDocentesPrincipales = request.POST['idDocentesPrincipales']
             idDocentesSuplentes = request.POST['idDocentesSuplentes']
             idAula = request.POST['idAula']
@@ -95,6 +94,15 @@ class addTribunal(LoginRequiredMixin, ListView):
             mailDocentesPrincipales = tribunal.getMailDocPrincipales()
             mailDocentesSuplentes = tribunal.getMailDocSuplentes()
             mailEstudianteTribunal = proyecto.getMailEstudiantes()
+            idSecuencial = Constantes.objects.get(nombre = 'SEC_MEM')
+            datosAdicionales = {
+                        'year': datetime.now().year,
+                        'secuencial': idSecuencial.valor,
+                        'tribunal': tribunal
+                    }
+            sendMail = {}
+            sendMail['asunto'] = 'Asignacion del tribunal de defensa'
+            sendMail['destinatarios'] = mailDocentesPrincipales
             content = render_to_string('email.html',
                                        {'titulo': 'Asignación de Tribunal de Defensa de Proyectos', 
                                        'tema': 'sido asignado como uno de los docentes principales', 
@@ -103,7 +111,8 @@ class addTribunal(LoginRequiredMixin, ListView):
                                        'fechaDefensa' : getDate(tribunal.fechaDefensa),
                                        'aula' : tribunal.aula
                                        })
-            send_mail('Asignación de Tribunal', mailDocentesPrincipales, content)
+            sendMail['content'] = content
+            funcionGenerarPDF("ASIGNACION_TRIBUNAL", "Anexo_15", request, "", datosAdicionales, sendMail)
 
             content = render_to_string('email.html',
                                        {'titulo': 'Asignación de Tribunal de Defensa de Proyectos', 
@@ -113,7 +122,9 @@ class addTribunal(LoginRequiredMixin, ListView):
                                        'fechaDefensa' : getDate(tribunal.fechaDefensa),
                                        'aula' : tribunal.aula
                                        })
-            send_mail('Asignación de Tribunal', mailDocentesSuplentes, content)
+            sendMail['destinatarios'] = mailDocentesSuplentes
+            sendMail['content'] = content
+            funcionGenerarPDF("ASIGNACION_TRIBUNAL", "Anexo_15", request, "", datosAdicionales, sendMail)
             
             content = render_to_string('email.html',
                                        {'titulo': 'Asignación de Tribunal de Defensa de Proyectos', 
@@ -123,9 +134,11 @@ class addTribunal(LoginRequiredMixin, ListView):
                                        'fechaDefensa' : getDate(tribunal.fechaDefensa),
                                        'aula' : tribunal.aula
                                        })
-            send_mail('Asignación de Tribunal', mailEstudianteTribunal, content)
-
-
+            sendMail['content'] = content
+            sendMail['destinatarios'] = mailEstudianteTribunal
+            funcionGenerarPDF("ASIGNACION_TRIBUNAL", "Anexo_15", request, "", datosAdicionales, sendMail)
+            idSecuencial.valor = str(int(idSecuencial.valor) + 1)
+            idSecuencial.save()
         except Exception as e:
             print('Sin valores a agregar: ', e)
         

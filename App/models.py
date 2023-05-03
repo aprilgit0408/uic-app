@@ -51,6 +51,12 @@ class Proyecto(datosAuditoria):
             ul += f'<li title="{estudiante}"> {estudiante.getAlias()} </li>'
         ul = f'<ul>{ul}</ul>'
         return ul
+    def getEstudiantesCompleto(self):
+        ul = ''
+        for estudiante in self.idEstudiantes.all():
+            ul += f'<li title="{estudiante}"> {estudiante.getNombreCompleto()} </li>'
+        ul = f'<ul>{ul}</ul>'
+        return ul
     def getMailEstudiantes(self):
         mail = []
         for estudiante in self.idEstudiantes.all():
@@ -149,6 +155,22 @@ class Tribunal(datosAuditoria):
             cont += 1
         ul = f'<ul>{ul}</ul>'
         return ul
+    def getDocentesPrincipalesPDF(self):
+        cargos = ['Presidente', 'Tutor', 'Docente']
+        cont = 0
+        data = []
+        for doc in self.docentesPrincipales.all():
+            data.append({'docente': doc.getInformacion(), 'cargo': cargos[cont]})
+            cont += 1
+        return data
+    def getDocentesAlternosPDF(self):
+        cargos = ['Presidente', 'Tutor', 'Docente']
+        cont = 0
+        data = []
+        for doc in self.docentesSuplentes.docentesSuplentes.all():
+            data.append({'docente': doc.getInformacion(), 'cargo': cargos[cont]})
+            cont += 1
+        return data
     def getMailDocPrincipales(self):
         mail = []
         for doc in self.docentesPrincipales.all():

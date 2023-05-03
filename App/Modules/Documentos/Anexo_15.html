@@ -1,0 +1,172 @@
+<html>
+<head>
+  <style>
+   @page {
+    size: A4; /* Change from the default size of A4 */
+    margin: 0mm;
+    }
+    p{
+      font-family: 'Century Gothic', sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14px;
+        /* font-family: 'Century Gothic, CenturyGothic, AppleGothic, sans-serif'; */
+    }
+    spam {
+      font-family: 'Century Gothic', sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14.5px;
+        /* font-family: 'Century Gothic, CenturyGothic, AppleGothic, sans-serif'; */
+    }
+    .titulos{
+      font-family: 'Century Gothic', sans-serif;
+      line-height: 12pt;
+    }
+    .container{
+        margin-left: 40px;
+        margin-right: 25px;
+        width: 88%;
+    }
+    .pagina {
+      margin-left: 0px;
+      margin-right: 0px;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+    
+    .piePagina{
+      margin-left: -75px;
+      /* margin-top: -100pt; */
+      display: inline-block;
+      padding-top: 0px;
+      padding-bottom: 0px;
+      margin-bottom: 0;
+     
+    }
+    .pagina{
+      margin: 2cm;
+    }
+    
+    td, th {
+      font-family: 'Century Gothic', sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14px;
+      border: black 1px solid;
+      text-align: center;
+    }
+    .negrita{
+      font-weight: bold;
+    }
+    
+
+  </style>
+  <title>{{nombreDocumento}}</title>
+  <head>
+<!-- ANEXO 7_DESIGNACIÓN  DE TUTOR O MENTOR -->
+  <body>
+    <div class="pagina">
+        
+        <div>
+          <img src=".{{encabezado}}" alt="" style="width: 800px; height: 110px; margin-left: -68px; margin-top: -48px;z-index: 0;" />
+          <!-- <img src=".{{piePagina}}" alt="" style="width: 915px; height: 75px;" /> -->
+        </div>
+
+        
+        <div class="container">
+          <!-- Encabezado -->
+          <p style="text-align:right; margin-top: 34px; " class="titulos"><b>Memorando N° UPEC-{{datosAdicionales.secuencial}}-{{datosAdicionales.year}}</b></p>
+
+          <p style="text-align:right; margin-top: -10px; " class="titulos" > Tulcán, {{fecha}} </p>
+            <p>
+              <b>Para:</b>
+              {{datosAdicionales.tribunal.getDocentesPrincipalesPDF.0.docente}}  <br>
+              <label for="" style="margin-left: 40px;" >{{datosAdicionales.tribunal.getDocentesPrincipalesPDF.0.cargo}}</label><br>
+              <label for="" style="margin-left: 40px;" >{{datosAdicionales.tribunal.getDocentesPrincipalesPDF.1.docente}}</label><br>
+              <label for="" style="margin-left: 40px;" >{{datosAdicionales.tribunal.getDocentesPrincipalesPDF.1.cargo}}</label><br>
+              <label for="" style="margin-left: 40px;" >{{datosAdicionales.tribunal.getDocentesPrincipalesPDF.2.docente}}</label><br>
+              <label for="" style="margin-left: 40px;" >{{datosAdicionales.tribunal.getDocentesPrincipalesPDF.2.cargo}}</label>
+            </p>
+            <p>
+              <b>Asunto:</b>
+              Tribunal de la predefensa del Trabajo de Integración Curricular
+            </p>
+            <p>De mis consideraciones:</p>
+            <div style="text-align: justify; background: url('.{{imagenCentro}}'); background-size: 100% 85%; background-repeat: no-repeat; " >
+              <p>Dando cumplimiento al Art. 33 del Reglamento de la Unidad de Integración Curricular, Titulación e Incorporación de la UPEC, se ha designado el día <b>{{datosAdicionales.tribunal.fechaDefensa}}</b> en el aula <b>{{datosAdicionales.tribunal.aula}}</b> para la presentación de la predefensa del Informe del Trabajo de Integración Curricular con enfoque en Investigación  de acuerdo con el siguiente cuadro:</p>
+            
+              <div >
+                <table cellspacing="0" cellpadding="0" style="width: 84ch; margin-left: -83px;" >
+                  <tr>
+                    <th colspan="4" scope="rowgroup" style="text-align: center; background-color: rgb(237,237,237); " class="negrita" >CARRERA DE {{datosAdicionales.tribunal.idProyecto.idCarrera | upper}}</th>
+                  </tr>
+                  <tr>
+                    <th class="negrita">NOMBRE</th>
+                    <th class="negrita">TEMA</th>
+                    <th class="negrita">PRINCIPALES</th>
+                    <th class="negrita">ALTERNOS</th>
+                  </tr>
+                  <tr>
+                    <td rowspan="3"> {{datosAdicionales.tribunal.idProyecto.getEstudiantesCompleto | safe}} </td>
+                    <td rowspan="3">{{datosAdicionales.tribunal.idProyecto}}</td>
+                    <td >
+                      {{datosAdicionales.tribunal.getDocentesPrincipalesPDF.0.docente}}
+                      <br>
+                      <label for="" class="negrita" >{{datosAdicionales.tribunal.getDocentesPrincipalesPDF.0.cargo | upper }}</label>
+      
+                    </td>
+                    <td >
+                      {{datosAdicionales.tribunal.getDocentesAlternosPDF.0.docente}}
+                      <br>
+                      <label for="" class="negrita" >{{datosAdicionales.tribunal.getDocentesAlternosPDF.0.cargo | upper }}</label>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      {{datosAdicionales.tribunal.getDocentesPrincipalesPDF.1.docente}}
+                      <br>
+                      <label for="" class="negrita" >{{datosAdicionales.tribunal.getDocentesPrincipalesPDF.1.cargo | upper }}</label>
+                    </td>
+                    <td>
+                      {{datosAdicionales.tribunal.getDocentesAlternosPDF.1.docente}}
+                      <br>
+                      <label for="" class="negrita" >{{datosAdicionales.tribunal.getDocentesAlternosPDF.1.cargo | upper }}</label>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      {{datosAdicionales.tribunal.getDocentesPrincipalesPDF.2.docente}}
+                      <br>
+                      <label for="" class="negrita" >{{datosAdicionales.tribunal.getDocentesPrincipalesPDF.2.cargo | upper }}</label>
+                    </td>
+                    <td>
+                      {{datosAdicionales.tribunal.getDocentesAlternosPDF.2.docente}}
+                      <br>
+                      <label for="" class="negrita" >{{datosAdicionales.tribunal.getDocentesAlternosPDF.2.cargo | upper }}</label>
+                    </td>
+                  </tr>
+              </table>
+              </div>
+       
+              <br>
+                  <p>Particular que pongo en su conocimiento, para los fines académicos pertinentes.</p>
+                  <p style="text-align: center;" >Atentamente:</p>
+
+                  {% if usuario.firma %}
+                    <div id="firma">
+                      <img src=".{{usuario.firma.url}}" alt="" style="width: 150px; height: 100px; text-align: center; margin-left: 37%;  margin-top: -20px;" />
+                    </div>
+                    <p style="text-align: center; margin-top: -5px; ">{{usuario.getInformacion}}</p>
+                  {% else %}
+                    <p style="text-align: center; margin-top: 92px; ">{{usuario.getInformacion}}</p>
+                  {% endif %}
+                  <p style="text-align: center; margin-bottom: -21px;"> <b> {% if usuario.idCarrera.genero == 'Señor' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera | upper}}  </b> </p><br>
+            </div>
+          </div>
+      <div class="piePagina">
+        <img src=".{{piePagina}}" style="width: 800px; height: 75px;" />
+      </div>
+    </div>
+  </body>
+</html>

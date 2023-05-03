@@ -142,6 +142,8 @@ class Usuarios(AbstractUser):
             
     def getAlias(self):
         return '{}. {}.'.format(self.first_name, self.last_name[0] if self.last_name else self.pk)
+    def getNombreCompleto(self):
+        return '{} {}'.format(self.last_name, self.first_name)
     # def getGrupo(self):
     #     nombre = ''
     #     request = get_current_user()
