@@ -10,7 +10,7 @@ from App.models import DocentesSuplente, Proyecto, Tribunal
 from django.urls import reverse_lazy
 from backports.zoneinfo import ZoneInfo
 from django.utils.dateparse import parse_datetime
-from Usuarios.models import Constantes, Usuarios
+from Usuarios.models import Carrera, Constantes, Usuarios
 from uicApp.settings import TIME_ZONE
 from App.funciones import getDate, send_mail, funcionGenerarPDF
 modelo = Tribunal
@@ -63,6 +63,14 @@ class addTribunal(LoginRequiredMixin, ListView):
     def post(self, request, *args, **kwargs):
         data = []
         try:
+            idCarrera = request.POST['idCarrera']
+            proyectos = Proyecto.objects.filter(idCarrera = idCarrera)
+            for proyecto in proyectos:
+                data.append(proyecto.toJSON())
+            return JsonResponse(data, safe=False)
+        except Exception as e:
+            print('Error : 73: ', e)
+        try:
             usuarios = request.POST['usuarios']
             usuarios = usuarios.split(',')
             for user in usuarios:
@@ -91,20 +99,24 @@ class addTribunal(LoginRequiredMixin, ListView):
             tribunal = Tribunal.objects.create(idProyecto = proyecto, docentesSuplentes = DocentesSuplente.objects.get(pk = uuID), fechaDefensa = idFecha, aula = idAula)
             tribunal.docentesPrincipales.set(DOC_PRIN)
             tribunal.save()
+            anexo = 'Anexo_16' if proyecto.defensa else 'Anexo_15'
+            tipoDefensa = 'defensa' if proyecto.defensa else 'predefensa'
             mailDocentesPrincipales = tribunal.getMailDocPrincipales()
             mailDocentesSuplentes = tribunal.getMailDocSuplentes()
             mailEstudianteTribunal = proyecto.getMailEstudiantes()
             idSecuencial = Constantes.objects.get(nombre = 'SEC_MEM')
+            secretarioGeneral = Constantes.objects.get(nombre = 'SEC_GEN')
             datosAdicionales = {
                         'year': datetime.now().year,
                         'secuencial': idSecuencial.valor,
-                        'tribunal': tribunal
+                        'tribunal': tribunal,
+                        'secretarioGeneral': secretarioGeneral.valor
                     }
             sendMail = {}
-            sendMail['asunto'] = 'Asignacion del tribunal de defensa'
+            sendMail['asunto'] = f'Asignacion del tribunal de {tipoDefensa}'
             sendMail['destinatarios'] = mailDocentesPrincipales
             content = render_to_string('email.html',
-                                       {'titulo': 'Asignación de Tribunal de Defensa de Proyectos', 
+                                       {'titulo': f'Asignación de Tribunal de {tipoDefensa} de Proyectos', 
                                        'tema': 'sido asignado como uno de los docentes principales', 
                                        'proyecto':proyecto.nombre, 
                                        'docentesPrincipales' : tribunal.getDocentesPrincipales(),
@@ -112,10 +124,10 @@ class addTribunal(LoginRequiredMixin, ListView):
                                        'aula' : tribunal.aula
                                        })
             sendMail['content'] = content
-            funcionGenerarPDF("ASIGNACION_TRIBUNAL", "Anexo_15", request, "", datosAdicionales, sendMail)
+            funcionGenerarPDF("ASIGNACION_TRIBUNAL", anexo, request, "", datosAdicionales, sendMail)
 
             content = render_to_string('email.html',
-                                       {'titulo': 'Asignación de Tribunal de Defensa de Proyectos', 
+                                       {'titulo': f'Asignación de Tribunal de {tipoDefensa} de Proyectos', 
                                        'tema': 'sido asignado como uno de los docentes suplentes', 
                                        'proyecto':proyecto.nombre, 
                                        'docentesSuplentes' : tribunal.getDocentesSuplentes(),
@@ -124,10 +136,10 @@ class addTribunal(LoginRequiredMixin, ListView):
                                        })
             sendMail['destinatarios'] = mailDocentesSuplentes
             sendMail['content'] = content
-            funcionGenerarPDF("ASIGNACION_TRIBUNAL", "Anexo_15", request, "", datosAdicionales, sendMail)
+            funcionGenerarPDF("ASIGNACION_TRIBUNAL", anexo, request, "", datosAdicionales, sendMail)
             
             content = render_to_string('email.html',
-                                       {'titulo': 'Asignación de Tribunal de Defensa de Proyectos', 
+                                       {'titulo': f'Asignación de Tribunal de {tipoDefensa} de Proyectos', 
                                        'tema': 'sido asignado como uno de los docentes suplentes', 
                                        'proyecto':proyecto.nombre, 
                                        'docentesSuplentes' : tribunal.getDocentesSuplentes(),
@@ -136,7 +148,7 @@ class addTribunal(LoginRequiredMixin, ListView):
                                        })
             sendMail['content'] = content
             sendMail['destinatarios'] = mailEstudianteTribunal
-            funcionGenerarPDF("ASIGNACION_TRIBUNAL", "Anexo_15", request, "", datosAdicionales, sendMail)
+            funcionGenerarPDF("ASIGNACION_TRIBUNAL", anexo, request, "", datosAdicionales, sendMail)
             idSecuencial.valor = str(int(idSecuencial.valor) + 1)
             idSecuencial.save()
         except Exception as e:
@@ -157,7 +169,7 @@ class addTribunal(LoginRequiredMixin, ListView):
         context['URL'] = url
         context['listadoDocentes'] = data
         context['AULAS'] = aulas.split(',')
-        context['idProyectos'] = Proyecto.objects.filter(defensa = True)
+        context['idCarreras'] = Carrera.objects.all()
         context['DOC_PRIN'] = Constantes.objects.get(nombre = 'DOC_PRIN').valor
         context['DOC_SUP'] = Constantes.objects.get(nombre = 'DOC_SUP').valor
         context['DATE'] = datetime.now()
@@ -204,7 +216,7 @@ class editTribunal(LoginRequiredMixin, UpdateView):
             mailDocentesPrincipales = instance.getMailDocPrincipales()
             mailDocentesSuplentes = instance.getMailDocSuplentes()
             content = render_to_string('email.html',
-                                       {'titulo': 'Actualización de Tribunal de Defensa de Proyectos', 
+                                       {'titulo': 'Actualización de Tribunal de {tipoDefensa} de Proyectos', 
                                        'tema': 'sido asignado como uno de los docentes principales', 
                                        'proyecto':instance.idProyecto.nombre, 
                                        'docentesPrincipales' : instance.getDocentesPrincipales(),
@@ -213,7 +225,7 @@ class editTribunal(LoginRequiredMixin, UpdateView):
                                        })
             send_mail('Actualización de Tribunal', mailDocentesPrincipales, content)
             content = render_to_string('email.html',
-                                       {'titulo': 'Actualización de Tribunal de Defensa de Proyectos', 
+                                       {'titulo': 'Actualización de Tribunal de {tipoDefensa} de Proyectos', 
                                        'tema': 'sido asignado como uno de los docentes suplentes', 
                                        'proyecto':instance.idProyecto.nombre, 
                                        'docentesSuplentes' : instance.getDocentesSuplentes(),
@@ -260,7 +272,7 @@ class deleteTribunal(LoginRequiredMixin, DeleteView):
         mailDocentesPrincipales = instance.getMailDocPrincipales()
         mailDocentesSuplentes = instance.getMailDocSuplentes()
         content = render_to_string('email.html',
-                                       {'titulo': 'Actualización de Tribunal de Defensa de Proyectos', 
+                                       {'titulo': 'Actualización de Tribunal de {tipoDefensa} de Proyectos', 
                                        'tema': 'sido eliminada la asignación de defensa', 
                                        'proyecto': instance.idProyecto.nombre,
                                        'fechaDefensaEliminada' : getDate(instance.fechaDefensa),
@@ -268,7 +280,7 @@ class deleteTribunal(LoginRequiredMixin, DeleteView):
                                        })
         send_mail('Actualización de Tribunal', mailDocentesPrincipales, content)
         content = render_to_string('email.html',
-                                    {'titulo': 'Actualización de Tribunal de Defensa de Proyectos', 
+                                    {'titulo': 'Actualización de Tribunal de {tipoDefensa} de Proyectos', 
                                     'tema': 'sido eliminada la asignación de defensa', 
                                     'proyecto':instance.idProyecto.nombre, 
                                     'fechaDefensaEliminada' : getDate(instance.fechaDefensa),

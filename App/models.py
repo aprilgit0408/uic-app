@@ -4,6 +4,7 @@ from django.db.models.deletion import CASCADE
 from Usuarios.models import Carrera, Constantes, Usuarios
 from crum import get_current_user
 from django.utils import timezone
+from django.forms import model_to_dict
 
 # Registro de los modelos de la base de datos
 
@@ -57,6 +58,14 @@ class Proyecto(datosAuditoria):
             ul += f'<li title="{estudiante}"> {estudiante.getNombreCompleto()} </li>'
         ul = f'<ul>{ul}</ul>'
         return ul
+    def getEstudiantesUnaLinea(self):
+        datos = ''
+        for estudiante in self.idEstudiantes.all():
+            if datos:
+                datos += f', {estudiante.getNombreCompleto()}'
+            else: 
+                datos = f'Sr./Srta. {estudiante.getNombreCompleto()}'
+        return datos
     def getMailEstudiantes(self):
         mail = []
         for estudiante in self.idEstudiantes.all():
@@ -64,6 +73,64 @@ class Proyecto(datosAuditoria):
         return ','.join(mail)
     def getDocente(self):
         return Usuarios.objects.get(pk = self.idDocente)
+    def getDocenteJSON(self):
+        return Usuarios.objects.get(pk = self.idDocente).toJSON()
+    def getTotalEstudiantes(self):
+        return 's' if len(self.idEstudiantes.all()) > 1 else ''
+    def getTitulo(self):
+        genero = []
+        for estudiante in self.idEstudiantes.all():
+            if estudiante.genero is not genero:
+                genero.append(estudiante.genero)
+        tipo = ''
+        titulo = ''
+        if(self.idCarrera.tipoTitulo == 'Administrador Público'):
+            titulo = 'A'
+        elif(self.idCarrera.tipoTitulo == 'Ingeniería'):
+            titulo = 'I'
+        else:
+            titulo = 'L'
+
+        if len(genero) > 1:
+            if(genero[0] == 'M'):
+                if(titulo == 'A'):
+                    tipo = 'Administradora Pública en '
+                elif(titulo == 'I'):
+                    tipo = 'Ingenieras en '
+                else:
+                    tipo = 'Licenciadas en '
+            else:
+                if(titulo == 'A'):
+                    tipo = 'Administrador Público en '
+                elif(titulo == 'I'):
+                    tipo = 'Ingenieros en '
+                else:
+                    tipo = 'Licenciados en '
+        else:
+            if(genero[0]== 'H'):
+                if(titulo == 'A'):
+                    tipo = 'Administrador Público en '
+                elif(titulo == 'I'):
+                    tipo = 'Ingeniero en '
+                else:
+                    tipo = 'Licenciado en '
+            else:
+                if(titulo == 'A'):
+                    tipo = 'Administradora Pública en '
+                elif(titulo == 'I'):
+                    tipo = 'Ingeniera en '
+                else:
+                    tipo = 'Licenciada en '
+        return tipo
+    
+    def toJSON(self):
+        txt = model_to_dict(self)
+        if self.idEstudiantes:
+            txt['idEstudiantes'] = None
+        if self.idDocente:
+            txt['idDocente'] = self.getDocenteJSON()
+        return txt
+
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)

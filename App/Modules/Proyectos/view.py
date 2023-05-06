@@ -278,5 +278,5 @@ class generarPDFProyecto(ListView):
         sendMail['asunto'] = 'Asignacion de tutor'
         sendMail['destinatarios'] = 'josaerick@gmail.com'
         sendMail['content'] = content
-        return funcionGenerarPDF("ASIGNACION_Tutor", "Anexo_15", request, "", data, sendMail)
+        return funcionGenerarPDF("ASIGNACION_Tutor", "Anexo_16", request, "", data, None)
         return super().get(request, *args, **kwargs)

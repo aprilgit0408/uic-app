@@ -6,6 +6,7 @@ from django.db.models.deletion import CASCADE
 from uicApp.settings import MEDIA_URL, STATIC_URL
 from django.contrib.auth.models import AbstractUser
 from crum import get_current_user
+from django.forms import model_to_dict
 
 class datosAuditoria(models.Model):
     fechaCreacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
@@ -50,10 +51,17 @@ class Carrera(datosAuditoria):
         ('Mtr.','Mtr.'),
         ('PhD.','PhD.')
     ]
+    tipoTitulos = [
+        ('Ingeniería.','Ingeniería.'),
+        ('Licenciatura.','Licenciatura'),
+        ('Administrador Público.','Administrador Público')
+
+    ]
     genero = models.CharField(choices=generos, max_length=10, verbose_name='Seleccione')
     abreviatura = models.CharField(choices=abreviaturas, max_length=8, verbose_name='Abreviatura')
     nombreDirector = models.CharField(max_length=50, verbose_name='Director actual de la Carrera')
     nombre = models.CharField(max_length=100, verbose_name='Nombre de la Carrera', unique = True)
+    tipoTitulo = models.CharField(choices=tipoTitulos, max_length=40, verbose_name='Tipo del título a obtener', help_text='Ingeniería en Informática', default='Ingeniería')
     idFacultad = models.ForeignKey(Facultad, verbose_name='Facultad', on_delete=CASCADE)
     def __str__(self) -> str:
         txt = '{0}'
@@ -117,6 +125,10 @@ class Usuarios(AbstractUser):
         ('Mtr.','Mtr.'),
         ('PhD.','PhD.')
     ]
+    generos = [
+        ('H','Hombre'),
+        ('M','Mujer')
+    ]
      
     imagen = models.ImageField(verbose_name='Imagen', upload_to='users', null = True, blank = True)
     perfil = models.ForeignKey(Perfiles, verbose_name='Perfil', default = 3, on_delete=CASCADE, null=True, blank=True)
@@ -127,6 +139,7 @@ class Usuarios(AbstractUser):
     token = models.CharField(max_length=36, blank=True, null=True, editable=False)
     firma = models.ImageField(verbose_name='Firma', upload_to='usuario/firma', null = True, blank = True)
     abreviatura = models.CharField(choices=abreviaturas, max_length=8, verbose_name='Abreviatura', default='MSc.')
+    genero = models.CharField(choices=generos, max_length=1, verbose_name='Genero', default='H')
     def getImagen(self):
         if self.imagen:
             return '{}{}'.format(MEDIA_URL, self.imagen)
@@ -144,6 +157,14 @@ class Usuarios(AbstractUser):
         return '{}. {}.'.format(self.first_name, self.last_name[0] if self.last_name else self.pk)
     def getNombreCompleto(self):
         return '{} {}'.format(self.last_name, self.first_name)
+    def toJSON(self):
+        txt = model_to_dict(self)
+        if self.last_login:
+            txt['last_login'] = self.last_login.strftime('%Y-%m-%d %H:%M:%S')
+        txt['date_joined'] = self.date_joined.strftime('%Y-%m-%d %H:%M:%S')
+        txt['imagen'] = self.getImagen()
+        txt['firma'] = None 
+        return txt
     # def getGrupo(self):
     #     nombre = ''
     #     request = get_current_user()
