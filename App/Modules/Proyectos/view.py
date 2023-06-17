@@ -96,6 +96,8 @@ class addProyectos(LoginRequiredMixin, CreateView):
             sendMail['destinatarios'] = f'{docenteTutor.email},{estudiante.email}'
             sendMail['content'] = content
             funcionGenerarPDF("ASIGNACION_TUTOR", "Anexo_7", self.request, "", data, sendMail)
+            estudiante.memorandoTutor = idSecuencial.valor
+            estudiante.save()
             idSecuencial.valor = str(int(idSecuencial.valor) + 1)
             idSecuencial.save()
         for estudiante in idsEstudiantes.all():
@@ -259,12 +261,19 @@ class addEstudiantes(LoginRequiredMixin, CreateView):
 class generarPDFProyecto(ListView):
     def get(self, request, *args, **kwargs) :
         
+        proyecto = Proyecto.objects.get(id = 16)
+        estudiante = None
+        for estProyecto in proyecto.idEstudiantes.all():
+            if estudiante is None:
+                estudiante = estProyecto
+                
+
         data = {
-            'tutor': 'Erick Patricio Josa Narvaez',
-            'nombreEstudiante': 'Maribel Alejandra Guzman Torres',
-            'cedulaEstudiante': '0401645221',
-            'year': datetime.datetime.now().year,
-            'secuencial': 1015,
+            'proyecto': Proyecto.objects.get(id = 16),
+            'estudiante': estudiante,
+            'fechaCronograma': datetime.datetime.now(),
+            'horaCronograma': datetime.datetime.now().time,
+            'tutor': request.user,
             'tribunal': Tribunal.objects.get(pk = 2)
         }
         content = render_to_string('email.html',
@@ -277,6 +286,6 @@ class generarPDFProyecto(ListView):
         sendMail = {}
         sendMail['asunto'] = 'Asignacion de tutor'
         sendMail['destinatarios'] = 'josaerick@gmail.com'
-        sendMail['content'] = content
-        return funcionGenerarPDF("ASIGNACION_Tutor", "Anexo_16", request, "", data, None)
+        sendMail['content'] = None
+        return funcionGenerarPDF("ASIGNACION_Tutor", "Anexo_9", request, "", data, None)
         return super().get(request, *args, **kwargs)

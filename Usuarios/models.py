@@ -1,5 +1,3 @@
-from email.policy import default
-from enum import unique
 from django.utils import timezone
 from django.db import models
 from django.db.models.deletion import CASCADE
@@ -140,6 +138,8 @@ class Usuarios(AbstractUser):
     firma = models.ImageField(verbose_name='Firma', upload_to='usuario/firma', null = True, blank = True)
     abreviatura = models.CharField(choices=abreviaturas, max_length=8, verbose_name='Abreviatura', default='MSc.')
     genero = models.CharField(choices=generos, max_length=1, verbose_name='Genero', default='H')
+    memorandoTutor = models.CharField(max_length=9,blank=True, null=True, editable=False)
+    fechaMemorandoTutor = models.DateField(editable=False, null=True, blank=True)
     def getImagen(self):
         if self.imagen:
             return '{}{}'.format(MEDIA_URL, self.imagen)
@@ -165,6 +165,10 @@ class Usuarios(AbstractUser):
         txt['imagen'] = self.getImagen()
         txt['firma'] = None 
         return txt
+    def getGenero(self):
+        if self.genero == 'M':
+            return 'Señorita'
+        return 'Señor'
     # def getGrupo(self):
     #     nombre = ''
     #     request = get_current_user()
@@ -194,6 +198,9 @@ class Usuarios(AbstractUser):
     def clean(self):
         super().clean()
     def save(self, *args, **kwargs):
+        if self.fechaMemorandoTutor is None:
+            self.fechaMemorandoTutor = timezone.now()
+
         if Usuarios.objects.all().count() == 0 and Perfiles.objects.all().count() == 0:
             perfil = Perfiles.objects.create(nombre = "Admin")
             perfil.save()
