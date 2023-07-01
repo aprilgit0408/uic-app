@@ -1,0 +1,98 @@
+<html>
+<head>
+  <style>
+   @page {
+    size: A4; /* Change from the default size of A4 */
+    margin: 0mm;
+    }
+    p{
+      font-family: 'Century Gothic', sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14.5px;
+        /* font-family: 'Century Gothic, CenturyGothic, AppleGothic, sans-serif'; */
+    }
+    spam {
+      font-family: 'Century Gothic', sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14.5px;
+        /* font-family: 'Century Gothic, CenturyGothic, AppleGothic, sans-serif'; */
+    }
+    .titulos{
+      font-family: 'Century Gothic', sans-serif;
+      line-height: 12pt;
+    }
+    .container{
+        margin-left: 40px;
+        margin-right: 25px;
+        width: 88%;
+    }
+    .pagina {
+      margin-left: 0px;
+      margin-right: 0px;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+    
+    .piePagina{
+      margin-left: -75px;
+      margin-top: 40pt;
+      display: inline-block;
+      padding-top: 0px;
+      padding-bottom: 0px;
+      margin-bottom: 0;
+     
+    }
+    .pagina{
+      margin: 2cm;
+    }
+      
+
+  </style>
+  <title>{{nombreDocumento}}</title>
+  <head>
+<!-- ANEXO 1_SOLICITUD DE INGRESO A LA UIC_OPCIÓN TIC -->
+  <body>
+    <div class="pagina">
+        
+        <div>
+          <img src=".{{encabezado}}" alt="" style="width: 800px; height: 110px; margin-left: -68px; margin-top: -48px;z-index: 0;" />
+          <!-- <img src=".{{piePagina}}" alt="" style="width: 915px; height: 75px;" /> -->
+        </div>
+        <br><br>
+        <div class="container">
+          <p style="text-align:right; margin-top: 34px; " class="titulos" > Tulcán, {{fecha}} </p>
+            <p> {{datosAdicionales.estudiante.getGenero}} </p>
+            <p>{{datosAdicionales.estudiante.getNombreCompleto}}</p>
+            <p><b> ESTUDIANTE DE LA CARRERA DE {{datosAdicionales.proyecto.idCarrera.nombre | upper}}  </b></p>
+            <div style="text-align: justify; background: url('.{{imagenCentro}}'); background-size: 100% 85%; background-repeat: no-repeat; " >
+            
+            <p>Presente. -</p>
+            <br><br>
+            <p>De mi consideración:</p>
+            <br><br>
+                <p>Por medio del presente me permito informarle que he sido designado <b>{% if datosAdicionales.tutor.genero == 'H' %} Tutor {% else %} Tutora {% endif %} </b> de su Trabajo de Integración Curricular con enfoque en Investigación, por medio del Memorando N°. {{datosAdicionales.estudiante.memorandoTutor}} del {{datosAdicionales.estudiante.fechaMemorandoTutor}}. Por tal motivo, en base al literal a) del Art. 28 del Reglamento de Unidad de Integración Curricular, Sustentación, Titulación e Incorporación de la UPEC, me permito convocarle a la elaboración del cronograma de tutorías de su proceso de titulación, el día {{datosAdicionales.fechaCronograma}}.</p>
+               <p>Por la gentil atención prestada, anticipo mis agradecimientos</p>
+                <br>
+                <p>Atentamente:</p>
+                  {% if datosAdicionales.tutor.firma %}
+                    <div id="firma">
+                      <img src=".{{datosAdicionales.tutor.firma.url}}" alt="" style="width: 150px; height: 100px; text-align: center; margin-left: 37%;  margin-top: 40px;" />
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; ">{{datosAdicionales.tutor.getInformacion}}</p>
+                  {% else %}
+                    <p style="text-align: center; margin-top: 165px; ">{{datosAdicionales.tutor.getInformacion}}</p>
+                  {% endif %}
+                  <p style="text-align: center; margin-bottom: -21px;"> <b>{% if datosAdicionales.tutor.genero == 'H' %} TUTOR {% else %} TUTORA {% endif %} </b> </p>
+
+                </div>
+        </div>
+        <div class="piePagina">
+          <img src=".{{piePagina}}" style="width: 800px; height: 75px;" />
+        </div>
+    </div>
+
+  </body>
+
+</html>
