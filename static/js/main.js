@@ -1,5 +1,5 @@
 $('#id_archivo').val('');
-var modalAprobacionSolicitud = document.getElementById('aprobacionSolicitud') != null ? document.getElementById('aprobacionSolicitud') : document.getElementById('aprobacionSolicitud');
+var ventanaModal = document.getElementById('aprobacionSolicitud') != null ? document.getElementById('aprobacionSolicitud') : document.getElementById('aprobacionSolicitud');
 var table = '';
 var dataDocumentoFirma = null;
 const csrftoken = getCookie('csrftoken');
@@ -59,7 +59,7 @@ function getItems(id, responsive, data) {
                 class: 'text-center',
                 orderable: false,
                 render: function (data, type, row) {
-                    console.log('Valor de data: ', data);
+                    console.log('Valor de data >ss: ', data);
                     console.log('Valor de row: ', row);
                     let btn = data;
                     if(data === 'estudianteAvance'){
@@ -180,9 +180,24 @@ function getItems(id, responsive, data) {
                             return btn;
                     }
                     if(!!row[row.length - 1]){
+                        let columnas = 6;
+                        let solicitudCronograma = '';
+                        if(data == 'SC'){
+                            columnas = 3;
+                            solicitudCronograma =  `
+                            <div class="col-md-${columnas}" >
+                                    <button type="button" onClick="subirDocumento('${row[row.length - 1]}', 'solicitudCronograma');" class="btn btn-outline-success" title="Enviar Solicitud Cronograma" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-day" viewBox="0 0 16 16">
+                                    <path d="M4.684 11.523v-2.3h2.261v-.61H4.684V6.801h2.464v-.61H4v5.332h.684zm3.296 0h.676V8.98c0-.554.227-1.007.953-1.007.125 0 .258.004.329.015v-.613a1.806 1.806 0 0 0-.254-.02c-.582 0-.891.32-1.012.567h-.02v-.504H7.98v4.105zm2.805-5.093c0 .238.192.425.43.425a.428.428 0 1 0 0-.855.426.426 0 0 0-.43.43zm.094 5.093h.672V7.418h-.672v4.105z"/>
+                                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                                    </svg>
+                                    </button>
+                                </div>
+                            `;
+                        }
                         btn = `
                             <div class="row" >
-                                <div class="col-md-6">
+                                <div class="col-md-${columnas}">
                                     <a type="submit" href="edit/${row[row.length - 1]}" class="btn btn-outline-warning" title="Editar Registro" >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                     <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
@@ -190,13 +205,14 @@ function getItems(id, responsive, data) {
                                     </svg>
                                     </a> 
                                 </div>
-                                <div class="col-md-6" >
+                                <div class="col-md-${columnas}" >
                                     <button type="button" onClick="eliminarRegistro('${row[row.length - 1]}');" class="btn btn-outline-danger" title="Eliminar Registro" >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bucket" viewBox="0 0 16 16">
                                     <path d="M2.522 5H2a.5.5 0 0 0-.494.574l1.372 9.149A1.5 1.5 0 0 0 4.36 16h7.278a1.5 1.5 0 0 0 1.483-1.277l1.373-9.149A.5.5 0 0 0 14 5h-.522A5.5 5.5 0 0 0 2.522 5zm1.005 0a4.5 4.5 0 0 1 8.945 0H3.527zm9.892 1-1.286 8.574a.5.5 0 0 1-.494.426H4.36a.5.5 0 0 1-.494-.426L2.58 6h10.838z"/>
                                     </svg>
                                     </button>
                                 </div>
+                                ${solicitudCronograma}
                             </div>
                             `;
                     }else if(row[row.length - 1] === false){
@@ -221,9 +237,12 @@ function enviarDirector(datos){
     alertas('Perfecto..', 'blue', 'btn-blue', '¿Está seguro de enviar el archivo?', 'Continuar', 'enviar', datos, 'fa fa-send-o')
 }
 function guardarAprobacion(data){
+    _guardarAprobacion(data, 'aprobacionSolicitud');
+}
+function _guardarAprobacion(data, nombreID){
     let estado = $('#guardarSolicitud'+data)[0].checked ? true : '';
     if(estado){
-        subirDocumento(data);
+        subirDocumento(data, nombreID);
         // alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Aprobar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
     }else{
         alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Rechazar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
@@ -375,13 +394,13 @@ function alertasInformativas(titulo, tipo, btnClass, mensaje, boton, icon) {
     desmarcarSolicitud();
 }
 
-function subirDocumento(data){
+function subirDocumento(data, id){
     dataDocumentoFirma = data;
     $('#id').val(data);
-    modalAprobacionSolicitud = new bootstrap.Modal(document.getElementById('aprobacionSolicitud'), {
+    ventanaModal = new bootstrap.Modal(document.getElementById(id), {
         keyboard: false
       });
-      modalAprobacionSolicitud.show(); 
+      ventanaModal.show(); 
 }
 $('#cancelarSolicitud').on('click', ()=>{
         desmarcarSolicitud();
@@ -392,8 +411,8 @@ function desmarcarSolicitud(){
         $('#guardarSolicitud'+dataDocumentoFirma)[0].checked = !$('#guardarSolicitud'+dataDocumentoFirma)[0].checked;
         dataDocumentoFirma = null;
     }
-    if(modalAprobacionSolicitud != null){
-        modalAprobacionSolicitud.hide();
+    if(ventanaModal != null){
+        ventanaModal.hide();
         $('#id_archivo').val('');
     }
 }
@@ -403,15 +422,15 @@ $('#aceptarSolicitud').on('click', ()=>{
     if(!!documento){
         alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Aprobar esta solicitud?', 'Aceptar', 'solicitud', dataDocumentoFirma, 'fa fa-warning')
     }else{
-        if(modalAprobacionSolicitud != null){
-            modalAprobacionSolicitud.hide();
+        if(ventanaModal != null){
+            ventanaModal.hide();
         }
         alertasInformativas('Alerta', 'orange', 'btn-warning', 'Seleccione el archivo firmado para continuar', 'Aceptar', 'fa fa-warning');
     }
 });
-if(modalAprobacionSolicitud!=null){
+if(ventanaModal!=null){
     console.log('ingreso')
-    modalAprobacionSolicitud.addEventListener('hidden.bs.modal', function (event) {
+    ventanaModal.addEventListener('hidden.bs.modal', function (event) {
         desmarcarSolicitud();
     });
 }

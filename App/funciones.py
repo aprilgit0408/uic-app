@@ -9,6 +9,8 @@ from django.http.response import HttpResponse
 from django.shortcuts import redirect
 from email.mime.base import MIMEBase
 from email.message import EmailMessage
+from django.utils.dateparse import parse_datetime
+from backports.zoneinfo import ZoneInfo
 from email import encoders
 from os import remove
 import os
@@ -147,3 +149,7 @@ def funcionGuardarPDF(pdf,ruta, nombreArchivo):
     if os.path.exists(ruta):
         f = open(os.path.join(ruta, f'{nombreArchivo}.pdf'), 'wb')
         f.write(pdf)
+
+def getFecha(fecha):
+    parseFecha = parse_datetime(fecha)
+    return parseFecha.replace(tzinfo=ZoneInfo("America/Guayaquil"))

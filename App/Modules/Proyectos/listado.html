@@ -29,17 +29,57 @@
             </table>
         </div>
         
-        {% if request.user.perfil.nombre != 'Estudiante' %}
+        {% if request.user.perfil.nombre == 'Admin' %}
             <div class="card-footer">
                 <a href="add" class="btn btn-outline-success">Agregar {{title}} </a>
             </div>
-        {% endif %}
-            
+        {% endif %} 
+    </div>
+     <!-- Modal -->
+     <div class="modal fade" id="solicitudCronograma" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <form action="guardar" id="form" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Solicitud de Cronograma</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                    <label for="idDocumento">Seleccione la Fecha y Hora de la Solicitud</label>
+                    <input type="hidden" name="id" id="id">
+                    <input type="datetime-local" min="{{DATE | date:'Y-m-d H:i'}}" name="fechaSolicitud" required="true" class="form-control" id="id_fechaSolicitud">
+                    </div>
+                    <div class="modal-footer">
+                    <!-- <input type="submit" class="btn btn-outline-primary" value="Aceptar"> -->
+                    <button type="button" id="aceptarForm"  class="btn btn-outline-primary">Aceptar</button>
+                    </div>
+                </div>
+                </div>
+        </form>
     </div>
 </div>
 <script>
     $(function(){
         getItems('#{{title | lower }}', '');
+    });
+    $("#aceptarForm").on("click", function () {
+        let formulario = document.getElementById('form');
+        $.ajax({
+        url: `guardar`,
+        method: "POST",
+        data: {
+            id : $('#id').val(),
+            fechaSolicitud : $('#id_fechaSolicitud').val()
+        },
+        headers: {
+            "X-CSRFToken": csrftoken,
+        },
+        }).done((req) => {
+            $.alert("Solicitud Enviada correctamente");
+            formulario.reset();
+            location.reload();
+        });
     });
 </script>
 {% endblock content %}

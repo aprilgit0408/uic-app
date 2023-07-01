@@ -5,10 +5,13 @@ from App.Modules.Formularios.forms import formularioDocentes, formularioProyecto
 from App.models import Proyecto, Tribunal
 from Usuarios.models import Constantes, Usuarios
 from django.http.response import JsonResponse
-from App.funciones import funcionGenerarPDF
+from App.funciones import funcionGenerarPDF, getFecha
+from django.views.generic.base import TemplateView
 from django.urls import reverse_lazy
 from django.template.loader import render_to_string
-import datetime
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from datetime import datetime
 
 modelo = Proyecto
 formulario = formularioProyectos
@@ -27,6 +30,7 @@ class listarProyectos(LoginRequiredMixin, ListView):
         context['encabezado'] = ['#', 'carrera','tema de investigación','estudiantes asignados'] if not esEstudiante else ['carrera','tema de investigación'] 
         context['title'] = f'{entidad}' 
         context['listado'] = f'Listado de {entidad}' 
+        context['DATE'] = datetime.now()
         return context
     def post(self, request, *args, **kwargs):
         data = []
@@ -60,8 +64,8 @@ class listarProyectos(LoginRequiredMixin, ListView):
                         i.idCarrera.nombre,
                         i.nombre,
                         i.getEstudiantes(),
-                        'Ver',
-                        i.id
+                        'SC',
+                        i.id,
                     ])
                 cont +=1
         except Exception as e:
@@ -258,6 +262,40 @@ class addEstudiantes(LoginRequiredMixin, CreateView):
         context['accion'] = f'Añadir Estudiante'
         context['title'] = f'Docentes'
         return context
+    
+class guardarDocumento(LoginRequiredMixin, TemplateView):
+    template_name = main
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        idProyecto = request.POST['id']
+        getFechaSolicitud = request.POST['fechaSolicitud']
+        fechaSolicitud = getFecha(getFechaSolicitud)
+        proyecto = Proyecto.objects.get(id = idProyecto)
+        for estProyecto in proyecto.idEstudiantes.all():
+            data = {
+                'proyecto': Proyecto.objects.get(id = 16),
+                'estudiante': estProyecto,
+                'fechaCronograma': fechaSolicitud,
+                'tutor': request.user
+            }
+            content = render_to_string('email.html',
+                                        {'titulo': 'Solicitud Cronograma', 
+                                        'docente': request.user.getInformacion(), 
+                                        'tema': 'solicitado el cronograma', 
+                                        'proyecto':proyecto.nombre,
+                                        'fechaEntrega' : fechaSolicitud  
+                                        })
+            
+            sendMail = {}
+            sendMail['asunto'] = 'Solicitud de Cronograma de Proyecto'
+            sendMail['destinatarios'] = estProyecto.email
+            sendMail['content'] = content
+            funcionGenerarPDF("Solicitud_Cronograma", "Anexo_9", request, "", data, sendMail)
+        return JsonResponse([], safe=False)
+
+
 class generarPDFProyecto(ListView):
     def get(self, request, *args, **kwargs) :
         
@@ -271,8 +309,8 @@ class generarPDFProyecto(ListView):
         data = {
             'proyecto': Proyecto.objects.get(id = 16),
             'estudiante': estudiante,
-            'fechaCronograma': datetime.datetime.now(),
-            'horaCronograma': datetime.datetime.now().time,
+            'fechaCronograma': datetime.now(),
+            'horaCronograma': datetime.now().time,
             'tutor': request.user,
             'tribunal': Tribunal.objects.get(pk = 2)
         }
