@@ -84,7 +84,7 @@ class Nivel(datosAuditoria):
         txt = '{0}'
         return txt.format(self.nombre)
     class Meta:
-        ordering = ['nombre']
+        ordering = ['pk', 'nombre']
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
