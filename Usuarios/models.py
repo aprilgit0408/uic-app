@@ -83,6 +83,8 @@ class Nivel(datosAuditoria):
     def __str__(self) -> str:
         txt = '{0}'
         return txt.format(self.nombre)
+    class Meta:
+        ordering = ['nombre']
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
@@ -140,6 +142,7 @@ class Usuarios(AbstractUser):
     genero = models.CharField(choices=generos, max_length=1, verbose_name='Genero', default='H')
     memorandoTutor = models.CharField(max_length=9,blank=True, null=True, editable=False)
     fechaMemorandoTutor = models.DateField(editable=False, null=True, blank=True)
+    cohorte = models.DateField(null=True, blank=True)
     def getImagen(self):
         if self.imagen:
             return '{}{}'.format(MEDIA_URL, self.imagen)

@@ -331,7 +331,7 @@ class formularioUsuarios(ModelForm):
             'first_name' : 'Nombres',
             'username' : 'Cédula'
         }
-        fields = ('username', 'first_name', 'last_name', 'idCarrera', 'celular', 'email', 'password', 'imagen','modalidad','idNivel')
+        fields = ('username', 'first_name', 'last_name', 'idCarrera', 'celular', 'email', 'password', 'imagen','modalidad','idNivel','genero', 'cohorte')
 class formularioDocentes(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

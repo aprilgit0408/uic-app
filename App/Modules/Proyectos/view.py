@@ -172,7 +172,7 @@ class listarEstudiantes(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['encabezado'] = ['#', 'cédula', 'Nombre y Apellido', 'correo electrónico', 'teléfono', 'carrera', 'fotografía']
+        context['encabezado'] = ['#', 'cédula', 'Nombre y Apellido', 'correo electrónico', 'teléfono', 'carrera','cohorte', 'fotografía']
         context['title'] = 'Estudiantes'
         context['listado'] = f'Listado de Estudiantes'
         return context
@@ -199,6 +199,7 @@ class listarEstudiantes(LoginRequiredMixin, ListView):
                     i.email,
                     i.celular,
                     i.idCarrera.nombre,
+                    i.cohorte,
                     i.getImagen(),
                     False
                     ])
@@ -325,5 +326,5 @@ class generarPDFProyecto(ListView):
         sendMail['asunto'] = 'Asignacion de tutor'
         sendMail['destinatarios'] = 'josaerick@gmail.com'
         sendMail['content'] = None
-        return funcionGenerarPDF("ASIGNACION_Tutor", "Anexo_9", request, "", data, None)
+        return funcionGenerarPDF("ASIGNACION_Tutor", "1", request, "", data, None)
         return super().get(request, *args, **kwargs)

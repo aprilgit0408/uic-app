@@ -80,7 +80,7 @@
                 </div>
                 <div class="form-floating medium">
                   <select class="form-select" style="background-color: rgb(237,242,245);" name="modalidad" id="floatingSelect" required aria-label="Modalidades">
-                    <option value="1" selected>Trabajo de Integración Curricular (TIC)</option>
+                    <option value="Trabajo de Integración Curricular" selected>Trabajo de Integración Curricular (TIC)</option>
                     <option value="2">Examen con Carácter Complexivo (ECC)</option>
                   </select>
                   <label for="floatingSelect">Modalidad</label>
@@ -100,6 +100,17 @@
                     {% endfor %}
                   </select>
                   <label for="floatingSelect">Nivel</label>
+                </div>
+                <div class="form-group first">
+                  <select class="form-select" style="background-color: rgb(237,242,245);" name="genero" id="floatingSelect" required required aria-label="Género">
+                    <option>Seleccione su género</option>
+                    <option value="H">Hombre</option>
+                    <option value="M">Mujer</option>
+                  </select>
+                </div>
+                <div class="form-group first">
+                  <input type="date" max="{{DATE | date:'Y-m-d'}}" title="Fecha de ingreso a la universidad" name="cohorte" required="true" class="form-control" id="idCohorte">
+                  <label for="idCohorte">Fecha de Cohorte</label>
                 </div>
                 <div class="form-group first">
                   <label for="id_password">Contraseña</label>

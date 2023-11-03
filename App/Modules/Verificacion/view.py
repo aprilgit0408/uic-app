@@ -159,17 +159,16 @@ class editListaVerificaciones(LoginRequiredMixin, UpdateView):
 
 
 class deleteListaVerificaciones(LoginRequiredMixin, DeleteView):
-    model = modelo
-    form_class = formulario
-    template_name = main
-    success_url = url
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = f'{entidad}'
-        context['accion'] = f'Eliminar {entidad}'
-        context['eliminar'] = kwargs
-        return context
+    def delete(self, request, *args, **kwargs):
+        id = ''
+        try:
+            id = int(self.kwargs['pk'])
+        except:
+            id = str(self.kwargs['pk'])
+        data = []
+        instance = modelo.objects.get(pk=id)
+        instance.delete()
+        return JsonResponse(data, safe=False)
 
 class guardarListaVerificacion(LoginRequiredMixin, UpdateView):
     model = modelo

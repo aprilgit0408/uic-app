@@ -8,12 +8,13 @@ from App.models import Carrera, Usuarios
 from Usuarios.models import Nivel
 from uicApp.settings import LOGIN_REDIRECT_URL
 from App.funciones import send_mail_Reset, getConstante
+from datetime import datetime
 import uuid
 modelo = Usuarios
 formulario = formularioUsuarios
 entidad = 'Registro'
 main = 'main.html'
-url = reverse_lazy('app:grupoExpertos')
+url = reverse_lazy('app:login')
 
 
 class Login(LoginView):
@@ -50,6 +51,7 @@ class addUser(CreateView):
         context['title'] = f'{entidad}'
         context['carreras'] = Carrera.objects.all()
         context['nivel'] = Nivel.objects.all()
+        context['DATE'] = datetime.now()
         return context
 
 
