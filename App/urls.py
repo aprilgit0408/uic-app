@@ -86,7 +86,7 @@ urlpatterns = [
     
 
     
-    path('',  Index.as_view(), name='index'),
+    path('',  Login.as_view(), name='index'),
     path('login/',  Login.as_view(), name='login'),
     path('login/add',  addUser.as_view(), name='agregarUsuario'),
     path('login/reset',  resetPassword.as_view(), name='reset'),
