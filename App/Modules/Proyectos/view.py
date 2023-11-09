@@ -118,10 +118,20 @@ class addProyectos(LoginRequiredMixin, CreateView):
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        usuarios = []
+        try:
+            for user in Usuarios.objects.all():
+                nombre = user.getInformacion()
+                if user.perfil:
+                    if user.perfil.nombre == 'Docente':
+                        usuarios.append(user)
+        except:
+            pass
         context = super().get_context_data(**kwargs)
         context['title'] = f'{entidad}'
         context['accion'] = f'Añadir {entidad}'
         context['agregar'] = f'Añadir {entidad}'
+        context['IDDocentes'] = usuarios
         context['idEstudiantes'] = Usuarios.objects.filter(perfil__nombre = 'Estudiante')
         return context
 class editProyectos(LoginRequiredMixin, UpdateView):

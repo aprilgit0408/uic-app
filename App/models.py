@@ -29,18 +29,9 @@ class datosAuditoria(models.Model):
         return self
     
 class Proyecto(datosAuditoria):
-    usuarios = []
-    try:
-        for user in Usuarios.objects.all():
-            nombre = user.getInformacion()
-            if user.perfil:
-                if user.perfil.nombre == 'Docente':
-                    usuarios.append((user.pk, nombre))
-    except:
-        pass
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE)
     nombre = models.CharField(max_length=100, verbose_name='Nombre del Proyecto')
-    idDocente = models.PositiveIntegerField(choices=usuarios, verbose_name='Docente Tutor del Proyecto')
+    idDocente = models.PositiveIntegerField(verbose_name='Docente Tutor del Proyecto')
     idEstudiantes = models.ManyToManyField(Usuarios, verbose_name='Listado de Estudiantes')
     defensa = models.BooleanField(default = False, verbose_name = 'Proyecto listo para pre/defensa')
     def __str__(self) -> str:

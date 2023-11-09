@@ -100,6 +100,13 @@
                                             <option value="{{item.pk}}" >{{item.getInformacion}}</option>
                                         {% endfor %}
                                     </select>
+                                {% elif op.name == 'idDocente' and IDDocentes %}
+                                    {{op.label}}
+                                    <select name="idDocente" class="form-control form-control-sm select2" autocomplete="off" required="" id="id_idDocente">
+                                        {% for item in IDDocentes %}
+                                            <option value="{{item.pk}}" >{{item.getInformacion}}</option>
+                                        {% endfor %}
+                                    </select>
                                 {% elif op.name == 'idProyecto' and idProyectoAvances %}
                                     {{op.label}}
                                     {% if idProyectoAvancesList %}
