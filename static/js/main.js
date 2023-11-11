@@ -159,7 +159,7 @@ function getItems(id, responsive, data) {
                         btn = `
                             <div class="row" >
                                 <div class="col-md-4">
-                                    <a type="submit" href="${row[row.length - 1]}" class="btn btn-outline-${color}" title="Descargar Formato" >
+                                    <a type="submit" href="${row[row.length - 2]}" class="btn btn-outline-${color}" title="Descargar Formato" >
                                     ${tipo}
                                     </a> 
                                 </div>
