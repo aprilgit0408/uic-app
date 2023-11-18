@@ -1,4 +1,6 @@
+from typing import Any
 from django.contrib.auth.views import LoginView, LogoutView
+from django.http import HttpRequest, HttpResponse
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, FormView

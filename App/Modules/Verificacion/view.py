@@ -41,7 +41,7 @@ class listarListaVerificaciones(LoginRequiredMixin, ListView):
                 carreras.append(i.idCarrera)
         context['idProyectos'] = query
         context['idCarreras'] = carreras
-        context['encabezado'] = ['#','Nombre','estado','archivo']
+        context['encabezado'] = ['#','Nombre','estado','observación','archivo']
         context['items'] = modelo.objects.all()
         context['title'] = f'listaVerificacion'
         context['listado'] = f'{entidad}'
@@ -82,6 +82,7 @@ class listarListaVerificaciones(LoginRequiredMixin, ListView):
                     cont,
                     i.nombre.nombre,
                     f'<div class="form-check form-switch"><input onClick="guardarListaVerificacion({i.pk})" name="{i.pk}" { "checked" if i.estado else ""} class="form-check-input" type="checkbox" {f"id=guardarSolicitud{i.pk}" if self.request.user.perfil.nombre != "Estudiante" else "disabled"}></div>',
+                    i.observacion,
                     f'''
                         <form action="guardar/{i.pk}" id="form" method="post" name="form" enctype="multipart/form-data">
                             <input type="file" style="width: 300px; overflow:hidden; white-space:nowrap;text-overflow: ellipsis;" required name="archivo" class="form-control" id="idArchivo">
@@ -153,8 +154,7 @@ class editListaVerificaciones(LoginRequiredMixin, UpdateView):
         context['editarValor'] = datetime.datetime.now()
         context['listaVerificacion'] = f'{entidad}'
         context['editarObser'] = 'Editar' if self.request.user.perfil.nombre != 'Estudiante' else None
-        context['listaVerificacionList'] = Proyecto.objects.filter(idEstudiantes = self.request.user).first()
-        
+        context['listaVerificacionList'] = self.get_object()
         return context
 
 

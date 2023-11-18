@@ -95,7 +95,7 @@ class addTutorias(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['title'] = f'{entidad}'
         context['tutorias'] = f'{entidad}'
-        context['idProyecto'] = Proyecto.objects.filter(idDocente = self.request.user.pk)
+        context['idProyectoTutoria'] = Proyecto.objects.filter(idDocente = self.request.user.pk)
         context['accion'] = f'Añadir {entidad}'
         context['agregar'] = f'Añadir {entidad}'
         return context

@@ -3,7 +3,9 @@ from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioDocentes, formularioProyectos, formularioUsuarios
 from App.models import Proyecto, Tribunal
-from Usuarios.models import Constantes, Usuarios
+from pathlib import Path
+from django.core.files import File
+from Usuarios.models import Constantes, Usuarios, SeguimientoDocumentacion
 from django.http.response import JsonResponse
 from App.funciones import funcionGenerarPDF, getFecha
 from django.views.generic.base import TemplateView
@@ -100,6 +102,16 @@ class addProyectos(LoginRequiredMixin, CreateView):
             sendMail['destinatarios'] = f'{docenteTutor.email},{estudiante.email}'
             sendMail['content'] = content
             funcionGenerarPDF("ASIGNACION_TUTOR", "Anexo_7", self.request, "", data, sendMail)
+            try:    
+                print('Archivo data ruta', data['archivo']['ruta'])
+                path = Path(data['archivo'].ruta)
+                with path.open(mode='rb') as f:
+                    archivoCargado= File(f, name=path.name)
+                    idDocumeto = []
+                    doc = SeguimientoDocumentacion.objects.create(idDocumento = idDocumeto,idUsuario = self.request.user, archivo = archivoCargado)
+                    doc.save() 
+            except Exception as e:
+                print('Error al guardar el archivo generado ln-114: ', e)
             estudiante.memorandoTutor = idSecuencial.valor
             estudiante.save()
             idSecuencial.valor = str(int(idSecuencial.valor) + 1)

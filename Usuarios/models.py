@@ -1,10 +1,13 @@
 from django.utils import timezone
 from django.db import models
+from django import forms
 from django.db.models.deletion import CASCADE
 from uicApp.settings import MEDIA_URL, STATIC_URL
 from django.contrib.auth.models import AbstractUser
 from crum import get_current_user
 from django.forms import model_to_dict
+from .validaciones import ValidarCedulaUsurio
+from django.core.exceptions import ValidationError
 
 class datosAuditoria(models.Model):
     fechaCreacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
@@ -88,29 +91,29 @@ class Nivel(datosAuditoria):
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
-# def vcedula(texto):
-#     nocero = texto.strip("0")
-#     cedula = int(nocero,0)
-#     verificador = cedula%10
-#     numero = cedula//10
-#     suma = 0
-#     while (numero > 0):
-#         posimpar = numero%10
-#         numero   = numero//10
-#         posimpar = 2*posimpar
-#         if (posimpar  > 9):
-#             posimpar = posimpar-9
-#         pospar = numero%10
-#         numero = numero//10
-#         suma = suma + posimpar + pospar
-#     decenasup = suma//10 + 1
-#     calculado = decenasup*10 - suma
-#     if (calculado  >= 10):
-#         calculado = calculado - 10
-#     if (calculado == verificador):
-#         return texto
-#     else:
-#         raise ValidationError("La cédula ingresada no es válida") 
+def vcedula(texto):
+    nocero = texto.strip("0")
+    cedula = int(nocero,0)
+    verificador = cedula%10
+    numero = cedula//10
+    suma = 0
+    while (numero > 0):
+        posimpar = numero%10
+        numero   = numero//10
+        posimpar = 2*posimpar
+        if (posimpar  > 9):
+            posimpar = posimpar-9
+        pospar = numero%10
+        numero = numero//10
+        suma = suma + posimpar + pospar
+    decenasup = suma//10 + 1
+    calculado = decenasup*10 - suma
+    if (calculado  >= 10):
+        calculado = calculado - 10
+    if (calculado == verificador):
+        return texto
+    else:
+        raise ValidationError("La cédula ingresada no es válida") 
   
 
 
@@ -143,6 +146,18 @@ class Usuarios(AbstractUser):
     memorandoTutor = models.CharField(max_length=9,blank=True, null=True, editable=False)
     fechaMemorandoTutor = models.DateField(editable=False, null=True, blank=True)
     cohorte = models.DateField(null=True, blank=True)
+    esExtranjero = models.BooleanField(default=False)
+    # username = models.CharField(
+    #         ('Usuario'),
+    #         max_length=13,
+    #         unique=True,
+    #         help_text=('Se requiere al menos 10 catacteres'),
+    #         validators=[ValidarCedulaUsurio(extranjero=modalidad)],
+    #         # validators=[vcedula],
+    #         error_messages={
+    #             'unique': ("Un usuario con esta cédula ya se encuentra registrado"),
+    #         },
+    #     )
     def getImagen(self):
         if self.imagen:
             return '{}{}'.format(MEDIA_URL, self.imagen)
@@ -172,34 +187,13 @@ class Usuarios(AbstractUser):
         if self.genero == 'M':
             return 'Señorita'
         return 'Señor'
-    # def getGrupo(self):
-    #     nombre = ''
-    #     request = get_current_user()
-    #     try:
-    #         for grupo in GrupoExperto.objects.all():
-    #             for user in grupo.idDocentes.all():
-    #                 if request == user:
-    #                     nombre += f'<li><h5><b><i>{grupo.nombre.upper()}</i></b></h5></li>'
-    #         if nombre:
-    #             nombre = f'<ul>{nombre}</ul>'
-    #     except Exception as e:
-    #         nombre = ''
-    #         print('Error al obtener grupo de expertos en usuarios: ' , e)
-    #     return nombre
     
-    # def getGrupoById(self, id):
-    #     nombre = ''
-    #     try:
-    #         for grupo in GrupoExperto.objects.all():
-    #             for user in grupo.idDocentes.all():
-    #                 if id == user:
-    #                     nombre += f'<li><i>{grupo.nombre.upper()}</i></li>'
-    #     except Exception as e:
-    #         nombre = ''
-    #         print(f'Error al obtener grupo de expertos del usuario {id}: ' , e)
-    #     return nombre
     def clean(self):
-        super().clean()
+        cleaned_data = super().clean()
+        esExtranjero = self.esExtranjero
+        if(esExtranjero is False):
+            ValidarCedulaUsurio(cedula=self.username)
+    
     def save(self, *args, **kwargs):
         if self.fechaMemorandoTutor is None:
             self.fechaMemorandoTutor = timezone.now()

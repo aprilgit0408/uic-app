@@ -48,8 +48,8 @@ def send_mail(asunto, destinatarios, content, archivo = None):
                 mailServer.sendmail(USER_MAIL, destinatarios.split(','), mensaje.as_string())
                 print('Mails enviados a: ', destinatarios)
                 mailServer.quit()
-                if(archivo):
-                    remove(archivo['ruta'])
+                # if(archivo):
+                #     remove(archivo['ruta'])
             except Exception as e:
                 if(archivo):
                     remove(archivo['ruta'])
@@ -138,6 +138,7 @@ def funcionGenerarPDF(nombreArchivo, nombreTemplateArchivo, request, urlRetorno,
                 archivo['nombreArchivo'] = f'{nombreArchivo}.pdf'
                 archivo['ruta'] = f'{rutaPDF}/{nombreArchivoPDF}'
                 send_mail(enviarMail['asunto'], enviarMail['destinatarios'], enviarMail['content'], archivo)
+                datosAdicionales['archivo']  = archivo
         result_file.close()
         response = HttpResponse(pdf, content_type='application/pdf')
     except Exception as e:
