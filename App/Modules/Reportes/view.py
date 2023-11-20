@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import datetime
 
-from Usuarios.models import Carrera
+from Usuarios.models import Carrera, Cohorte, Usuarios
 
 modelo = Tutoria
 entidad = 'Reportes'
@@ -62,12 +62,29 @@ class getReportes(LoginRequiredMixin, ListView):
         except Exception as e:
             print('Error: ', e)
         return data
+    def GraficoCohorte(self):
+        data = []
+        general = []
+        drilldown = []
+        try:
+            for i in Cohorte.objects.all():
+                s = 0
+                detalles = []
+                for j in Usuarios.objects.filter(cohorte = i):
+                    s += 1
+                    detalles.append([f'{j.idCarrera.nombre} > {j.getInformacion()}' , 100])
+                general.append({'name' :i.cohorte, 'y' : s, 'drilldown': i.cohorte})
+                drilldown.append({'name' :i.cohorte, 'id' : i.cohorte, 'data': detalles})
+            data= {'data': general, 'drilldown': drilldown}
+        except Exception as e:
+            print('Error: ', e)
+        return data
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['encabezado'] = ['#','nombre', 'facultad']
         context['title'] = f'reportes'
-        context['encabezado'] = ['Tutorias', 'Defensa']
+        context['encabezado'] = ['Tutorias', 'Defensa', 'Cohorte']
         context['listado'] = f'Reportes'
         context['idProyectos'] = Proyecto.objects.all()
         return context
@@ -80,6 +97,8 @@ class getReportes(LoginRequiredMixin, ListView):
                 data = self.GraficoTutorias(idProyecto)
             if tipo == 'Defensa':
                 data = self.GraficoDefensa()
+            if tipo == 'Cohorte':
+                data = self.GraficoCohorte()
         except Exception as e:
             print(f'Error {entidad} l-43 ',e)
             data = {}

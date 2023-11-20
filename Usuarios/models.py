@@ -6,9 +6,7 @@ from uicApp.settings import MEDIA_URL, STATIC_URL
 from django.contrib.auth.models import AbstractUser
 from crum import get_current_user
 from django.forms import model_to_dict
-from .validaciones import ValidarCedulaUsurio
-from django.core.exceptions import ValidationError
-
+from .validaciones import ValidarCedulaUsurio, getMeses
 class datosAuditoria(models.Model):
     fechaCreacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
     fechaModificacion = models.DateTimeField(editable=False, null=True, blank=True)
@@ -91,30 +89,16 @@ class Nivel(datosAuditoria):
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
-def vcedula(texto):
-    nocero = texto.strip("0")
-    cedula = int(nocero,0)
-    verificador = cedula%10
-    numero = cedula//10
-    suma = 0
-    while (numero > 0):
-        posimpar = numero%10
-        numero   = numero//10
-        posimpar = 2*posimpar
-        if (posimpar  > 9):
-            posimpar = posimpar-9
-        pospar = numero%10
-        numero = numero//10
-        suma = suma + posimpar + pospar
-    decenasup = suma//10 + 1
-    calculado = decenasup*10 - suma
-    if (calculado  >= 10):
-        calculado = calculado - 10
-    if (calculado == verificador):
-        return texto
-    else:
-        raise ValidationError("La cédula ingresada no es válida") 
-  
+class Cohorte(datosAuditoria):
+    meses = [(mes, mes) for mes in getMeses()]
+    mesInicio = models.CharField(choices=meses, verbose_name='Mes Inicio', max_length=10)
+    yearInicio = models.PositiveIntegerField(verbose_name='Año inicio')
+    mesFin = models.CharField(choices=meses, verbose_name='Mes Fin', max_length=10)
+    yearFin= models.PositiveIntegerField(verbose_name='Año Fin')
+    cohorte = models.CharField(max_length=10, verbose_name='Nombre de Cohorte', primary_key=True)
+    def __str__(self):
+        return self.cohorte
+
 
 
 class Usuarios(AbstractUser):
@@ -145,7 +129,7 @@ class Usuarios(AbstractUser):
     genero = models.CharField(choices=generos, max_length=1, verbose_name='Genero', default='H')
     memorandoTutor = models.CharField(max_length=9,blank=True, null=True, editable=False)
     fechaMemorandoTutor = models.DateField(editable=False, null=True, blank=True)
-    cohorte = models.DateField(null=True, blank=True)
+    cohorte = models.ForeignKey(Cohorte, verbose_name='Cohorte', on_delete=CASCADE, null=True, blank=True)
     esExtranjero = models.BooleanField(default=False)
     # username = models.CharField(
     #         ('Usuario'),
@@ -163,12 +147,14 @@ class Usuarios(AbstractUser):
             return '{}{}'.format(MEDIA_URL, self.imagen)
         return '{}{}'.format(STATIC_URL, 'images/default.jpg')
     def __str__(self):
-        return '{} {} [{}]'.format(self.first_name, self.last_name, self.username)
+        return '{} {} [{}] -> {}'.format(self.first_name, self.last_name, self.username, self.perfil)
     def getInformacion(self):
         if(self.perfil.id == 3):
             return '{} {}'.format(self.first_name, self.last_name)
         else:
             return '{} {} {}'.format(self.abreviatura, self.first_name, self.last_name)
+    class Meta:
+        ordering = ['-perfil__nombre']
 
             
     def getAlias(self):
@@ -191,7 +177,7 @@ class Usuarios(AbstractUser):
     def clean(self):
         cleaned_data = super().clean()
         esExtranjero = self.esExtranjero
-        if(esExtranjero is False):
+        if(esExtranjero is False and self.pk is None):
             ValidarCedulaUsurio(cedula=self.username)
     
     def save(self, *args, **kwargs):

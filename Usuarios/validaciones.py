@@ -39,3 +39,5 @@ class setValorExtranjero:
         if(value):
             raise ValidationError("La cédula ingresada no es válida") 
         return value
+def getMeses():
+    return ['Enero', 'Febrero', 'Marzo','Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']

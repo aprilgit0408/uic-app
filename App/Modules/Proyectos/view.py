@@ -221,7 +221,7 @@ class listarEstudiantes(LoginRequiredMixin, ListView):
                     i.email,
                     i.celular,
                     i.idCarrera.nombre,
-                    i.cohorte,
+                    i.cohorte.cohorte,
                     i.getImagen(),
                     False
                     ])

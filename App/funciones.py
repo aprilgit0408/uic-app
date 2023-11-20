@@ -142,7 +142,7 @@ def funcionGenerarPDF(nombreArchivo, nombreTemplateArchivo, request, urlRetorno,
         result_file.close()
         response = HttpResponse(pdf, content_type='application/pdf')
     except Exception as e:
-        print('Error al generar PDF ln-141: ', e)
+        print('Error al generar PDF ln-145: ', e)
         response = redirect(urlRetorno)
     return response
 

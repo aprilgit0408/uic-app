@@ -59,7 +59,7 @@ var proyecto = '';
 $('#tipoReporte').on('change', function(){
     let tipo = $(this).val();
     let idProyecto = $('#idProyectos').val();
-    if(tipo == 'Defensa'){
+    if(tipo == 'Defensa' || tipo == 'Cohorte'){
       let select = document.getElementById("idProyectos");
       select.value = ""; 
       proyecto = '';
@@ -67,8 +67,9 @@ $('#tipoReporte').on('change', function(){
     }else{
       $('#idProyectos').prop('disabled', false);
     }
+    console.log('Valor de tupo: ', tipo)
 
-    if((!!tipo && !!idProyecto) || tipo == 'Defensa'){
+    if((!!tipo && !!idProyecto) || tipo == 'Defensa' || tipo == 'Cohorte'){
         document.getElementById('noSelected').innerHTML = '';
         document.getElementById('tipoReporteSelect').innerHTML = 'Reporte de ' +tipo;
         tipoReporte = tipo;
