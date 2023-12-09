@@ -51,8 +51,8 @@ def send_mail(asunto, destinatarios, content, archivo = None):
                 # if(archivo):
                 #     remove(archivo['ruta'])
             except Exception as e:
-                if(archivo):
-                    remove(archivo['ruta'])
+                # if(archivo):
+                #     remove(archivo['ruta'])
                 print('Error Email l-53', e)
             return True
         hilo = threading.Thread(name='Send Mail', target=sendMailHilos)
@@ -154,3 +154,6 @@ def funcionGuardarPDF(pdf,ruta, nombreArchivo):
 def getFecha(fecha):
     parseFecha = parse_datetime(fecha)
     return parseFecha.replace(tzinfo=ZoneInfo("America/Guayaquil"))
+
+def idsListaVerificacionObl():
+    return {1: 'a', 3:'b',33:'c',14:'d', 16:'e',17:'f'}

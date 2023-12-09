@@ -59,7 +59,7 @@ var proyecto = '';
 $('#tipoReporte').on('change', function(){
     let tipo = $(this).val();
     let idProyecto = $('#idProyectos').val();
-    if(tipo == 'Defensa' || tipo == 'Cohorte'){
+    if(tipo == 'Defensa' || tipo == 'Cohorte' || tipo == 'Aprobacion'){
       let select = document.getElementById("idProyectos");
       select.value = ""; 
       proyecto = '';
@@ -69,7 +69,7 @@ $('#tipoReporte').on('change', function(){
     }
     console.log('Valor de tupo: ', tipo)
 
-    if((!!tipo && !!idProyecto) || tipo == 'Defensa' || tipo == 'Cohorte'){
+    if((!!tipo && !!idProyecto) || tipo == 'Defensa' || tipo == 'Cohorte' || tipo == 'Aprobacion'){
         document.getElementById('noSelected').innerHTML = '';
         document.getElementById('tipoReporteSelect').innerHTML = 'Reporte de ' +tipo;
         tipoReporte = tipo;
@@ -131,7 +131,7 @@ $('#idProyectos').on('change', function(){
       },
       yAxis: {
         title: {
-          text: "Total de "+ tipoReporte +" en el mes",
+          text: "Total de "+ tipoReporte + (tipoReporte !== 'Aprobacion' ? " en el mes": ''),
         },
       },
       legend: {

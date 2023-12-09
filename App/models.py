@@ -131,20 +131,22 @@ class NombreArchivoListaVerificacion(datosAuditoria):
         (2, 'Examen con Carácter Complexivo (ECC)')
     ]
     nombre = models.CharField(max_length=100, verbose_name='Nombre')
+    orden = models.PositiveIntegerField(null=True, blank=True)
     tipo = models.PositiveIntegerField(choices=modalidades, verbose_name='Modalidad', default=1)
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
     class Meta:
-        ordering = ['pk','nombre']
+        ordering = ['orden']
     def __str__(self):
-        return self.nombre
+        return f'{self.nombre}'
 
 class ListaVerificacion(datosAuditoria):
     idProyecto = models.ForeignKey(Proyecto, verbose_name='Proyecto', on_delete=CASCADE)
     nombre = models.ForeignKey(NombreArchivoListaVerificacion, verbose_name='Nombre del Archivo', on_delete=CASCADE)
     archivo = models.FileField(verbose_name='Archivo',upload_to='listaVerificacion')
     observacion = models.TextField(max_length=100, verbose_name='Observación', null = True, blank = True)
+    idEstudiante = models.ForeignKey(Usuarios, on_delete=CASCADE, null=True, blank=True)
     estado = models.BooleanField(default=False, verbose_name='Cumplimiento')
     def getNombreArchivo(self):
         return f'{self.detalles[self.nombreArchivo][1]}'
@@ -251,5 +253,3 @@ class Tribunal(datosAuditoria):
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
-
-

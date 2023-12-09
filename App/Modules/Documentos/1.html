@@ -68,20 +68,21 @@
         
         <div class="container">
           <p style="text-align:right; margin-top: 34px; " class="titulos" > Tulcán, {{fecha}} </p>
-            <spam> {{usuario.idCarrera.genero}} </spam>
+            <spam> {% if usuario.idCarrera.getDirectorCarrera.genero == 'H' %} Señor {% else %} Señora {% endif %} </spam>
             <p>
-              {{usuario.idCarrera.abreviatura}} {{usuario.idCarrera.nombreDirector}} <br>
-              <b> {% if usuario.idCarrera.genero == 'Señor' %}DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera.nombre | upper}}  </b>
+              {{usuario.idCarrera.getDirectorCarrera.getInformacion}} <br>
+              <b> {% if usuario.idCarrera.getDirectorCarrera.genero == 'H' %}DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera.nombre | upper}}  </b>
             </p>
             <div style="text-align: justify; background: url('.{{imagenCentro}}'); background-size: 100% 85%; background-repeat: no-repeat; " >
-                <p>Yo  {{usuario.getInformacion}}, con CI: {{usuario.username}}, estudiante del {{usuario.idNivel}} nivel, en cumplimiento de los requisitos establecidos en el Reglamento de la Unidad de Integración Curricular, Titulación e Incorporación de la UPEC, me dirijo a usted con la finalidad de solicitar la aprobación de la opción de titulación de {{usuario.modalidad}} que he elegido para culminar la mencionada unidad. Adjunto el récord académico debidamente legalizado.</p>
+                <p>Yo  {{usuario.getInformacion}}, con CI: {{usuario.username}}, estudiante del {{usuario.idNivel}} nivel, en cumplimiento de los requisitos establecidos en el Reglamento de la Unidad de Integración Curricular, Titulación e Incorporación de la UPEC, me dirijo a usted con la finalidad de solicitar la aprobación de la opción de titulación de {% if usuario.modalidad %} {{usuario.modalidad}} {% else %} Trabajo de Integración Curricular {% endif %} que he elegido para culminar la mencionada unidad. Adjunto el récord académico debidamente legalizado.</p>
                 <br><br>
                 <p style="margin-left: 150px;">Firma: <br>
-                  <label for="" style="margin-left: 15%; margin-bottom: 20px; " >_____________________________________</label>
                   {% if usuario.firma %}
                     <div id="firma">
-                      <img src=".{{usuario.firma.url}}" alt="" style="width: 150px; height: 100px; text-align: center; margin-left: 47%;  margin-top: -185px;" />
+                      <img src=".{{usuario.firma.firmaUsuario.url}}" alt="" style="width: 110px; height: 110px; text-align: center; margin-left: 47%;  margin-top: -100px;" />
                     </div>
+                  {% else %}
+                    <label for="" style="margin-left: 15%; margin-bottom: 20px; " >_____________________________________</label>
                   {% endif %}
                 </p><br>
                 <p><b>RESOLUCIÓN</b></p>
@@ -92,8 +93,13 @@
                   académico debidamente legalizado, se declara <b>IDÓNEO</b> para continuar con el
                   proceso en la opción de titulación elegida.
                   </p> <br><br>
-                  <p style="text-align: center;"> {{usuario.idCarrera.abreviatura}} {{usuario.idCarrera.nombreDirector}} <br> </p>
-                  <p style="text-align: center;"> <b> {% if usuario.idCarrera.genero == 'Señor' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera.nombre | upper}}  </b> </p>
+                  {% if datosAdicionales.estado and usuario.firma %}
+                    <div id="firma">
+                      <img src=".{{usuario.idCarrera.getDirectorCarrera.firma.firmaUsuario.url}}" alt="" style="width: 100px; height: 100px; text-align: center; margin-left: 40%;  margin-top: -100px; margin-bottom: -45px;" />
+                    </div>
+                  {% endif %}
+                  <p style="text-align: center;"> {{usuario.idCarrera.getDirectorCarrera.getInformacion}} <br> </p>
+                  <p style="text-align: center;"> <b> {% if usuario.idCarrera.getDirectorCarrera.genero == 'H' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera.nombre | upper}}  </b> </p>
                 </div>
         </div>
         <div class="piePagina">

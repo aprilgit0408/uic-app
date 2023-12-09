@@ -3,7 +3,7 @@ from django.views.generic.edit import DeleteView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioCarreras
-from Usuarios.models import Carrera
+from Usuarios.models import Carrera, Usuarios
 from django.http.response import JsonResponse
 from django.urls import reverse_lazy
 modelo = Carrera
@@ -58,6 +58,7 @@ class addCarreras(LoginRequiredMixin, CreateView):
         context['title'] = f'{entidad}'
         context['accion'] = f'Añadir {entidad}'
         context['agregar'] = f'Añadir {entidad}'
+        context['directorCarreraID'] = Usuarios.objects.exclude(perfil__id = 3)
         return context
 
 
@@ -77,6 +78,8 @@ class editCarreras(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['title'] = f'{entidad}'
         context['accion'] = f'Edición de {entidad}'
+        context['directorCarreraIDEdit'] = int(self.get_object().nombreDirector)
+        context['directorCarreraID'] =  Usuarios.objects.exclude(perfil__id = 3)
         return context
 
 

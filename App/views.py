@@ -4,7 +4,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import  UpdateView, FormView
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
-from Usuarios.models import Usuarios
+from Usuarios.models import Usuarios, GeneracionFirmas
+from django.shortcuts import render
 
 entidad = 'Usuario'
 main = 'main.html'
@@ -55,4 +56,20 @@ class editProfilePasswords(LoginRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Editar Contraseña'
         context['ruta'] = self.success_url
+        return context
+    
+class ValidaFirmaGenerada(TemplateView):
+    template_name = main
+    template_name = "firma.html"
+    def get_context_data(self, **kwargs):
+        usuario = None
+        try:
+            uuIDFirma = self.kwargs['pk']
+            if GeneracionFirmas.objects.filter(pk = uuIDFirma).exists():
+                usuario = Usuarios.objects.get(firma__pk = uuIDFirma)
+        except:
+            pass
+        context = super().get_context_data(**kwargs)
+        context['usuario'] = usuario
+
         return context

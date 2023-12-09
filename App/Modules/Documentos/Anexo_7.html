@@ -85,10 +85,10 @@
               <p>Atentamente:</p>
 
               <center style="margin-top: 133px;" ><p>{{usuario.getInformacion}}</p></center>
-              <p style="text-align: center;"> <b> {% if usuario.idCarrera.genero == 'Señor' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera | upper}}  </b> </p><br>
+              <p style="text-align: center;"> <b> {% if usuario.idCarrera.getDirectorCarrera.genero == 'H' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera | upper}}  </b> </p><br>
               {% if usuario.firma %}
                 <div id="firma">
-                  <img src=".{{usuario.firma.url}}" alt="" style="width: 150px; height: 100px; text-align: center; margin-left: 37%;  margin-top: -300px;" />
+                  <img src=".{{usuario.firma.firmaUsuario.url}}" alt="" style="width: 150px; height: 150px; text-align: center; margin-left: 37%;  margin-top: -400px;" />
                 </div>
                 <p style="margin-bottom: -31px;" >CC: <b>ESTUDIANTE</b> {{datosAdicionales.nombreEstudiante}}</p>
               {% else %}

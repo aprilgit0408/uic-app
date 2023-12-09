@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioArchivoListaVerificacion, formularioListaVerificaciones
 from App.models import ListaVerificacion, NombreArchivoListaVerificacion, Proyecto
 from django.urls import reverse_lazy
-from App.funciones import send_mail, getDate
+from App.funciones import send_mail, getDate, idsListaVerificacionObl
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http.response import JsonResponse
@@ -41,7 +41,7 @@ class listarListaVerificaciones(LoginRequiredMixin, ListView):
                 carreras.append(i.idCarrera)
         context['idProyectos'] = query
         context['idCarreras'] = carreras
-        context['encabezado'] = ['#','Nombre','estado','observación','archivo']
+        context['encabezado'] = ['#','Nombre','Carrera','Proyecto','Estudiante', 'estado','observación','archivo']
         context['items'] = modelo.objects.all()
         context['title'] = f'listaVerificacion'
         context['listado'] = f'{entidad}'
@@ -63,16 +63,17 @@ class listarListaVerificaciones(LoginRequiredMixin, ListView):
             idProyecto = int(request.POST['idProyecto'])
             
             query = modelo.objects.all()
-            
+            listaProyectos = None
             if(idCarrera == "0" and idProyecto == 0):
-                idProyecto = Proyecto.objects.filter(idEstudiantes__id=self.request.user.id).first()
-                
-
-
+                if(self.request.user.perfil.id == 1):
+                    listaProyectos = Proyecto.objects.all()
+                else:
+                    listaProyectos = Proyecto.objects.filter(idEstudiantes__id=self.request.user.id).first()
+                    query = query.filter(idProyecto = listaProyectos, idEstudiante = self.request.user)
             if(idCarrera != '0'):
-                query = query.filter(idProyecto__idCarrera__nombre = idCarrera)
+                query = query.filter(idProyecto__idCarrera__id = idCarrera)
             if(idProyecto != 0):
-                query = query.filter(idProyecto = idProyecto)
+                query = query.filter(idProyecto = idProyecto) if listaProyectos is None else query.filter(idProyecto__in = listaProyectos)
             cont = 1
             for i in query:
                 fecha = getDate(i.fechaModificacion) if request.user.perfil.nombre == 'Estudiante' else ''
@@ -81,6 +82,9 @@ class listarListaVerificaciones(LoginRequiredMixin, ListView):
                 data.append([
                     cont,
                     i.nombre.nombre,
+                    i.idProyecto.idCarrera.nombre,
+                    i.idProyecto.nombre,
+                    i.idEstudiante.getInformacion(),
                     f'<div class="form-check form-switch"><input onClick="guardarListaVerificacion({i.pk})" name="{i.pk}" { "checked" if i.estado else ""} class="form-check-input" type="checkbox" {f"id=guardarSolicitud{i.pk}" if self.request.user.perfil.nombre != "Estudiante" else "disabled"}></div>',
                     i.observacion,
                     f'''
@@ -114,18 +118,37 @@ class addListaVerificaciones(LoginRequiredMixin, CreateView):
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        items = []
-        nombresListaV = []
-        for i in modelo.objects.filter(idProyecto__idEstudiantes = self.request.user):
-            nombresListaV.append(i.nombre)
+        listaItemsNoRequeridos = []
+        listaRequerida = idsListaVerificacionObl()
+        listaVerificacionPendiente = []
+        listaPendiente = []
+        listaItemsCompletados = []
         for item in NombreArchivoListaVerificacion.objects.all():
-            if item not in nombresListaV:
-                items.append(item)
+            listaVer = modelo.objects.filter(idProyecto__idEstudiantes = self.request.user, nombre = item).first()
+            if listaVer is None:
+                if item.id in listaRequerida.keys():
+                    listaPendiente.append({'pk':item.pk, 'nombre': f'{listaRequerida.get(item.pk)}. {item.nombre}'})
+                else:
+                    listaItemsNoRequeridos.append({'pk':item.pk, 'nombre': f'{item.pk}. {item.nombre}'})
+            else:
+                if listaVer.nombre.id in listaRequerida.keys() and listaVer.estado:
+                    listaItemsCompletados.append(listaVer)
+            
+            
+        if len(listaItemsCompletados) >= len(listaRequerida):
+            listaVerificacionPendiente = listaItemsNoRequeridos
+        else:
+            listaVerificacionPendiente = listaPendiente
+
+        if len(listaVerificacionPendiente) == 0:
+            listaPendiente.append({'pk':None, 'nombre': 'Para Insertar el siguiente Item de la lista, por favor asegúrese de tener todo aprobado.'})
+
+        
         context = super().get_context_data(**kwargs)
         context['title'] = f'{entidad}'
         context['accion'] = f'Añadir {entidad}'
         context['agregar'] = f'Añadir {entidad}'
-        context['listadoNombresVerificacion'] = items
+        context['listadoNombresVerificacion'] = listaVerificacionPendiente
         context['editarObser'] = 'Editar' if self.request.user.perfil.nombre != 'Estudiante' else None
         context['listaVerificacion'] = f'{entidad}'
         context['listaVerificacionAdd'] = f'{entidad}'

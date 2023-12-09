@@ -64,9 +64,11 @@
                                     </select>
                                 {% elif op.name == 'fechaTutoria' and tutorias %}
                                     {{op.label}} <br>
-                                    <input type="datetime-local" class="form-control form-control-sm" title="Fecha actual de entrega {{op.value}}" value="{{op.value | date:'Y-m-d H:i:s'}}" name="fechaTutoria" style="width: 190px;" required id="id_fechaTutoria">
                                     {% if op.value %}
+                                        <input type="datetime-local" disabled class="form-control form-control-sm" title="Fecha actual de entrega {{op.value}}" value="{{op.value | date:'Y-m-d H:i:s'}}" name="fechaTutoria" style="width: 190px;" required id="id_fechaTutoria">
                                         <div class="help" style="font-size: 11px; color: var(--body-quiet-color);" ><i>Fecha actual de entrega: <b>{{op.value}}</b></i></div>
+                                    {% else %}  
+                                        <input type="datetime-local" class="form-control form-control-sm" title="Fecha actual de entrega {{op.value}}" value="{{op.value | date:'Y-m-d H:i:s'}}" name="fechaTutoria" style="width: 190px;" required id="id_fechaTutoria">
                                     {% endif %}  
                                 {% elif op.name == 'fechaEntrega'%}
                                     <label for="id_fechaEntrega">Fecha de Entrega</label>
@@ -75,7 +77,6 @@
                                         <div class="help" style="font-size: 11px; color: var(--body-quiet-color);" ><i>Fecha actual de entrega: <b>{{op.value}}</b></i></div>
                                     {% endif %}                                        
                                     <br>
-
                                 {% elif op.name == 'idProyecto' and tutorias %}
                                     <input type="hidden" name="idProyecto" id="id_idProyecto" value="{{tutorias.idProyecto.id}}" >
                                 {% elif op.name == 'idProyecto' and listaVerificacion %}
@@ -85,7 +86,17 @@
                                         {{op.label}} <br>
                                         {{op}} <br>
                                     {% endif %}
-                                    
+                                {% elif op.name == 'nombreDirector'%}
+                                    {{op.label}}
+                                    <select name="nombreDirector" class="form-control form-control-sm" autocomplete="off" required="" id="id_nombreDirector" >
+                                        {% for item in directorCarreraID %}
+                                            {% if op.value and directorCarreraIDEdit == item.pk %}
+                                            <option value="{{item.pk}}" selected >{{item.getInformacion}}</option>
+                                            {% else %}
+                                            <option value="{{item.pk}}" >{{item.getInformacion}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
                                 {% elif op.name == 'nombre' and listaVerificacionAdd %}
                                     {{op.label}}
                                     <select name="nombre" class="form-control form-control-sm" autocomplete="off" required="" id="id_nombre" >
@@ -93,6 +104,8 @@
                                             <option value="{{item.pk}}" >{{item.nombre}}</option>
                                         {% endfor %}
                                     </select>
+                                {% elif op.name == 'idEstudiante' and listaVerificacionAdd %}
+                                    <input type="hidden" name="idEstudiante" id="id_idEstudiante" value="{{request.user.pk}}" >
                                 {% elif op.name == 'idDocentes' and grupoExpertos %}
                                     {{op.label}}
                                     <select name="idDocentes" class="form-control form-control-sm" autocomplete="off" required="" id="id_idDocentes" multiple="">

@@ -3,8 +3,8 @@ from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import JsonResponse
 from django.urls import reverse_lazy
-from App.funciones import getDate, getMeses
-from App.models import Proyecto, Tutoria
+from App.funciones import getDate, getMeses, idsListaVerificacionObl
+from App.models import Proyecto, Tutoria, ListaVerificacion
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import datetime
@@ -70,11 +70,34 @@ class getReportes(LoginRequiredMixin, ListView):
             for i in Cohorte.objects.all():
                 s = 0
                 detalles = []
-                for j in Usuarios.objects.filter(cohorte = i):
+                for j in Usuarios.objects.filter(perfil__id = 3, cohorte = i):
                     s += 1
                     detalles.append([f'{j.idCarrera.nombre} > {j.getInformacion()}' , 100])
                 general.append({'name' :i.cohorte, 'y' : s, 'drilldown': i.cohorte})
                 drilldown.append({'name' :i.cohorte, 'id' : i.cohorte, 'data': detalles})
+            data= {'data': general, 'drilldown': drilldown}
+        except Exception as e:
+            print('Error: ', e)
+        return data
+    def AprobacionEstudiantes(self):
+        data = []
+        general = []
+        drilldown = []
+        detallesAPR = []
+        detallesNOP = []
+        aprobados = 'Estudiantes Aprobados'
+        noAprobados = 'Estudiantes no Aprobados'
+        try:
+            for user in Usuarios.objects.filter(perfil__id = 3):
+                reqCompletos = ListaVerificacion.objects.filter(nombre__id__in = idsListaVerificacionObl(), idEstudiante = user, estado = True)
+                if len(reqCompletos) == len(idsListaVerificacionObl()):
+                   detallesAPR.append([f'{user.getInformacion()}' , len(reqCompletos)])
+                else:
+                   detallesNOP.append([f'{user.getInformacion()}' , len(reqCompletos)])
+            general.append({'name' :aprobados, 'y' : len(detallesAPR), 'drilldown': aprobados})
+            general.append({'name' :noAprobados, 'y' : len(detallesNOP), 'drilldown': noAprobados})
+            drilldown.append({'name' :aprobados, 'id' : aprobados, 'data': detallesAPR})
+            drilldown.append({'name' :noAprobados, 'id' : noAprobados, 'data': detallesNOP})
             data= {'data': general, 'drilldown': drilldown}
         except Exception as e:
             print('Error: ', e)
@@ -84,7 +107,7 @@ class getReportes(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['encabezado'] = ['#','nombre', 'facultad']
         context['title'] = f'reportes'
-        context['encabezado'] = ['Tutorias', 'Defensa', 'Cohorte']
+        context['encabezado'] = ['Tutorias', 'Defensa', 'Cohorte', 'Aprobación Proceso']
         context['listado'] = f'Reportes'
         context['idProyectos'] = Proyecto.objects.all()
         return context
@@ -99,6 +122,8 @@ class getReportes(LoginRequiredMixin, ListView):
                 data = self.GraficoDefensa()
             if tipo == 'Cohorte':
                 data = self.GraficoCohorte()
+            if tipo == 'Aprobacion':
+                data = self.AprobacionEstudiantes()
         except Exception as e:
             print(f'Error {entidad} l-43 ',e)
             data = {}

@@ -10,9 +10,11 @@ from App.models import DocentesSuplente, Proyecto, Tribunal
 from django.urls import reverse_lazy
 from backports.zoneinfo import ZoneInfo
 from django.utils.dateparse import parse_datetime
-from Usuarios.models import Carrera, Constantes, Usuarios
+from Usuarios.models import Carrera, Constantes, Usuarios, Documento, SeguimientoDocumentacion
 from uicApp.settings import TIME_ZONE
 from App.funciones import getDate, send_mail, funcionGenerarPDF
+from pathlib import Path
+from django.core.files import File
 modelo = Tribunal
 formulario = formularioTribunal
 entidad = 'Tribunal'
@@ -59,6 +61,16 @@ class addTribunal(LoginRequiredMixin, ListView):
     form_class = formulario
     template_name = main
     success_url = url
+    def guardarDocumentosGenerados(self, usuario, datosAdicionales, id):
+        try:    
+            path = Path(datosAdicionales['archivo']['ruta'])
+            with path.open(mode='rb') as f:
+                archivoCargado= File(f, name=path.name)
+                documento = Documento.objects.get(id = id)
+                doc = SeguimientoDocumentacion.objects.create(idDocumento = documento,idUsuario = usuario, archivo = archivoCargado, estado = True)
+                doc.save() 
+        except Exception as e:
+            print('Error al guardar el archivo generado ln-114: ', e)
 
     def post(self, request, *args, **kwargs):
         data = []
@@ -86,20 +98,25 @@ class addTribunal(LoginRequiredMixin, ListView):
             idFecha = parse_datetime(request.POST['idFecha'])
             idFecha.replace(tzinfo=ZoneInfo(TIME_ZONE))
             uuID = str(uuid.uuid4())
+            proyecto = Proyecto.objects.get(pk = int(idProyecto))
+            anexo_id = 16 if proyecto.defensa else 15
+            anexo = f'Anexo_{anexo_id}'
             docSuplentes = DocentesSuplente.objects.create(uuID = uuID)
             DOC_SUP = []
             for ds in idDocentesSuplentes.split(','):
-                DOC_SUP.append(Usuarios.objects.get(pk = int(ds)))
+                docentePrincipal_id = Usuarios.objects.get(pk = int(ds))
+                DOC_SUP.append(docentePrincipal_id)
             docSuplentes.docentesSuplentes.set(DOC_SUP)
             docSuplentes.save()
             DOC_PRIN = []
-            proyecto = Proyecto.objects.get(pk = int(idProyecto))
+            
             for ds in idDocentesPrincipales.split(','):
-                DOC_PRIN.append(Usuarios.objects.get(pk = int(ds)))
+                docentePrincipal_id = Usuarios.objects.get(pk = int(ds))
+                DOC_PRIN.append(docentePrincipal_id)
             tribunal = Tribunal.objects.create(idProyecto = proyecto, docentesSuplentes = DocentesSuplente.objects.get(pk = uuID), fechaDefensa = idFecha, aula = idAula)
             tribunal.docentesPrincipales.set(DOC_PRIN)
             tribunal.save()
-            anexo = 'Anexo_16' if proyecto.defensa else 'Anexo_15'
+
             tipoDefensa = 'defensa' if proyecto.defensa else 'predefensa'
             mailDocentesPrincipales = tribunal.getMailDocPrincipales()
             mailDocentesSuplentes = tribunal.getMailDocSuplentes()
@@ -125,7 +142,8 @@ class addTribunal(LoginRequiredMixin, ListView):
                                        })
             sendMail['content'] = content
             funcionGenerarPDF("ASIGNACION_TRIBUNAL", anexo, request, "", datosAdicionales, sendMail)
-
+            for doce_prin in DOC_PRIN:
+                self.guardarDocumentosGenerados(doce_prin,datosAdicionales, anexo_id)
             content = render_to_string('email.html',
                                        {'titulo': f'Asignación de Tribunal de {tipoDefensa} de Proyectos', 
                                        'tema': 'sido asignado como uno de los docentes suplentes', 
@@ -137,7 +155,8 @@ class addTribunal(LoginRequiredMixin, ListView):
             sendMail['destinatarios'] = mailDocentesSuplentes
             sendMail['content'] = content
             funcionGenerarPDF("ASIGNACION_TRIBUNAL", anexo, request, "", datosAdicionales, sendMail)
-            
+            for doce_sup in DOC_SUP:
+                self.guardarDocumentosGenerados(doce_sup,datosAdicionales, anexo_id)
             content = render_to_string('email.html',
                                        {'titulo': f'Asignación de Tribunal de {tipoDefensa} de Proyectos', 
                                        'tema': 'sido asignado como uno de los docentes suplentes', 
@@ -149,6 +168,8 @@ class addTribunal(LoginRequiredMixin, ListView):
             sendMail['content'] = content
             sendMail['destinatarios'] = mailEstudianteTribunal
             funcionGenerarPDF("ASIGNACION_TRIBUNAL", anexo, request, "", datosAdicionales, sendMail)
+            for estudiantes_id in proyecto.idEstudiantes.all():
+                self.guardarDocumentosGenerados(estudiantes_id,datosAdicionales, anexo_id)
             idSecuencial.valor = str(int(idSecuencial.valor) + 1)
             idSecuencial.save()
         except Exception as e:

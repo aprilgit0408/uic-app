@@ -177,13 +177,13 @@
 
                   {% if usuario.firma%}
                     <div id="firma">
-                      <img src=".{{usuario.firma.url}}" alt="" style="width: 150px; height: 100px; text-align: center; margin-left: 37%;  margin-top: -25px; margin-bottom: -10px;" />
+                      <img src=".{{usuario.firma.firmaUsuario.url}}" alt="" style="width: 100px; height: 100px; text-align: center; margin-left: 42%;  margin-top: -20px; margin-bottom: -10px;" />
                     </div>
                     <p style="text-align: center; margin-bottom: 0px; ">{{usuario.getInformacion}}</p>
                   {% else %}
                     <p style="text-align: center; margin-top: 65px; ">{{usuario.getInformacion}}</p>
                   {% endif %}
-                  <p style="text-align: center; margin-bottom: -20px;"> <b> {% if usuario.idCarrera.genero == 'Señor' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera | upper}}  </b> </p><br>
+                  <p style="text-align: center; margin-bottom: -25px;"> <b> {% if usuario.idCarrera.getDirectorCarrera.genero == 'H' %} DIRECTOR {%  else %} DIRECTORA {% endif %} DE LA CARRERA DE {{usuario.idCarrera | upper}}  </b> </p><br>
             </div>
           </div>
       <div class="piePagina">

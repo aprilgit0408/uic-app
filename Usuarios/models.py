@@ -7,6 +7,12 @@ from django.contrib.auth.models import AbstractUser
 from crum import get_current_user
 from django.forms import model_to_dict
 from .validaciones import ValidarCedulaUsurio, getMeses
+import uuid
+import qrcode
+from os import remove
+from pathlib import Path
+from django.core.files import File
+
 class datosAuditoria(models.Model):
     fechaCreacion = models.DateTimeField(editable=False, null=True, blank=True, default=timezone.now)
     fechaModificacion = models.DateTimeField(editable=False, null=True, blank=True)
@@ -40,24 +46,12 @@ class Facultad(datosAuditoria):
         return super(self.__class__, self).save(*args, **kwargs)
 
 class Carrera(datosAuditoria):
-    generos = [
-        ('Señor','Señor'),
-        ('Señora','Señora')
-    ]
-    abreviaturas = [
-        ('MSc.','MSc.'),
-        ('Mg.','Mg.'),
-        ('Mtr.','Mtr.'),
-        ('PhD.','PhD.')
-    ]
     tipoTitulos = [
         ('Ingeniería.','Ingeniería.'),
         ('Licenciatura.','Licenciatura'),
         ('Administrador Público.','Administrador Público')
 
     ]
-    genero = models.CharField(choices=generos, max_length=10, verbose_name='Seleccione')
-    abreviatura = models.CharField(choices=abreviaturas, max_length=8, verbose_name='Abreviatura')
     nombreDirector = models.CharField(max_length=50, verbose_name='Director actual de la Carrera')
     nombre = models.CharField(max_length=100, verbose_name='Nombre de la Carrera', unique = True)
     tipoTitulo = models.CharField(choices=tipoTitulos, max_length=40, verbose_name='Tipo del título a obtener', help_text='Ingeniería en Informática', default='Ingeniería')
@@ -68,6 +62,8 @@ class Carrera(datosAuditoria):
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
+    def getDirectorCarrera(self):
+        return Usuarios.objects.get(pk = int(self.nombreDirector))
 
 class Perfiles(datosAuditoria):
     nombre = models.CharField(max_length=20, verbose_name='Perfiles', unique = True)
@@ -99,7 +95,12 @@ class Cohorte(datosAuditoria):
     def __str__(self):
         return self.cohorte
 
-
+class GeneracionFirmas(datosAuditoria):
+    uuIDFirma = models.CharField(max_length=36, primary_key=True)
+    firmaUsuario = models.ImageField(verbose_name='Firma', upload_to='usuario/firma', null = True, blank = True)
+    idUsuario = models.PositiveIntegerField()
+    def __str__(self):
+        return Usuarios.objects.get(pk = self.idUsuario).getInformacion()
 
 class Usuarios(AbstractUser):
     modalidades = [
@@ -124,7 +125,7 @@ class Usuarios(AbstractUser):
     idNivel = models.ForeignKey(Nivel, verbose_name='Nivel', on_delete=CASCADE, null = True, blank = True)
     idCarrera = models.ForeignKey(Carrera, verbose_name='Carrera', on_delete=CASCADE, null=True, blank=True)
     token = models.CharField(max_length=36, blank=True, null=True, editable=False)
-    firma = models.ImageField(verbose_name='Firma', upload_to='usuario/firma', null = True, blank = True)
+    firma = models.ForeignKey(GeneracionFirmas, on_delete=models.SET_NULL, null=True, blank=True)
     abreviatura = models.CharField(choices=abreviaturas, max_length=8, verbose_name='Abreviatura', default='MSc.')
     genero = models.CharField(choices=generos, max_length=1, verbose_name='Genero', default='H')
     memorandoTutor = models.CharField(max_length=9,blank=True, null=True, editable=False)
@@ -145,7 +146,7 @@ class Usuarios(AbstractUser):
     def getImagen(self):
         if self.imagen:
             return '{}{}'.format(MEDIA_URL, self.imagen)
-        return '{}{}'.format(STATIC_URL, 'images/default.jpg')
+        return '{}{}'.format(STATIC_URL, 'images/defaultM.png' if self.genero == 'M' else 'images/defaultH.png')
     def __str__(self):
         return '{} {} [{}] -> {}'.format(self.first_name, self.last_name, self.username, self.perfil)
     def getInformacion(self):
@@ -179,7 +180,41 @@ class Usuarios(AbstractUser):
         esExtranjero = self.esExtranjero
         if(esExtranjero is False and self.pk is None):
             ValidarCedulaUsurio(cedula=self.username)
-    
+        if self.firma is None:
+            try:
+                idUsuario = ((Usuarios.objects.latest('pk').id) + 1 ) if self.pk is None else self.pk
+                dominioActual = Constantes.objects.get(nombre = 'DOMINIO').valor
+                uuIDFirma = str(uuid.uuid4())
+                nombreArchivo = f'{self.username}_{self.last_name}_{idUsuario}.png'
+                firmaQR = f'**********************************'
+                firmaQR += f'**********************************\n'
+                firmaQR += 'SISTEMA DE INTEGRACION CURRICULAR\n'
+                firmaQR += '*** FIRMADO POR ***\n'
+                firmaQR += f'Cédula: {self.username}.\n'
+                firmaQR += f'Nombres: {self.first_name}.\n'
+                firmaQR += f'Apellidos: {self.last_name}.\n'
+                firmaQR += 'Universidad Politécnica Estatal del Carchi.\n'
+                firmaQR += f'{self.request.META["HTTP_HOST"]}/validarFirmaUIAP/{uuIDFirma}\n'
+                firmaQR += f'**********************************'
+                firmaQR += f'**********************************\n'
+                img = qrcode.make(firmaQR)
+                firmaSave = open(nombreArchivo, "wb")
+                img.save(firmaSave)
+                firmaSave.close()
+                path = Path(nombreArchivo)
+                with path.open(mode='rb') as f:
+                    archivoCargado= File(f, name=path.name)
+                    generarFirma = GeneracionFirmas.objects.create(
+                                    uuIDFirma = uuIDFirma,
+                                    firmaUsuario = archivoCargado,
+                                    idUsuario = idUsuario)
+                    generarFirma.save()
+                    f.close()
+                    self.firma = generarFirma
+                    remove(nombreArchivo)
+            except Exception as e:
+                print('Error al guardar el archivo generado ln-218: ', e)
+            
     def save(self, *args, **kwargs):
         if self.fechaMemorandoTutor is None:
             self.fechaMemorandoTutor = timezone.now()
@@ -235,10 +270,11 @@ class SeguimientoDocumentacion(datosAuditoria):
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
+    class Meta:
+        ordering = ['idUsuario__first_name']
 class Constantes(datosAuditoria):
     nombre = models.CharField(max_length=10, verbose_name='* Nombre', unique = True)
     valor = models.CharField(max_length=100, verbose_name='* Valor')
     descripcion = models.TextField(max_length=200, verbose_name='Descripcion')
     def __str__(self):
         return self.nombre
-    

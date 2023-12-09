@@ -10,7 +10,7 @@ from App.Modules.Tutorias.view import addTutorias, deleteTutorias, editTutorias,
 from App.Modules.Verificacion.view import guardarListaVerificacion, listarListaVerificaciones, addListaVerificaciones, editListaVerificaciones, deleteListaVerificaciones
 from App.Modules.Proyectos.view import addDocente, addEstudiantes, generarPDFProyecto, guardarDocumento, listarDocentes, listarEstudiantes, listarProyectos, addProyectos, editProyectos, deleteProyectos
 
-from App.views import Index, PerfilUsuario, editProfilePasswords
+from App.views import Index, PerfilUsuario, editProfilePasswords, ValidaFirmaGenerada
 app_name = 'app'
 urlpatterns = [
     # Serivicio Para las Facultades
@@ -83,6 +83,9 @@ urlpatterns = [
     
     #Reportes
     path('app/reportes/',  getReportes.as_view(), name='reportes'),
+    path('validarFirmaUIAP/',  ValidaFirmaGenerada.as_view(), name='validacionFirma'),
+    path('validarFirmaUIAP/<str:pk>',  ValidaFirmaGenerada.as_view(), name='validacionFirmaUUD'),
+
     
 
     

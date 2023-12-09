@@ -1,7 +1,7 @@
 from django.views.generic import CreateView, ListView
 from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from App.Modules.Formularios.forms import formularioDocumentos, formularioFirma, formActualizarfirma
+from App.Modules.Formularios.forms import formularioDocumentos, formularioFirma, formActualizarfirma, ListaVerificacion
 from django.views.generic.base import  View
 from django.http.response import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from Usuarios.models import SeguimientoDocumentacion, Usuarios, Documento
 from uicApp import settings
-from App.funciones import funcionGenerarPDF
+from App.funciones import funcionGenerarPDF, idsListaVerificacionObl
 modelo = Documento
 formulario = formularioDocumentos
 formularioFirmaEst = formularioFirma
@@ -30,7 +30,7 @@ class listarDocumentos(LoginRequiredMixin, UpdateView):
     template_name = f'{entidad}/listado.html'
     form_class = formularioFirmaEst
     success_url = url
-
+    idNoGenerados = [7,9,15,16]
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
@@ -44,9 +44,9 @@ class listarDocumentos(LoginRequiredMixin, UpdateView):
         context['title'] = f'{entidad}'
         context['listado'] = f'Listado de {entidad}'
         return context
-    def getEstado(self, estado, cont, datosEstado):
-        if estado == True:
-            return 'Aprobado'
+    def getEstado(self, estado, cont, datosEstado, documentacion):
+        if estado == True or documentacion.id in self.idNoGenerados:
+                return 'Aprobado'
         if estado is None:
             return 'Rechazado'
         if estado == False and cont == 1 and len(datosEstado) == 0:
@@ -68,23 +68,30 @@ class listarDocumentos(LoginRequiredMixin, UpdateView):
         data = []
         try:
             cont = 1
+            valReqObliLisVer = ListaVerificacion.objects.filter(nombre__id__in = idsListaVerificacionObl(), idProyecto__idEstudiantes__id = self.request.user.pk, estado = True)
+            puedeContinuar = False
+            if len(valReqObliLisVer) == len(idsListaVerificacionObl()):
+                puedeContinuar = True
             getDocumentacionBKP = SeguimientoDocumentacion.objects.filter(idUsuario = request.user.pk)
             valorAnterior = ''
             for documentacion in Documento.objects.all():
                 for perfil in documentacion.idPerfiles.all():
                     if perfil.nombre == 'Estudiante':
                         estado = [seguimiento for seguimiento in getDocumentacionBKP if seguimiento and seguimiento.idDocumento == documentacion]
+                        if len(estado) == 0 and (documentacion.id in self.idNoGenerados or puedeContinuar == False):
+                            continue
                         habilitar = estado if estado else False
                         estadoPantalla = habilitar[0].estado if habilitar else  False if valorAnterior else False if cont == 1 else''
-                        getEstadoActual = self.getEstado(estadoPantalla, cont, estado)
+                        getEstadoActual = self.getEstado(estadoPantalla, cont, estado, documentacion)
+                        extencionURL = documentacion.archivo.url.split('.')
                         data.append([
                             cont,
                             documentacion.nombre,
                             getEstadoActual,
                             'file',
                             estadoPantalla,
-                            documentacion.archivo.url[-5:].split('.')[1],
-                            documentacion.archivo.url if getEstadoActual != 'Aprobado' else estado[0].archivo.url,
+                            extencionURL[len(extencionURL) - 1],
+                            documentacion.archivo.url if getEstadoActual != 'Aprobado' else estado[0].archivo.url if estado else '',
                             documentacion.pk
                         ])
                         valorAnterior = habilitar[0].estado if habilitar else False
@@ -194,9 +201,10 @@ class generarPDF(LoginRequiredMixin, View):
             documento = Documento.objects.get(pk = self.kwargs['pk'])
             nombreArchivo = documento.nombre
             templateArchivo = documento.id
-            return funcionGenerarPDF(nombreArchivo, templateArchivo, request, url, "")
+            datosAdicionales = SeguimientoDocumentacion.objects.filter(idDocumento = documento, idUsuario = self.request.user.pk).first()
+            return funcionGenerarPDF(nombreArchivo, templateArchivo, request, url, datosAdicionales)
         except Exception as e:
-            print('Error ln-210: ', e)
+            print('Error ln-200: ', e)
             return redirect(url)
 
 class listadoSolicitudes(LoginRequiredMixin, ListView):

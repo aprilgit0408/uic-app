@@ -5,7 +5,7 @@ from App.Modules.Formularios.forms import formularioDocentes, formularioProyecto
 from App.models import Proyecto, Tribunal
 from pathlib import Path
 from django.core.files import File
-from Usuarios.models import Constantes, Usuarios, SeguimientoDocumentacion
+from Usuarios.models import Constantes, Usuarios, GeneracionFirmas, Documento, SeguimientoDocumentacion
 from django.http.response import JsonResponse
 from App.funciones import funcionGenerarPDF, getFecha
 from django.views.generic.base import TemplateView
@@ -14,6 +14,9 @@ from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from datetime import datetime
+import uuid
+import qrcode
+from os import remove
 
 modelo = Proyecto
 formulario = formularioProyectos
@@ -24,6 +27,41 @@ class listarProyectos(LoginRequiredMixin, ListView):
     model = modelo
     template_name = f'{entidad}/listado.html'
     def dispatch(self, request, *args, **kwargs):
+        #Generacion de firmas
+        for usuario in Usuarios.objects.filter(firma = None):
+            try:
+                dominioActual = Constantes.objects.get(nombre = 'DOMINIO').valor
+                uuIDFirma = str(uuid.uuid4())
+                nombreArchivo = f'{usuario.username}_{usuario.last_name}_{usuario.pk}.png'
+                firmaQR = f'**********************************'
+                firmaQR += f'**********************************\n'
+                firmaQR += 'SISTEMA DE INTEGRACION CURRICULAR\n'
+                firmaQR += '*** FIRMADO POR ***\n'
+                firmaQR += f'Cédula: {usuario.username}.\n'
+                firmaQR += f'Nombres: {usuario.first_name}.\n'
+                firmaQR += f'Apellidos: {usuario.last_name}.\n'
+                firmaQR += 'Universidad Politécnica Estatal del Carchi.\n'
+                firmaQR += f'{dominioActual}/validarFirmaUIAP/{uuIDFirma}\n'
+                firmaQR += f'**********************************'
+                firmaQR += f'**********************************\n'
+                img = qrcode.make(firmaQR)
+                firmaSave = open(nombreArchivo, "wb")
+                img.save(firmaSave)
+                firmaSave.close()
+                path = Path(nombreArchivo)
+                with path.open(mode='rb') as f:
+                    archivoCargado= File(f, name=path.name)
+                    generarFirma = GeneracionFirmas.objects.create(
+                                    uuIDFirma = uuIDFirma,
+                                    firmaUsuario = archivoCargado,
+                                    idUsuario = usuario.pk)
+                    generarFirma.save()
+                    f.close()
+                    usuario.firma = generarFirma
+                    usuario.save()
+                    remove(nombreArchivo)
+            except Exception as e:
+                print('Error al guardar el archivo generado ln-218: ', e)
         return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
@@ -102,20 +140,20 @@ class addProyectos(LoginRequiredMixin, CreateView):
             sendMail['destinatarios'] = f'{docenteTutor.email},{estudiante.email}'
             sendMail['content'] = content
             funcionGenerarPDF("ASIGNACION_TUTOR", "Anexo_7", self.request, "", data, sendMail)
-            try:    
-                print('Archivo data ruta', data['archivo']['ruta'])
-                path = Path(data['archivo'].ruta)
-                with path.open(mode='rb') as f:
-                    archivoCargado= File(f, name=path.name)
-                    idDocumeto = []
-                    doc = SeguimientoDocumentacion.objects.create(idDocumento = idDocumeto,idUsuario = self.request.user, archivo = archivoCargado)
-                    doc.save() 
-            except Exception as e:
-                print('Error al guardar el archivo generado ln-114: ', e)
             estudiante.memorandoTutor = idSecuencial.valor
             estudiante.save()
             idSecuencial.valor = str(int(idSecuencial.valor) + 1)
             idSecuencial.save()
+            try:    
+                print('Archivo data ruta', data['archivo']['ruta'])
+                path = Path(data['archivo']['ruta'])
+                with path.open(mode='rb') as f:
+                    archivoCargado= File(f, name=path.name)
+                    documento = Documento.objects.get(id = 7)
+                    doc = SeguimientoDocumentacion.objects.create(idDocumento = documento,idUsuario = estudiante, archivo = archivoCargado, estado = True)
+                    doc.save() 
+            except Exception as e:
+                print('Error al guardar el archivo generado ln-114: ', e)
         for estudiante in idsEstudiantes.all():
             sendMailHilos(estudiante)
     def post(self, request, *args, **kwargs):
@@ -315,7 +353,22 @@ class guardarDocumento(LoginRequiredMixin, TemplateView):
             sendMail['asunto'] = 'Solicitud de Cronograma de Proyecto'
             sendMail['destinatarios'] = estProyecto.email
             sendMail['content'] = content
+            if estProyecto.memorandoTutor is None:
+                idSecuencial = Constantes.objects.get(nombre = 'SEC_MEM').valor
+                estProyecto.memorandoTutor = idSecuencial
+                estProyecto.save()
+                idSecuencial.valor = str(int(idSecuencial) + 1)
+                idSecuencial.save()
             funcionGenerarPDF("Solicitud_Cronograma", "Anexo_9", request, "", data, sendMail)
+            try:    
+                path = Path(data['archivo']['ruta'])
+                with path.open(mode='rb') as f:
+                    archivoCargado= File(f, name=path.name)
+                    documento = Documento.objects.get(id = 9)
+                    doc = SeguimientoDocumentacion.objects.create(idDocumento = documento,idUsuario = estProyecto, archivo = archivoCargado, estado = True)
+                    doc.save() 
+            except Exception as e:
+                print('Error al guardar el archivo generado ln-371: ', e)
         return JsonResponse([], safe=False)
 
 
@@ -348,5 +401,5 @@ class generarPDFProyecto(ListView):
         sendMail['asunto'] = 'Asignacion de tutor'
         sendMail['destinatarios'] = 'josaerick@gmail.com'
         sendMail['content'] = None
-        return funcionGenerarPDF("ASIGNACION_Tutor", "1", request, "", data, None)
+        return funcionGenerarPDF("ASIGNACION_Tutor", "Anexo_16", request, "", data, None)
         return super().get(request, *args, **kwargs)
