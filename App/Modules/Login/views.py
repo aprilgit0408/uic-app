@@ -9,7 +9,7 @@ from App.Modules.Formularios.forms import formularioUsuarios, resetPasswordForm,
 from App.models import Carrera, Usuarios
 from Usuarios.models import Nivel
 from uicApp.settings import LOGIN_REDIRECT_URL
-from App.funciones import send_mail_Reset, getConstante
+from App.funciones import send_mail_Reset, getConstante, GenerarCertificado
 from datetime import datetime
 import uuid
 modelo = Usuarios
@@ -27,11 +27,12 @@ class Login(LoginView):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            GenerarCertificado()
             return redirect(LOGIN_REDIRECT_URL)
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.mensaje = ''
+        GenerarCertificado()
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):

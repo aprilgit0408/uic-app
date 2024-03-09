@@ -13,6 +13,8 @@ from django.urls import reverse_lazy
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.utils.encoding import uri_to_iri
+
 from datetime import datetime
 import uuid
 import qrcode
@@ -139,7 +141,8 @@ class addProyectos(LoginRequiredMixin, CreateView):
             sendMail['asunto'] = f'Asignación de tutor del proyecto "{nombreProyecto}"'
             sendMail['destinatarios'] = f'{docenteTutor.email},{estudiante.email}'
             sendMail['content'] = content
-            funcionGenerarPDF("ASIGNACION_TUTOR", "Anexo_7", self.request, "", data, sendMail)
+            url_firma = uri_to_iri(Usuarios.objects.get(pk = self.request.user.pk).firma.firmaUsuario.url)
+            funcionGenerarPDF("ASIGNACION_TUTOR", "Anexo_7", self.request, "", data, 247, 225, url_firma, sendMail)
             estudiante.memorandoTutor = idSecuencial.valor
             estudiante.save()
             idSecuencial.valor = str(int(idSecuencial.valor) + 1)
@@ -336,7 +339,7 @@ class guardarDocumento(LoginRequiredMixin, TemplateView):
         proyecto = Proyecto.objects.get(id = idProyecto)
         for estProyecto in proyecto.idEstudiantes.all():
             data = {
-                'proyecto': Proyecto.objects.get(id = 16),
+                'proyecto': proyecto,
                 'estudiante': estProyecto,
                 'fechaCronograma': fechaSolicitud,
                 'tutor': request.user
@@ -359,7 +362,8 @@ class guardarDocumento(LoginRequiredMixin, TemplateView):
                 estProyecto.save()
                 idSecuencial.valor = str(int(idSecuencial) + 1)
                 idSecuencial.save()
-            funcionGenerarPDF("Solicitud_Cronograma", "Anexo_9", request, "", data, sendMail)
+            url_firma = uri_to_iri(request.user.firma.firmaUsuario.url)
+            funcionGenerarPDF("Solicitud_Cronograma", "Anexo_9", request, "", data,247,150,url_firma, sendMail)
             try:    
                 path = Path(data['archivo']['ruta'])
                 with path.open(mode='rb') as f:
@@ -375,7 +379,7 @@ class guardarDocumento(LoginRequiredMixin, TemplateView):
 class generarPDFProyecto(ListView):
     def get(self, request, *args, **kwargs) :
         
-        proyecto = Proyecto.objects.get(id = 16)
+        proyecto = Proyecto.objects.get(id = 46)
         estudiante = None
         for estProyecto in proyecto.idEstudiantes.all():
             if estudiante is None:
@@ -383,12 +387,12 @@ class generarPDFProyecto(ListView):
                 
 
         data = {
-            'proyecto': Proyecto.objects.get(id = 16),
+            'proyecto': Proyecto.objects.get(id = 46),
             'estudiante': estudiante,
             'fechaCronograma': datetime.now(),
             'horaCronograma': datetime.now().time,
             'tutor': request.user,
-            'tribunal': Tribunal.objects.get(pk = 2)
+            'tribunal': Tribunal.objects.get(pk = 21)
         }
         content = render_to_string('email.html',
                                        {'titulo': 'Avances', 
@@ -401,5 +405,5 @@ class generarPDFProyecto(ListView):
         sendMail['asunto'] = 'Asignacion de tutor'
         sendMail['destinatarios'] = 'josaerick@gmail.com'
         sendMail['content'] = None
-        return funcionGenerarPDF("ASIGNACION_Tutor", "Anexo_16", request, "", data, None)
+        return funcionGenerarPDF("ASIGNACION_Tutor", "1", request, "", data, 247, 80, None, None)
         return super().get(request, *args, **kwargs)

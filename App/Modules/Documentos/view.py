@@ -15,6 +15,7 @@ from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from Usuarios.models import SeguimientoDocumentacion, Usuarios, Documento
+from django.utils.encoding import uri_to_iri
 from uicApp import settings
 from App.funciones import funcionGenerarPDF, idsListaVerificacionObl
 modelo = Documento
@@ -202,7 +203,8 @@ class generarPDF(LoginRequiredMixin, View):
             nombreArchivo = documento.nombre
             templateArchivo = documento.id
             datosAdicionales = SeguimientoDocumentacion.objects.filter(idDocumento = documento, idUsuario = self.request.user.pk).first()
-            return funcionGenerarPDF(nombreArchivo, templateArchivo, request, url, datosAdicionales)
+            url_firma = uri_to_iri(self.request.user.firma.firmaUsuario.url)
+            return funcionGenerarPDF(nombreArchivo, templateArchivo, request, url, datosAdicionales, 247, 500, url_firma)
         except Exception as e:
             print('Error ln-200: ', e)
             return redirect(url)

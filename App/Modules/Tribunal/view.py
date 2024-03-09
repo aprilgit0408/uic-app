@@ -14,6 +14,7 @@ from Usuarios.models import Carrera, Constantes, Usuarios, Documento, Seguimient
 from uicApp.settings import TIME_ZONE
 from App.funciones import getDate, send_mail, funcionGenerarPDF
 from pathlib import Path
+from django.utils.encoding import uri_to_iri
 from django.core.files import File
 modelo = Tribunal
 formulario = formularioTribunal
@@ -141,7 +142,8 @@ class addTribunal(LoginRequiredMixin, ListView):
                                        'aula' : tribunal.aula
                                        })
             sendMail['content'] = content
-            funcionGenerarPDF("ASIGNACION_TRIBUNAL", anexo, request, "", datosAdicionales, sendMail)
+            url_firma = uri_to_iri(Usuarios.objects.get(pk = request.user.pk).firma.firmaUsuario.url)
+            funcionGenerarPDF("ASIGNACION_TRIBUNAL", anexo, request, "", datosAdicionales,  247, 100,url_firma, sendMail)
             for doce_prin in DOC_PRIN:
                 self.guardarDocumentosGenerados(doce_prin,datosAdicionales, anexo_id)
             content = render_to_string('email.html',
@@ -154,7 +156,7 @@ class addTribunal(LoginRequiredMixin, ListView):
                                        })
             sendMail['destinatarios'] = mailDocentesSuplentes
             sendMail['content'] = content
-            funcionGenerarPDF("ASIGNACION_TRIBUNAL", anexo, request, "", datosAdicionales, sendMail)
+            funcionGenerarPDF("ASIGNACION_TRIBUNAL", anexo, request, "", datosAdicionales, 247, 100,url_firma, sendMail)
             for doce_sup in DOC_SUP:
                 self.guardarDocumentosGenerados(doce_sup,datosAdicionales, anexo_id)
             content = render_to_string('email.html',
@@ -167,7 +169,7 @@ class addTribunal(LoginRequiredMixin, ListView):
                                        })
             sendMail['content'] = content
             sendMail['destinatarios'] = mailEstudianteTribunal
-            funcionGenerarPDF("ASIGNACION_TRIBUNAL", anexo, request, "", datosAdicionales, sendMail)
+            funcionGenerarPDF("ASIGNACION_TRIBUNAL", anexo, request, "", datosAdicionales,247, 100,url_firma, sendMail)
             for estudiantes_id in proyecto.idEstudiantes.all():
                 self.guardarDocumentosGenerados(estudiantes_id,datosAdicionales, anexo_id)
             idSecuencial.valor = str(int(idSecuencial.valor) + 1)
