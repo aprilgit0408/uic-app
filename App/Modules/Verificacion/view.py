@@ -3,9 +3,9 @@ from django.views.generic.edit import DeleteView, UpdateView
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from App.Modules.Formularios.forms import formularioArchivoListaVerificacion, formularioListaVerificaciones
-from App.models import ListaVerificacion, NombreArchivoListaVerificacion, Proyecto
+from App.models import ListaVerificacion, NombreArchivoListaVerificacion, Proyecto, ListaValidacionCarrera
 from django.urls import reverse_lazy
-from App.funciones import send_mail, getDate, idsListaVerificacionObl
+from App.funciones import send_mail, getDate, idsListaVerificacionObl, getAbecedario
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http.response import JsonResponse
@@ -119,7 +119,15 @@ class addListaVerificaciones(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         listaItemsNoRequeridos = []
-        listaRequerida = idsListaVerificacionObl()
+        listaRequerida = {}
+        getListaXCarrera = ListaValidacionCarrera.objects.filter(nombreCarrera = self.request.user.idCarrera)
+        if getListaXCarrera:
+            getListaXCarrera = getListaXCarrera[0]
+            abecedario = getAbecedario()
+            cont = 0
+            for i in getListaXCarrera.nombreListaVer.all():
+                listaRequerida[i.pk] = abecedario[cont]
+                cont += 1
         listaVerificacionPendiente = []
         listaPendiente = []
         listaItemsCompletados = []

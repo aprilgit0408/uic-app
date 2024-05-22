@@ -253,3 +253,7 @@ class Tribunal(datosAuditoria):
     def save(self, *args, **kwargs):
         self.setDatosAuditoria()
         return super(self.__class__, self).save(*args, **kwargs)
+class ListaValidacionCarrera(datosAuditoria):
+    nombreCarrera = models.ForeignKey(Carrera, on_delete=CASCADE)
+    visulizacionCompleta = models.BooleanField(default=True) 
+    nombreListaVer = models.ManyToManyField(NombreArchivoListaVerificacion, blank=True)

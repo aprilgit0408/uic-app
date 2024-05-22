@@ -227,6 +227,8 @@ def getFecha(fecha):
 
 def idsListaVerificacionObl():
     return {1: 'a', 3:'b',33:'c',14:'d', 16:'e',17:'f'}
+def getAbecedario():
+    return ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
 
 
 
