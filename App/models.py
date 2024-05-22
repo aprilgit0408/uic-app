@@ -257,3 +257,6 @@ class ListaValidacionCarrera(datosAuditoria):
     nombreCarrera = models.ForeignKey(Carrera, on_delete=CASCADE)
     visulizacionCompleta = models.BooleanField(default=True) 
     nombreListaVer = models.ManyToManyField(NombreArchivoListaVerificacion, blank=True)
+    def __str__(self) -> str:
+        txt = '{0}'
+        return txt.format(self.nombreCarrera)
