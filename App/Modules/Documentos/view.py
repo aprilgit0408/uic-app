@@ -73,17 +73,20 @@ class listarDocumentos(LoginRequiredMixin, UpdateView):
             puedeContinuar = False
             if len(valReqObliLisVer) == len(idsListaVerificacionObl()):
                 puedeContinuar = True
+            #la documentacion que tiene el usuario actual
             getDocumentacionBKP = SeguimientoDocumentacion.objects.filter(idUsuario = request.user.pk)
             valorAnterior = ''
             for documentacion in Documento.objects.all():
                 for perfil in documentacion.idPerfiles.all():
                     if perfil.nombre == 'Estudiante':
-                        estado = [seguimiento for seguimiento in getDocumentacionBKP if seguimiento and seguimiento.idDocumento == documentacion]
-                        if len(estado) == 0 and (documentacion.id in self.idNoGenerados or puedeContinuar == False):
+                        #buscamos si el documento se encuentra a la documentacion con algun estado 
+                        getDocumentoRegistrado = [seguimiento for seguimiento in getDocumentacionBKP if seguimiento and seguimiento.idDocumento == documentacion]
+                        #validamos que el documento no sea uno de los id autogenerados
+                        if len(getDocumentoRegistrado) == 0 and (documentacion.id in self.idNoGenerados or (puedeContinuar == False and documentacion.id != 1)):
                             continue
-                        habilitar = estado if estado else False
+                        habilitar = getDocumentoRegistrado if getDocumentoRegistrado else False
                         estadoPantalla = habilitar[0].estado if habilitar else  False if valorAnterior else False if cont == 1 else''
-                        getEstadoActual = self.getEstado(estadoPantalla, cont, estado, documentacion)
+                        getEstadoActual = self.getEstado(estadoPantalla, cont, getDocumentoRegistrado, documentacion)
                         extencionURL = documentacion.archivo.url.split('.')
                         data.append([
                             cont,
@@ -92,11 +95,11 @@ class listarDocumentos(LoginRequiredMixin, UpdateView):
                             'file',
                             estadoPantalla,
                             extencionURL[len(extencionURL) - 1],
-                            documentacion.archivo.url if getEstadoActual != 'Aprobado' else estado[0].archivo.url if estado else '',
+                            documentacion.archivo.url if getEstadoActual != 'Aprobado' else getDocumentoRegistrado[0].archivo.url if getDocumentoRegistrado else '',
                             documentacion.pk
                         ])
                         valorAnterior = habilitar[0].estado if habilitar else False
-                cont +=1
+                        cont +=1
         except Exception as e:
             print(f'Error {entidad} l-89 ',e)
             data = {}
