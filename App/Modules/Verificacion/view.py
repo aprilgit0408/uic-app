@@ -131,13 +131,15 @@ class addListaVerificaciones(LoginRequiredMixin, CreateView):
         listaVerificacionPendiente = []
         listaPendiente = []
         listaItemsCompletados = []
+        cont = 1
         for item in NombreArchivoListaVerificacion.objects.all():
             listaVer = modelo.objects.filter(idProyecto__idEstudiantes = self.request.user, nombre = item).first()
             if listaVer is None:
                 if item.id in listaRequerida.keys():
-                    listaPendiente.append({'pk':item.pk, 'nombre': f'{listaRequerida.get(item.pk)}. {item.nombre}'})
+                    listaPendiente.append({'pk':item.pk, 'nombre': f'{cont}. {item.nombre}'})
                 else:
-                    listaItemsNoRequeridos.append({'pk':item.pk, 'nombre': f'{item.pk}. {item.nombre}'})
+                    listaItemsNoRequeridos.append({'pk':item.pk, 'nombre': f'{cont}. {item.nombre}'})
+                cont += 1
             else:
                 if listaVer.nombre.id in listaRequerida.keys() and listaVer.estado:
                     listaItemsCompletados.append(listaVer)

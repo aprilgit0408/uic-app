@@ -357,10 +357,10 @@ class guardarDocumento(LoginRequiredMixin, TemplateView):
             sendMail['destinatarios'] = estProyecto.email
             sendMail['content'] = content
             if estProyecto.memorandoTutor is None:
-                idSecuencial = Constantes.objects.get(nombre = 'SEC_MEM').valor
-                estProyecto.memorandoTutor = idSecuencial
+                idSecuencial = Constantes.objects.get(nombre = 'SEC_MEM')
+                estProyecto.memorandoTutor = idSecuencial.valor
                 estProyecto.save()
-                idSecuencial.valor = str(int(idSecuencial) + 1)
+                idSecuencial.valor = str(int(idSecuencial.valor) + 1)
                 idSecuencial.save()
             url_firma = uri_to_iri(request.user.firma.firmaUsuario.url)
             funcionGenerarPDF("Solicitud_Cronograma", "Anexo_9", request, "", data,247,150,url_firma, sendMail)

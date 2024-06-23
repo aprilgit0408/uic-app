@@ -130,7 +130,7 @@ class NombreArchivoListaVerificacion(datosAuditoria):
         (1, 'Trabajo de Integración Curricular (TIC)'),
         (2, 'Examen con Carácter Complexivo (ECC)')
     ]
-    nombre = models.CharField(max_length=100, verbose_name='Nombre')
+    nombre = models.CharField(max_length=500, verbose_name='Nombre')
     orden = models.PositiveIntegerField(null=True, blank=True)
     tipo = models.PositiveIntegerField(choices=modalidades, verbose_name='Modalidad', default=1)
     def save(self, *args, **kwargs):

@@ -65,6 +65,12 @@
     });
     $("#aceptarForm").on("click", function () {
         let formulario = document.getElementById('form');
+        $("#solicitudCronograma").modal('hide');
+        if(!$('#id_fechaSolicitud').val()){
+            $.alert("Por favor, seleccione una fecha para continuar...");
+            return;
+        }
+        $.alert("Se está generando notificación... Por favor espere...");
         $.ajax({
         url: `guardar`,
         method: "POST",
@@ -77,8 +83,10 @@
         },
         }).done((req) => {
             $.alert("Solicitud Enviada correctamente");
-            formulario.reset();
-            location.reload();
+            setTimeout(() => {
+                formulario.reset();
+                location.reload();
+            }, "2000");
         });
     });
 </script>

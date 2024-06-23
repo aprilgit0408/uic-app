@@ -252,6 +252,7 @@ function _guardarAprobacion(data, nombreID){
     let estado = $('#guardarSolicitud'+data)[0].checked ? true : '';
     if(estado){
         // subirDocumento(data, nombreID);
+        dataDocumentoFirma = data;
         alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Aprobar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
     }else{
         alertas('Alerta', 'orange', 'btn-warning', '¿Está seguro de Rechazar esta solicitud?', 'Aceptar', 'solicitud', data, 'fa fa-warning')
@@ -421,6 +422,9 @@ function desmarcarSolicitud(){
         dataDocumentoFirma = null;
     }
     if(ventanaModal != null){
+        ventanaModal = new bootstrap.Modal(document.getElementById('aprobacionSolicitud'), {
+            keyboard: false
+          });
         ventanaModal.hide();
         $('#id_archivo').val('');
     }

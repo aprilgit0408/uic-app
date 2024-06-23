@@ -58,7 +58,7 @@
                                 {% elif op.name == 'idProyecto' and idProyectoTutoria %}
                                     {{op.label}}
                                     <select name="idProyecto" class="form-control form-control-sm" autocomplete="off" required="" id="id_idProyecto">
-                                        {% for item in idProyecto %}
+                                        {% for item in idProyectoTutoria %}
                                                 <option value="{{item.pk}}" >{{item.nombre}}</option>
                                         {% endfor %}
                                     </select>
