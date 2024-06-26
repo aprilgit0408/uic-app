@@ -1,14 +1,18 @@
-import qrcode
-from datetime import datetime
-import uuid
-firma = 'SISTEMA DE INTEGRACION CURRICULAR \n'
-firma += 'Cédula: 0401642221.\n'
-firma += 'Nombes: Erick Patricio.\n'
-firma += 'Apellidos: Josa Narváez.\n'
-firma += f'Fecha Generación: {datetime.now()}\n'
-firma += 'Universidad Politécnica Estatal del Carchi'
-firma += f'http://127.0.0.1:8000/validarFirmaUIAP/{str(uuid.uuid4())}'
-img = qrcode.make(firma)
-f = open("output.png", "wb")
-img.save(f)
-f.close()
+from email.mime.multipart import MIMEMultipart
+from smtplib import SMTP
+USER_MAIL = 'uicappupec@outlook.com'
+print('inicio menjsaes')
+try:
+    mensaje = MIMEMultipart()
+    mensaje['From'] = USER_MAIL
+    mensaje['To'] = 'josaerick@gmail.com'
+    mensaje['Subject'] = 'asunto'
+
+    mailServer = SMTP('smtp-mail.outlook.com',587)
+    mailServer.starttls()
+    mailServer.login(USER_MAIL, 'Admin12-upec')
+    mailServer.sendmail(USER_MAIL, 'josaerick@gmail.com', mensaje.as_string())
+    print('Mails enviados a: ', 'josaerick@gmail.com')
+    mailServer.quit()
+except Exception as e:
+    print('error: ', e)
