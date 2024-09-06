@@ -174,6 +174,7 @@ class Tutoria(datosAuditoria):
     descripcion = models.TextField(verbose_name='Temas a tratarse')
     fechaTutoria = models.DateTimeField(verbose_name='Fecha y hora de tutoría')
     archivo = models.FileField(upload_to='tutorias', null = True, blank = True, verbose_name='Archivo de Tutoría')
+    observacionTutoria = models.TextField(verbose_name='Observación', null = True, blank = True)
     def __str__(self):
         return self.descripcion
     def save(self, *args, **kwargs):

@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import JsonResponse
 from django.urls import reverse_lazy
 from App.funciones import getDate, getMeses, idsListaVerificacionObl
-from App.models import Proyecto, Tutoria, ListaVerificacion
+from App.models import Proyecto, Tutoria, ListaVerificacion, Avance
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import datetime
@@ -102,12 +102,49 @@ class getReportes(LoginRequiredMixin, ListView):
         except Exception as e:
             print('Error: ', e)
         return data
+    def Avances(self, idProyecto):
+        data = []
+        general = []
+        drilldown = []
+        completados = []
+        detallesNOP = []
+        conObservaciones = []
+        tituloAVCCompletado = 'Avances Completados'
+        tituloAVCObs = 'Con Observaciones'
+        tituloAVCPendiente = 'Avances Pendientes'
+        try:
+            for av in Avance.objects.filter(idProyecto__id = idProyecto):
+                if(av.archivo == '' and av.porcentaje == 0 or av.porcentaje is None):
+                    if av.observacion is not None:
+                        detallesNOP.append([f'{av.nombreAvance}, observación: {av.observacion}' , av.porcentaje])
+                    else:
+                        detallesNOP.append([av.nombreAvance , av.porcentaje])
+                elif (av.porcentaje > 0 and av.porcentaje < 100):
+                    if av.observacion is not None:
+                        conObservaciones.append([f'{av.nombreAvance}, observación: {av.observacion}' , av.porcentaje])
+                    else:
+                        conObservaciones.append([av.nombreAvance , av.porcentaje])
+                else:
+                    if av.observacion is not None:
+                        completados.append([f'{av.nombreAvance}, observación: {av.observacion}' , av.porcentaje])
+                    else:
+                        completados.append([av.nombreAvance , av.porcentaje])
+            general.append({'name' :tituloAVCCompletado, 'y' : len(completados), 'drilldown': tituloAVCCompletado})
+            general.append({'name' :tituloAVCObs, 'y' : len(conObservaciones), 'drilldown': tituloAVCObs})
+            general.append({'name' :tituloAVCPendiente, 'y' : len(detallesNOP), 'drilldown': tituloAVCPendiente})
+            drilldown.append({'name' :tituloAVCCompletado, 'id' : tituloAVCCompletado, 'data': completados})
+            drilldown.append({'name' :tituloAVCObs, 'id' : tituloAVCObs, 'data': conObservaciones})
+            drilldown.append({'name' :tituloAVCPendiente, 'id' : tituloAVCPendiente, 'data': detallesNOP})
+            data= {'data': general, 'drilldown': drilldown}
+        except Exception as e:
+            print('Error: ', e)
+        return data
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['encabezado'] = ['#','nombre', 'facultad']
         context['title'] = f'reportes'
-        context['encabezado'] = ['Tutorias', 'Defensa', 'Cohorte', 'Aprobación Proceso']
+        context['encabezado'] = ['Tutorias', 'Defensa', 'Cohorte', 'Aprobación Proceso', 'Avances']
         context['listado'] = f'Reportes'
         context['idProyectos'] = Proyecto.objects.all()
         return context
@@ -124,6 +161,8 @@ class getReportes(LoginRequiredMixin, ListView):
                 data = self.GraficoCohorte()
             if tipo == 'Aprobacion':
                 data = self.AprobacionEstudiantes()
+            if tipo == 'Avances':
+                data = self.Avances(idProyecto)
         except Exception as e:
             print(f'Error {entidad} l-43 ',e)
             data = {}

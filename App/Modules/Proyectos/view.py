@@ -180,12 +180,19 @@ class addProyectos(LoginRequiredMixin, CreateView):
                         usuarios.append(user)
         except:
             pass
+
+        ## mostramos en el listado, solo los estudiantes que no cuentan con un proyecto asignado
+        listadoEstudiantesSinProyecto = []
+        for estSinProy in Usuarios.objects.filter(perfil__nombre = 'Estudiante'):
+            if(Proyecto.objects.filter(idEstudiantes__id = estSinProy.id).exists() is False):
+                listadoEstudiantesSinProyecto.append(estSinProy)
+
         context = super().get_context_data(**kwargs)
         context['title'] = f'{entidad}'
         context['accion'] = f'Añadir {entidad}'
         context['agregar'] = f'Añadir {entidad}'
         context['IDDocentes'] = usuarios
-        context['idEstudiantes'] = Usuarios.objects.filter(perfil__nombre = 'Estudiante')
+        context['idEstudiantes'] = listadoEstudiantesSinProyecto
         return context
 class editProyectos(LoginRequiredMixin, UpdateView):
     model = modelo
